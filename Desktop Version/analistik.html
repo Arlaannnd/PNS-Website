@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Analistik Kegiatan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="greeting">
+                    <h1 id="user-greeting">Hai, Subekti Rahman</h1>
+                    <p>Yuk, selesaikan kegiatan ini dan tetap produktif.</p>
+                </div>
+                <div class="topbar-actions">
+                    <a href="notifikasi.html" class="icon-btn"><i class="fa-regular fa-bell"></i></a>
+                    <a href="pengaturan.html" class="user-avatar">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-view active">
+                <div class="analytics-header-row">
+                    <div>
+                        <h1 class="page-title">Analitik Kegiatan</h1>
+                        <p class="page-subtitle" style="margin-bottom:0">Ringkasan performa dan prioritas kegiatan.</p>
+                    </div>
+                    <div class="date-dropdown">
+                        <select>
+                            <option>6 - 12 Mei 2026</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="analytics-grid-2x3">
+                    <!-- Tugas Selesai (Bar Chart) -->
+                    <div class="stat-card">
+                        <h3>Tugas Selesai</h3>
+                        <p id="stat-total-text">0 dari 0 tugas.</p>
+                        <div class="bar-chart-container" id="bar-chart-container">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Mingguan (Circle Chart) -->
+                    <div class="stat-card center-content">
+                        <h3>Progress Mingguan</h3>
+                        <p id="stat-progress-text">Kamu menyelesaikan 0 kegiatan dari 0.</p>
+                        <div class="circular-progress" style="margin-top: 20px; width: 100px; height: 100px;">
+                            <svg viewBox="0 0 36 36" class="circular-chart green">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" id="circle-progress-path" />
+                                <text x="18" y="20.35" class="percentage" id="circle-progress-text" style="font-size:8px;">0%</text>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Prioritas Terbanyak (Donut Chart) -->
+                    <div class="stat-card">
+                        <h3>Prioritas Terbanyak</h3>
+                        <p>Proporsi tugas berdasarkan tingkat prioritas.</p>
+                        <div class="priority-summary" style="margin-top: 20px;">
+                            <div class="legend" style="gap: 8px;">
+                                <div class="legend-item"><span class="dot terlewat"></span>Terlewat <span id="pt-terlewat">0%</span></div>
+                                <div class="legend-item"><span class="dot red"></span>Sangat Tinggi <span id="pt-sangat-tinggi">0%</span></div>
+                                <div class="legend-item"><span class="dot yellow"></span>Tinggi <span id="pt-tinggi">0%</span></div>
+                                <div class="legend-item"><span class="dot orange"></span>Sedang <span id="pt-sedang">0%</span></div>
+                                <div class="legend-item"><span class="dot green"></span>Rendah <span id="pt-normal">0%</span></div>
+                            </div>
+                            <div class="donut-chart-container">
+                                <div class="donut-chart" id="donut-chart">
+                                    <div class="center-text">
+                                        <strong id="total-tasks-stat">0</strong>
+                                        <span>Total Tugas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Produktivitas Mingguan -->
+                    <div class="stat-card">
+                        <h3 id="prod-title" class="text-green">Produktivitas Mingguan</h3>
+                        <p id="prod-desc">Peningkatan dari minggu lalu.</p>
+                        <div class="stat-value-large">
+                            <span id="stat-prod">0%</span>
+                            <i id="prod-icon" class="fa-solid fa-arrow-trend-up text-green"></i>
+                        </div>
+                        <p class="stat-comparison" id="prod-comparison">Berdasarkan tugas selesai</p>
+                    </div>
+                    
+                    <!-- Tugas Terlambat -->
+                    <div class="stat-card">
+                        <h3 class="text-red">Tugas Terlambat</h3>
+                        <p>Tugas yang melewati deadline</p>
+                        <div class="stat-value-large">
+                            <span id="stat-late">0</span>
+                            <i id="late-icon" class="fa-solid fa-triangle-exclamation text-red"></i>
+                        </div>
+                        <p class="stat-comparison" id="late-comparison">Tugas dengan deadline terlewat</p>
+                    </div>
+                    
+                    <!-- Rata-rata Penyelesaian -->
+                    <div class="stat-card">
+                        <h3>Rata-rata Penyelesaian</h3>
+                        <p>Waktu rata-rata menyelesaikan tugas.</p>
+                        <div class="stat-value-large">
+                            <span id="stat-mean-time">0 <small>hari</small></span>
+                            <i id="mean-icon" class="fa-solid fa-clock text-green"></i>
+                        </div>
+                        <p class="stat-comparison" id="mean-comparison">Berdasarkan tugas yang sudah selesai</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="ruleEngine.js"></script>
+    <script src="scripting.js"></script>
+    <script src="app.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        window.injectSidebar('analytics');
+        window.updateUserInfo();
+        const result = window.initApp();
+        const statsData = result.hasilStatistik;
+        const taskData = result.dataTersortir;
+
+        if (statsData && taskData) {
+            // Tugas Selesai Text
+            const tasksSelesai = statsData.tugasSelesai || taskData.filter(t => t.status === "Selesai").length;
+            document.getElementById('stat-total-text').textContent = `${tasksSelesai} dari ${taskData.length} tugas.`;
+            
+            // Progress Mingguan Circle - berdasarkan tugas selesai / total
+            const progressPct = taskData.length ? Math.round((tasksSelesai / taskData.length) * 100) : 0;
+            document.getElementById('stat-progress-text').textContent = `Kamu menyelesaikan ${tasksSelesai} kegiatan dari ${taskData.length}.`;
+            document.getElementById('circle-progress-path').setAttribute('stroke-dasharray', `${progressPct}, 100`);
+            document.getElementById('circle-progress-text').textContent = `${progressPct}%`;
+            
+            // Prioritas Terbanyak Donut
+            const total = taskData.length;
+            const terlewat = statsData.dataPieChart['TERLEWAT'] || 0;
+            const sangatTinggi = statsData.dataPieChart['Sangat Tinggi'] || 0;
+            const tinggi = statsData.dataPieChart['Tinggi'] || 0;
+            const sedang = statsData.dataPieChart['Sedang'] || 0;
+            const normal = statsData.dataPieChart['Rendah'] || 0;
+            
+            document.getElementById('total-tasks-stat').textContent = total;
+            if(total > 0) {
+                document.getElementById('pt-terlewat').textContent = Math.round((terlewat / total) * 100) + '%';
+                document.getElementById('pt-sangat-tinggi').textContent = Math.round((sangatTinggi / total) * 100) + '%';
+                document.getElementById('pt-tinggi').textContent = Math.round((tinggi / total) * 100) + '%';
+                document.getElementById('pt-sedang').textContent = Math.round((sedang / total) * 100) + '%';
+                document.getElementById('pt-normal').textContent = Math.round((normal / total) * 100) + '%';
+                
+                const terwPct = (terlewat / total) * 100;
+                const stPct = terwPct + ((sangatTinggi / total) * 100);
+                const tPct = stPct + ((tinggi / total) * 100);
+                const sPct = tPct + ((sedang / total) * 100);
+                
+                const donut = document.getElementById('donut-chart');
+                if (donut) {
+                    donut.style.background = `conic-gradient(var(--priority-terlewat) 0% ${terwPct}%, var(--priority-red) ${terwPct}% ${stPct}%, var(--priority-yellow) ${stPct}% ${tPct}%, var(--priority-orange) ${tPct}% ${sPct}%, var(--priority-green) ${sPct}% 100%)`;
+                }
+            }
+
+            // Produktivitas Mingguan - berdasarkan data nyata
+            const prodPct = statsData.produktivitasAngka || 0;
+            document.getElementById('stat-prod').textContent = statsData.produktivitasMingguan;
+            
+            if (prodPct >= 50) {
+                document.getElementById('prod-title').className = 'text-green';
+                document.getElementById('prod-icon').className = 'fa-solid fa-arrow-trend-up text-green';
+                document.getElementById('prod-comparison').textContent = `${tasksSelesai} dari ${taskData.length} tugas selesai`;
+            } else {
+                document.getElementById('prod-title').className = 'text-red';
+                document.getElementById('prod-icon').className = 'fa-solid fa-arrow-trend-down text-red';
+                document.getElementById('prod-comparison').textContent = `${tasksSelesai} dari ${taskData.length} tugas selesai`;
+            }
+            
+            // Tugas Terlambat - berdasarkan tugas yang deadline terlewat
+            const lateCount = statsData.tugasTerlambatAbsolut;
+            document.getElementById('stat-late').textContent = lateCount;
+            
+            if (lateCount > 0) {
+                document.getElementById('late-icon').className = 'fa-solid fa-triangle-exclamation text-red';
+                document.getElementById('late-comparison').textContent = `${lateCount} tugas sudah melewati deadline`;
+            } else {
+                document.getElementById('late-icon').className = 'fa-solid fa-check-circle text-green';
+                document.getElementById('late-comparison').textContent = 'Semua tugas masih dalam tenggat waktu';
+            }
+            
+            // Rata-rata Penyelesaian - berdasarkan data nyata
+            const avgTime = statsData.rataRataWaktu || '0.0';
+            document.getElementById('stat-mean-time').innerHTML = `${avgTime} <small>hari</small>`;
+            
+            if (parseFloat(avgTime) <= 3) {
+                document.getElementById('mean-icon').className = 'fa-solid fa-bolt text-green';
+                document.getElementById('mean-comparison').textContent = 'Penyelesaian cepat!';
+            } else if (parseFloat(avgTime) <= 7) {
+                document.getElementById('mean-icon').className = 'fa-solid fa-clock text-green';
+                document.getElementById('mean-comparison').textContent = 'Kecepatan penyelesaian normal';
+            } else {
+                document.getElementById('mean-icon').className = 'fa-solid fa-hourglass-half text-red';
+                document.getElementById('mean-comparison').textContent = 'Perlu peningkatan kecepatan';
+            }
+
+            // Bar Chart
+            const chartContainer = document.getElementById('bar-chart-container');
+            chartContainer.innerHTML = '';
+            const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            const maxVal = Math.max(...Object.values(statsData.dataBarChart || {}), 1);
+            
+            // Find the highest value to make it yellow (like the image)
+            let maxDay = "";
+            let highest = -1;
+            days.forEach(d => {
+                if((statsData.dataBarChart[d] || 0) > highest) {
+                    highest = statsData.dataBarChart[d];
+                    maxDay = d;
+                }
+            });
+            
+            days.forEach(day => {
+                const val = statsData.dataBarChart[day] || 0;
+                const heightPct = (val / maxVal) * 100;
+                const isMax = (day === maxDay && highest > 0);
+                
+                chartContainer.innerHTML += `
+                    <div class="bar-wrapper">
+                        <div class="bar-value">${val}</div>
+                        <div class="bar ${isMax ? 'highlight' : ''} ${val === 0 ? 'bar-empty' : ''}" style="height: ${Math.max(heightPct, 4)}%" title="${val} tasks"></div>
+                        <span class="bar-label">${day}</span>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
