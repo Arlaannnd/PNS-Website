@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Analistik Kegiatan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <div class="page-header" style="text-align: center;">
+                <div class="page-header-content" style="position: relative;">
+                    <a href="dashboard.html" style="color:var(--text-main); font-size:20px; position:absolute; left:0; top:0;"><i class="fa-solid fa-arrow-left"></i></a>
+                    <h1 style="font-size:20px; font-weight:700; margin-top:0; margin-bottom:4px;">Analitik Kegiatan</h1>
+                    <p style="font-size:12px; color:var(--text-muted);">Ringkasan performa dan prioritas kegiatan.</p>
+                </div>
+            </div>
+
+            <div class="content-view active" style="margin-top:-20px; position:relative; z-index:2; padding:0 24px;">
+                <div class="analytics-header-row" style="margin-bottom:20px;">
+                    <div class="date-dropdown" style="display:inline-block; position:relative;">
+                        <select style="appearance:none; background:white; padding:8px 32px 8px 16px; border-radius:20px; border:1px solid #e5e7eb; box-shadow:0 2px 4px rgba(0,0,0,0.05); font-weight:600; font-size:13px; color:var(--text-main); outline:none;">
+                            <option>6 - 12 Mei 2026</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:12px; color:var(--text-muted);"></i>
+                    </div>
+                </div>
+                
+                <div class="analytics-grid-2x3">
+                    <!-- Tugas Selesai (Bar Chart) -->
+                    <div class="stat-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <h3>Tugas Selesai</h3>
+                        <p id="stat-total-text" style="color: var(--text-muted); font-size: 12px; margin-bottom: 8px;">0 dari 0 tugas.</p>
+                        <div class="bar-chart-wrapper" style="display: flex; height: 180px; width: 100%;">
+                            <div class="y-axis" style="display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; padding-right: 12px; padding-bottom: 24px; color: var(--text-main); font-weight: 500;">
+                                <span>20</span>
+                                <span>15</span>
+                                <span>10</span>
+                                <span>5</span>
+                                <span>0</span>
+                            </div>
+                            <div class="bar-chart-container" id="bar-chart-container" style="flex: 1; display: flex; justify-content: space-between; align-items: flex-end;">
+                                <!-- Injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Mingguan (Circle Chart) - Hidden to match mockup -->
+                    <div class="stat-card center-content" style="display: none;">
+                        <h3>Progress Mingguan</h3>
+                        <p id="stat-progress-text">Kamu menyelesaikan 0 kegiatan dari 0.</p>
+                        <div class="circular-progress" style="margin-top: 20px; width: 100px; height: 100px;">
+                            <svg viewBox="0 0 36 36" class="circular-chart green">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" id="circle-progress-path" />
+                                <text x="18" y="20.35" class="percentage" id="circle-progress-text" style="font-size:8px;">0%</text>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Prioritas Terbanyak (Donut Chart) -->
+                    <div class="stat-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <h3>Prioritas Terbanyak</h3>
+                        <p style="color: var(--text-muted); font-size: 12px;">Proporsi tugas berdasarkan tingkat prioritas.</p>
+                        <div class="priority-summary" style="width: 100%; margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <div class="legend" style="gap: 12px; flex: 1; display:flex; flex-direction:column;">
+                                <div class="legend-item" style="display:flex; align-items:center; font-size:12px; margin-bottom:8px; color:var(--text-main);"><span style="width:14px; height:14px; border-radius:50%; background:var(--priority-terlewat); margin-right:8px; display:inline-block;"></span>Terlewat <span id="pt-terlewat" style="margin-left:4px;">0%</span></div>
+                                <div class="legend-item" style="display:flex; align-items:center; font-size:12px; margin-bottom:8px; color:var(--text-main);"><span style="width:14px; height:14px; border-radius:50%; background:var(--priority-red); margin-right:8px; display:inline-block;"></span>Sangat Tinggi <span id="pt-sangat-tinggi" style="margin-left:4px;">0%</span></div>
+                                <div class="legend-item" style="display:flex; align-items:center; font-size:12px; margin-bottom:8px; color:var(--text-main);"><span style="width:14px; height:14px; border-radius:50%; background:var(--priority-yellow); margin-right:8px; display:inline-block;"></span>Tinggi <span id="pt-tinggi" style="margin-left:4px;">0%</span></div>
+                                <div class="legend-item" style="display:flex; align-items:center; font-size:12px; margin-bottom:8px; color:var(--text-main);"><span style="width:14px; height:14px; border-radius:50%; background:var(--priority-orange); margin-right:8px; display:inline-block;"></span>Sedang <span id="pt-sedang" style="margin-left:4px;">0%</span></div>
+                                <div class="legend-item" style="display:flex; align-items:center; font-size:12px; margin-bottom:8px; color:var(--text-main);"><span style="width:14px; height:14px; border-radius:50%; background:var(--priority-green); margin-right:8px; display:inline-block;"></span>Rendah <span id="pt-rendah" style="margin-left:4px;">0%</span></div>
+                            </div>
+                            <div class="donut-chart-container" style="flex: 0 0 120px; height: 120px; position:relative;">
+                                <div class="donut-chart" id="donut-chart" style="width: 100%; height: 100%; border-radius:50%;"></div>
+                                <div class="center-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:75px; height:75px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:inset 0 0 4px rgba(0,0,0,0.05);">
+                                    <strong id="total-tasks-stat" style="font-size:20px; color:var(--text-main); font-weight:700;">0</strong>
+                                    <span style="font-size:9px; color:var(--text-muted); text-align:center; line-height:1;">Total Tugas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Grid Container -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <!-- Produktivitas Mingguan -->
+                        <div class="stat-card" style="display: flex; flex-direction: column; align-items:flex-start; padding:16px;">
+                            <h3 style="color:var(--priority-green); font-size:12px; font-weight:600; line-height:1.4;">Produktivitas<br>Mingguan</h3>
+                            <div class="stat-value-large" style="margin-top: auto; padding-top: 10px; width:100%; display: flex; align-items: flex-end; justify-content: space-between;">
+                                <span id="stat-prod" style="font-size: 32px; font-weight: 700; color: var(--text-main); line-height:1;">0%</span>
+                                <i class="fa-solid fa-arrow-trend-up" style="color:var(--priority-green); font-size: 20px; font-weight: 900; margin-bottom:4px;"></i>
+                            </div>
+                            <p class="stat-comparison" id="prod-comparison" style="margin-top: 8px; font-size:10px; color:var(--text-muted); display:none;"></p>
+                        </div>
+                        
+                        <!-- Tugas Terlambat -->
+                        <div class="stat-card" style="display: flex; flex-direction: column; align-items:flex-start; padding:16px;">
+                            <h3 style="color:var(--text-main); font-size:12px; font-weight:600; line-height:1.4;">Tugas <span style="color:var(--priority-red);">Terlambat</span></h3>
+                            <div class="stat-value-large" style="margin-top: auto; padding-top: 10px; width:100%; display: flex; align-items: flex-end; justify-content: space-between;">
+                                <span id="stat-late" style="font-size: 32px; font-weight: 700; color: var(--text-main); line-height:1;">0</span>
+                                <i class="fa-solid fa-arrow-trend-down" style="color:var(--priority-red); font-size: 20px; font-weight: 900; margin-bottom:4px;"></i>
+                            </div>
+                            <p class="stat-comparison" id="late-comparison" style="margin-top: 8px; font-size:10px; color:var(--text-muted); display:none;"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Rata-rata Penyelesaian - Hidden -->
+                    <div class="stat-card" style="display: none;">
+                        <h3>Rata-rata Penyelesaian</h3>
+                        <p>Waktu rata-rata menyelesaikan tugas.</p>
+                        <div class="stat-value-large">
+                            <span id="stat-mean-time">0 <small>jam</small></span>
+                            <i class="fa-solid fa-arrow-trend-down text-red"></i>
+                        </div>
+                        <p class="stat-comparison">-0.6 jam dari minggu lalu</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="ruleEngine.js"></script>
+    <script src="scripting.js"></script>
+    <script src="app.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        window.injectSidebar('analytics');
+        window.updateUserInfo();
+        const result = window.initApp();
+        const statsData = result.hasilStatistik;
+        const taskData = result.dataTersortir;
+
+        if (statsData && taskData) {
+            // Tugas Selesai Text
+            const tasksSelesai = taskData.filter(t => t.status === "Selesai").length;
+            document.getElementById('stat-total-text').textContent = `${tasksSelesai} dari ${taskData.length} tugas.`;
+            
+            // Progress Mingguan Circle
+            const progressPct = taskData.length ? Math.round((tasksSelesai / taskData.length) * 100) : 0;
+            document.getElementById('stat-progress-text').textContent = `Kamu menyelesaikan ${tasksSelesai} kegiatan dari ${taskData.length}.`;
+            document.getElementById('circle-progress-path').setAttribute('stroke-dasharray', `${progressPct}, 100`);
+            document.getElementById('circle-progress-text').textContent = `${progressPct}%`;
+            
+            // Prioritas Terbanyak Donut
+            const total = taskData.length;
+            const terlewat = statsData.dataPieChart['TERLEWAT'] || 0;
+            const sangatTinggi = statsData.dataPieChart['Sangat Tinggi'] || 0;
+            const tinggi = statsData.dataPieChart['Tinggi'] || 0;
+            const sedang = statsData.dataPieChart['Sedang'] || 0;
+            const rendah = statsData.dataPieChart['Rendah'] || 0;
+            
+            document.getElementById('total-tasks-stat').textContent = total;
+            if(total > 0) {
+                document.getElementById('pt-terlewat').textContent = Math.round((terlewat / total) * 100) + '%';
+                document.getElementById('pt-sangat-tinggi').textContent = Math.round((sangatTinggi / total) * 100) + '%';
+                document.getElementById('pt-tinggi').textContent = Math.round((tinggi / total) * 100) + '%';
+                document.getElementById('pt-sedang').textContent = Math.round((sedang / total) * 100) + '%';
+                document.getElementById('pt-rendah').textContent = Math.round((rendah / total) * 100) + '%';
+                
+                const tlPct = (terlewat / total) * 100;
+                const stPct = tlPct + ((sangatTinggi / total) * 100);
+                const tPct = stPct + ((tinggi / total) * 100);
+                const sPct = tPct + ((sedang / total) * 100);
+                
+                const donut = document.getElementById('donut-chart');
+                if (donut) {
+                    donut.style.background = `conic-gradient(var(--priority-terlewat) 0% ${tlPct}%, var(--priority-red) ${tlPct}% ${stPct}%, var(--priority-yellow) ${stPct}% ${tPct}%, var(--priority-orange) ${tPct}% ${sPct}%, var(--priority-green) ${sPct}% 100%)`;
+                }
+            }
+
+            // Bottom row stats
+            document.getElementById('stat-prod').textContent = statsData.produktivitasMingguan;
+            document.getElementById('stat-late').textContent = statsData.tugasTerlambatAbsolut;
+
+            // Weekly comparison: only show after 1+ week of data
+            const firstTaskDate = localStorage.getItem('firstTaskDate');
+            if (firstTaskDate) {
+                const daysSinceFirst = Math.floor((Date.now() - new Date(firstTaskDate).getTime()) / (1000 * 60 * 60 * 24));
+                if (daysSinceFirst >= 7) {
+                    const prevProd = parseInt(localStorage.getItem('prevProduktivitas') || '0');
+                    const prevLate = parseInt(localStorage.getItem('prevTugasTerlambat') || '0');
+                    const currProd = parseInt(statsData.produktivitasMingguan);
+                    const currLate = statsData.tugasTerlambatAbsolut;
+                    const diffProd = currProd - prevProd;
+                    const diffLate = currLate - prevLate;
+
+                    const prodEl = document.getElementById('prod-comparison');
+                    prodEl.textContent = `${diffProd >= 0 ? '+' : ''}${diffProd}% dari minggu lalu`;
+                    prodEl.style.display = 'block';
+
+                    const lateEl = document.getElementById('late-comparison');
+                    lateEl.textContent = `${diffLate >= 0 ? '+' : ''}${diffLate} dari minggu lalu`;
+                    lateEl.style.display = 'block';
+                }
+            }
+            // Save current stats for next week's comparison
+            localStorage.setItem('prevProduktivitas', parseInt(statsData.produktivitasMingguan).toString());
+            localStorage.setItem('prevTugasTerlambat', statsData.tugasTerlambatAbsolut.toString());
+            
+            // Mocking 'Rata-rata Penyelesaian jam' using rataRata skor scaled to a plausible hour
+            const avgHours = (parseFloat(statsData.rataRata) * 1.5).toFixed(1);
+            document.getElementById('stat-mean-time').innerHTML = `${avgHours} <small>jam</small>`;
+
+            // Bar Chart
+            const chartContainer = document.getElementById('bar-chart-container');
+            chartContainer.innerHTML = '';
+            const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            const maxVal = Math.max(...Object.values(statsData.dataBarChart || {}), 1);
+            
+            // Find the highest value to make it yellow (like the image)
+            let maxDay = "";
+            let highest = -1;
+            days.forEach(d => {
+                if((statsData.dataBarChart[d] || 0) > highest) {
+                    highest = statsData.dataBarChart[d];
+                    maxDay = d;
+                }
+            });
+            
+            days.forEach(day => {
+                const val = statsData.dataBarChart[day] || 0;
+                const maxChartVal = 20; // Sesuai label Y-Axis gambar
+                let heightPct = (val / maxChartVal) * 100;
+                if(heightPct > 100) heightPct = 100;
+                
+                const isMax = (day === maxDay && highest > 0);
+                const bgClass = isMax ? 'rgba(250, 204, 21, 0.3)' : 'rgba(132, 204, 22, 0.3)'; // Lighter yellow or green
+                const fillClass = isMax ? '#FACC15' : '#65a30d'; // Yellow or green
+                
+                chartContainer.innerHTML += `
+                    <div class="bar-wrapper" style="display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%;">
+                        <div style="width: 14px; height: 100%; background: ${bgClass}; border-radius: 7px; position: relative; margin-bottom: 8px;">
+                            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: ${heightPct}%; background: ${fillClass}; border-radius: 7px;"></div>
+                        </div>
+                        <span style="font-size: 11px; color: var(--text-main); font-weight: 500;">${day}</span>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
