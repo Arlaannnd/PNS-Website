@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <a href="pengaturan.html" class="user-avatar">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                    <div class="greeting">
+                        <h1 id="user-greeting">Hai, Subekti Rahman</h1>
+                        <p>Yuk, selesaikan kegiatan ini dan tetap produktif.</p>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <a href="notifikasi.html" class="icon-btn" style="position:relative;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span style="position:absolute; top:0; right:0; width:10px; height:10px; background-color:white; border-radius:50%; border:2px solid var(--primary-dark);"></span>
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-view active dashboard-content">
+                <div class="calendar-card">
+                    <div class="calendar-header">
+                        <h3>Kamu memiliki <span id="task-count">0</span> tugas hari ini.</h3>
+                        <button class="next-week"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="week-days">
+                        <div class="day-item"><span>Mon</span><strong>7</strong></div>
+                        <div class="day-item"><span>Tue</span><strong>8</strong></div>
+                        <div class="day-item"><span>Wed</span><strong>9</strong></div>
+                        <div class="day-item active"><span>Thu</span><strong>10</strong></div>
+                        <div class="day-item"><span>Fri</span><strong>11</strong></div>
+                        <div class="day-item"><span>Sat</span><strong>12</strong></div>
+                        <div class="day-item"><span>Sun</span><strong>13</strong></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="tasks-section">
+                        <div class="section-header">
+                            <h3>Tugas Mendatang</h3>
+                            <a href="semua-kegiatan.html">See All</a>
+                        </div>
+                        <div class="task-list" id="upcoming-tasks-list">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="stats-section">
+                        <div class="stat-card">
+                            <div class="progress-content" style="display: flex; align-items: center; gap: 16px; width: 100%;">
+                                <div class="circular-progress">
+                                    <svg viewBox="0 0 36 36" class="circular-chart green">
+                                      <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                      <path class="circle" stroke-dasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                      <text x="18" y="21" class="percentage" style="font-weight: 700; font-size: 10px; fill: #000; text-anchor: middle;">75%</text>
+                                    </svg>
+                                </div>
+                                <div class="progress-text">
+                                    <h4 style="color: var(--primary-dark); font-size: 13px; font-weight: 700;">Progress Yang Baik!</h4>
+                                    <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">Kamu menyelesaikan 3 dari 4 tugas.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ringkasan Prioritas (Hidden to match image if not needed, but keep it if part of original) -->
+                        <div class="stat-card" style="display: none;">
+                            <h3>Ringkasan Prioritas</h3>
+                            <div class="priority-summary">
+                                <div class="legend">
+                                    <div class="legend-item"><span class="dot red"></span>Sangat Tinggi <span id="pt-sangat-tinggi">0%</span></div>
+                                    <div class="legend-item"><span class="dot yellow"></span>Tinggi <span id="pt-tinggi">0%</span></div>
+                                    <div class="legend-item"><span class="dot orange"></span>Sedang <span id="pt-sedang">0%</span></div>
+                                    <div class="legend-item"><span class="dot green"></span>Normal <span id="pt-normal">0%</span></div>
+                                </div>
+                                <div class="donut-chart-container">
+                                    <div class="donut-chart" id="dashboard-donut-chart">
+                                        <div class="center-text">
+                                            <strong id="total-tasks-stat">0</strong>
+                                            <span>Total Tugas</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="ruleEngine.js"></script>
+    <script src="scripting.js"></script>
+    <script src="app.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        window.injectSidebar('dashboard');
+        window.updateUserInfo();
+        
+        const result = window.initApp();
+        const taskData = result.dataTersortir;
+        const statsData = result.hasilStatistik;
+
+        document.getElementById('task-count').textContent = taskData.length;
+        const tasksList = document.getElementById('upcoming-tasks-list');
+        taskData.slice(0, 3).forEach(task => {
+            const priorityClass = task.labelPrioritas === 'TERLEWAT' ? 'priority-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'priority-sangat-tinggi' : task.labelPrioritas === 'Tinggi' ? 'priority-tinggi' : task.labelPrioritas === 'Sedang' ? 'priority-sedang' : 'priority-normal';
+            const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+
+            tasksList.innerHTML += `
+                <div class="task-card ${priorityClass}">
+                    <h4>${task.nama}</h4>
+                    <span class="task-cat">${task.kategori}</span>
+                    <div class="task-card-footer">
+                        <span class="task-time">${task.tenggatHari}</span>
+                        <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (statsData && statsData.dataPieChart) {
+            const total = taskData.length;
+            const sangatTinggi = statsData.dataPieChart['Sangat Tinggi'] || 0;
+            const tinggi = statsData.dataPieChart['Tinggi'] || 0;
+            const sedang = statsData.dataPieChart['Sedang'] || 0;
+            const normal = statsData.dataPieChart['Rendah'] || 0;
+            
+            document.getElementById('total-tasks-stat').textContent = total;
+            if(total > 0) {
+                document.getElementById('pt-sangat-tinggi').textContent = Math.round((sangatTinggi / total) * 100) + '%';
+                document.getElementById('pt-tinggi').textContent = Math.round((tinggi / total) * 100) + '%';
+                document.getElementById('pt-sedang').textContent = Math.round((sedang / total) * 100) + '%';
+                document.getElementById('pt-normal').textContent = Math.round((normal / total) * 100) + '%';
+                
+                const stPct = (sangatTinggi / total) * 100;
+                const tPct = stPct + ((tinggi / total) * 100);
+                const sPct = tPct + ((sedang / total) * 100);
+                
+                const donut = document.getElementById('dashboard-donut-chart');
+                if (donut) {
+                    donut.style.background = `conic-gradient(var(--priority-red) 0% ${stPct}%, var(--priority-yellow) ${stPct}% ${tPct}%, var(--priority-orange) ${tPct}% ${sPct}%, var(--priority-green) ${sPct}% 100%)`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

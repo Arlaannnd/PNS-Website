@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Semua Kegiatan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-header-content">
+                    <a href="dashboard.html" style="color:var(--text-main); font-size:20px; display:block; margin-bottom:20px;"><i class="fa-solid fa-arrow-left"></i></a>
+                    <h1>Semua Kegiatan</h1>
+                    <p>Kelola semua tugas kamu.</p>
+                </div>
+            </div>
+
+            <div class="content-view active">
+                <div class="search-filter-row">
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-tasks" placeholder="Cari kegiatan...">
+                    </div>
+                    <div style="position: relative;">
+                        <button class="filter-btn" id="filter-toggle-btn"><i class="fa-solid fa-filter"></i></button>
+                        <div id="filter-dropdown" style="display:none; position:absolute; top:52px; right:0; background:white; border-radius:var(--radius-md); box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:8px 0; z-index:50; min-width:180px;">
+                            <button class="filter-dropdown-item active" data-filter="All">All</button>
+                            <button class="filter-dropdown-item" data-filter="In Progress">In Progress</button>
+                            <button class="filter-dropdown-item" data-filter="Completed">Completed</button>
+                            <button class="filter-dropdown-item" data-filter="Review">Review</button>
+                            <hr style="border:none; border-top:1px solid #E5E7EB; margin:4px 0;">
+                            <button class="filter-dropdown-item" data-filter="TERLEWAT">TERLEWAT</button>
+                            <button class="filter-dropdown-item" data-filter="Sangat Tinggi">Sangat Tinggi</button>
+                            <button class="filter-dropdown-item" data-filter="Tinggi">Tinggi</button>
+                            <button class="filter-dropdown-item" data-filter="Sedang">Sedang</button>
+                            <button class="filter-dropdown-item" data-filter="Rendah">Rendah</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; padding:0 24px; margin-top:16px; align-items:center;">
+                    <h3 style="font-size:14px;">Sort by</h3>
+                    <div style="position:relative;">
+                        <button id="sort-toggle-btn" style="font-size:14px; font-weight:600; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-main);"><span id="sort-label">Deadline</span> <i class="fa-solid fa-chevron-down"></i></button>
+                        <div id="sort-dropdown" style="display:none; position:absolute; top:32px; right:0; background:white; border-radius:var(--radius-md); box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:8px 0; z-index:50; min-width:180px;">
+                            <button class="filter-dropdown-item active" data-sort="deadline">Deadline</button>
+                            <button class="filter-dropdown-item" data-sort="kesulitan">Tingkat Kesulitan</button>
+                            <button class="filter-dropdown-item" data-sort="prioritas">Prioritas</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive" style="margin-top: 20px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Kegiatan</th>
+                                <th>Kategori</th>
+                                <th>Deadline</th>
+                                <th>Label Prioritas</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-tasks-table-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .filter-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.15s;
+        }
+        .filter-dropdown-item:hover {
+            background: #f3f4f6;
+        }
+        .filter-dropdown-item.active {
+            background: var(--primary-dark);
+            color: white;
+            font-weight: 600;
+        }
+        .task-row-done td:not(:last-child) {
+            opacity: 0.6;
+        }
+        .task-row-done strong {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+        .action-menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .action-dots {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+        .action-dots:hover {
+            background: #f3f4f6;
+        }
+        .action-popup {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background: white;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+            padding: 6px 0;
+            z-index: 9999;
+            min-width: 150px;
+        }
+        .action-popup.open {
+            display: block;
+        }
+        .action-popup button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.15s;
+        }
+        .action-popup button:hover {
+            background: #f3f4f6;
+        }
+        .action-popup button.delete-btn {
+            color: var(--priority-red);
+        }
+        .action-popup button.delete-btn:hover {
+            background: #fef2f2;
+        }
+    </style>
+
+    <script src="data.js"></script>
+    <script src="ruleEngine.js"></script>
+    <script src="scripting.js"></script>
+    <script src="app.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        window.injectSidebar('all-tasks');
+        window.updateUserInfo();
+        
+        const result = window.initApp();
+        const taskData = result.dataTersortir;
+
+        let currentStatusFilter = 'All';
+
+        // Filter dropdown toggle
+        const filterBtn = document.getElementById('filter-toggle-btn');
+        const filterDropdown = document.getElementById('filter-dropdown');
+
+        filterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterDropdown.style.display = filterDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', () => {
+            filterDropdown.style.display = 'none';
+        });
+
+        filterDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        const filterItems = document.querySelectorAll('#filter-dropdown .filter-dropdown-item');
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                filterItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                currentStatusFilter = item.dataset.filter;
+                renderAllTasks(document.getElementById('search-tasks').value);
+                filterDropdown.style.display = 'none';
+            });
+        });
+
+        let currentSort = 'deadline';
+
+        // Sort dropdown toggle
+        const sortBtn = document.getElementById('sort-toggle-btn');
+        const sortDropdown = document.getElementById('sort-dropdown');
+
+        sortBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sortDropdown.style.display = sortDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', () => {
+            sortDropdown.style.display = 'none';
+        });
+
+        sortDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        const sortItems = document.querySelectorAll('#sort-dropdown .filter-dropdown-item');
+        sortItems.forEach(item => {
+            item.addEventListener('click', () => {
+                sortItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                currentSort = item.dataset.sort;
+                document.getElementById('sort-label').textContent = item.textContent;
+                renderAllTasks(document.getElementById('search-tasks').value);
+                sortDropdown.style.display = 'none';
+            });
+        });
+
+        function renderAllTasks(filterText = "") {
+            const tbody = document.getElementById('all-tasks-table-body');
+            tbody.innerHTML = '';
+            
+            let filtered = taskData.filter(t => t.nama.toLowerCase().includes(filterText.toLowerCase()));
+
+            // Sort: selesai di bawah, lalu berdasarkan pilihan sort
+            filtered.sort((a, b) => {
+                const aDone = a.status === 'Selesai' ? 1 : 0;
+                const bDone = b.status === 'Selesai' ? 1 : 0;
+                if (aDone !== bDone) return aDone - bDone;
+
+                if (currentSort === 'deadline') {
+                    return a.tenggatAngka - b.tenggatAngka;
+                } else if (currentSort === 'kesulitan') {
+                    return b.tingkatKesulitan - a.tingkatKesulitan;
+                } else if (currentSort === 'prioritas') {
+                    return b.skorPrioritas - a.skorPrioritas;
+                }
+                return 0;
+            });
+
+            if (currentStatusFilter !== 'All') {
+                if (currentStatusFilter === 'Completed') {
+                    filtered = filtered.filter(t => t.status === 'Selesai');
+                } else if (currentStatusFilter === 'In Progress') {
+                    filtered = filtered.filter(t => t.status !== 'Selesai');
+                } else if (currentStatusFilter === 'Review') {
+                    filtered = filtered.filter(t => t.status === 'Review');
+                } else {
+                    filtered = filtered.filter(t => t.labelPrioritas.toLowerCase() === currentStatusFilter.toLowerCase());
+                }
+            }
+
+            filtered.forEach((task, index) => {
+                const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+                const isDone = task.status === "Selesai";
+                const doneClass = isDone ? 'task-row-done' : '';
+                const checkMark = isDone ? '<i class="fa-solid fa-circle-check" style="color:var(--priority-green); margin-right:6px;"></i>' : '';
+                
+                const selesaiOption = isDone 
+                    ? `<button onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left" style="color:var(--priority-yellow);"></i> Batalkan Selesai</button>` 
+                    : `<button onclick="window.selesaikanTugas(${task.id})"><i class="fa-solid fa-circle-check" style="color:var(--priority-green);"></i> Tandai Selesai</button>`;
+                
+                tbody.innerHTML += `
+                    <tr class="${doneClass}">
+                        <td>${index + 1}</td>
+                        <td>${checkMark}<strong>${task.nama}</strong><br><small style="color:var(--text-muted)">${task.jenis}</small></td>
+                        <td>${task.kategori}</td>
+                        <td>${task.tenggatHari}</td>
+                        <td><span class="task-badge ${badgeClass}">${task.labelPrioritas}</span></td>
+                        <td>${task.status}</td>
+                        <td>
+                            <div class="action-menu-wrapper">
+                                <button class="action-dots" onclick="toggleActionMenu(event, 'menu-${task.id}')"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                <div class="action-popup" id="menu-${task.id}">
+                                    ${selesaiOption}
+                                    <button onclick="window.editKegiatan(${task.id})"><i class="fa-solid fa-pen-to-square" style="color:var(--priority-yellow);"></i> Edit Kegiatan</button>
+                                    <button class="delete-btn" onclick="window.hapusKegiatan(${task.id})"><i class="fa-solid fa-trash"></i> Hapus Kegiatan</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        renderAllTasks();
+
+        document.getElementById('search-tasks').addEventListener('input', (e) => {
+            renderAllTasks(e.target.value);
+        });
+
+        // Toggle action menu
+        function toggleActionMenu(e, menuId) {
+            e.stopPropagation();
+            // Reset all rows and close other menus
+            document.querySelectorAll('.data-table tr').forEach(r => {
+                r.style.zIndex = '';
+                r.style.position = '';
+            });
+            document.querySelectorAll('.action-popup.open').forEach(m => {
+                if (m.id !== menuId) m.classList.remove('open');
+            });
+            const menu = document.getElementById(menuId);
+            menu.classList.toggle('open');
+            // Elevate the parent row so popup is above other rows
+            if (menu.classList.contains('open')) {
+                const parentRow = menu.closest('tr');
+                parentRow.style.zIndex = '100';
+                parentRow.style.position = 'relative';
+            }
+        }
+
+        // Close all action menus on outside click
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.action-popup.open').forEach(m => m.classList.remove('open'));
+            document.querySelectorAll('.data-table tr').forEach(r => {
+                r.style.zIndex = '';
+                r.style.position = '';
+            });
+        });
+
+        window.selesaikanTugas = function(taskId) {
+            const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            const taskIndex = currentData.findIndex(t => t.id === taskId);
+            if (taskIndex > -1) {
+                currentData[taskIndex].status = "Selesai";
+                currentData[taskIndex].hariSelesai = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date().getDay()];
+                
+                localStorage.setItem('taskData', JSON.stringify(currentData));
+                const newResult = window.initApp();
+                taskData.length = 0;
+                newResult.dataTersortir.forEach(item => taskData.push(item));
+
+                renderAllTasks(document.getElementById('search-tasks').value);
+                alert("Tugas ditandai selesai!");
+            }
+        };
+
+        window.batalkanTugas = function(taskId) {
+            const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            const taskIndex = currentData.findIndex(t => t.id === taskId);
+            if (taskIndex > -1) {
+                currentData[taskIndex].status = "Belum";
+                currentData[taskIndex].hariSelesai = null;
+                
+                localStorage.setItem('taskData', JSON.stringify(currentData));
+                const newResult = window.initApp();
+                taskData.length = 0;
+                newResult.dataTersortir.forEach(item => taskData.push(item));
+
+                renderAllTasks(document.getElementById('search-tasks').value);
+                alert("Tugas dikembalikan ke status belum selesai!");
+            }
+        };
+
+        window.hapusKegiatan = function(taskId) {
+            if (!confirm('Yakin ingin menghapus kegiatan ini?')) return;
+            let currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            currentData = currentData.filter(t => t.id !== taskId);
+            localStorage.setItem('taskData', JSON.stringify(currentData));
+            
+            const newResult = window.initApp();
+            taskData.length = 0;
+            newResult.dataTersortir.forEach(item => taskData.push(item));
+
+            renderAllTasks(document.getElementById('search-tasks').value);
+            alert("Kegiatan berhasil dihapus!");
+        };
+
+        window.editKegiatan = function(taskId) {
+            localStorage.setItem('editTaskId', taskId);
+            window.location.href = 'tambah-kegiatan.html';
+        };
+    </script>
+</body>
+</html>

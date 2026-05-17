@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Register</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .auth-body .form-group input,
+        .auth-body .form-group .input-with-icon input {
+            border-radius: 24px;
+            padding: 14px 20px;
+            border: 1px solid #E5E7EB;
+            background: white;
+        }
+        .auth-body .input-with-icon input {
+            padding-right: 48px;
+        }
+        .auth-body .input-with-icon i {
+            right: 20px;
+        }
+        .auth-body .btn-primary {
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            font-size: 16px;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--primary-dark);
+            flex-shrink: 0;
+        }
+        .checkbox-group label {
+            font-size: 13px !important;
+            font-weight: 400 !important;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="view active">
+        <div class="auth-container">
+            <div class="auth-header">
+                <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                <div class="logo">
+                    <div style="display:inline-block; position:relative; width:70px; height:70px;">
+                        <div style="width:70px;height:70px;border:4px solid var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-check" style="font-size:32px;color:white;"></i>
+                        </div>
+                    </div>
+                    <h1>TaskFlow</h1>
+                    <p>Kelola Produktivitas Lebih Cerdas</p>
+                </div>
+            </div>
+            <div class="auth-body">
+                <div class="auth-form-container">
+                    <h2>Buat Akun Baru</h2>
+                    <p class="subtitle">Lengkapi data diri untuk membuat akun<br>TaskFlow Anda.</p>
+
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" id="regName" placeholder="Masukkan nama lengkap" required>
+                            <input type="hidden" id="regNickname" value="User">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="regEmail" placeholder="contoh@gmail.com" pattern=".+@.+\.com$" title="Email harus menggunakan domain .com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="regPwd" placeholder="Masukkan password" required>
+                                <i class="fa-solid fa-eye show-pwd" style="cursor:pointer;" onclick="tpwd(this)"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Konfirmasi Password</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="regConfPwd" placeholder="Ulangi password" required>
+                                <i class="fa-solid fa-eye show-pwd" style="cursor:pointer;" onclick="tpwd(this)"></i>
+                            </div>
+                        </div>
+                        <div class="form-group checkbox-group" style="margin-top:20px;">
+                            <input type="checkbox" id="terms" required>
+                            <label for="terms">Saya setuju dengan<br><span style="color:var(--primary-light);">Syarat & Ketentuan dan Kebijakan Privasi</span></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-top:16px;">Daftar</button>
+                    </form>
+
+                    <div style="text-align:center; margin-top:30px; font-size:14px; color:var(--text-muted); font-weight:500;">
+                        Sudah punya akun? <a href="login.html" style="color:var(--primary-light); font-weight: 700;">Masuk di sini</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function tpwd(el) {
+            const input = el.previousElementSibling;
+            if (input.type === 'password') { input.type = 'text'; el.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { input.type = 'password'; el.classList.replace('fa-eye-slash', 'fa-eye'); }
+        }
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const nickname = document.getElementById('regNickname').value;
+            const email = document.getElementById('regEmail').value;
+            if (!email.endsWith('.com')) {
+                alert('Email harus menggunakan domain .com');
+                return;
+            }
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userNickname', nickname);
+            localStorage.setItem('userEmail', email);
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>
