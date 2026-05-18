@@ -169,18 +169,145 @@
         .lang-flag { font-size: 24px; }
 
         /* FAQ */
-        .faq-item { border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 8px; }
+        .faq-search-bar {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .faq-search-bar i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .faq-search-bar input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            background: #fdfdfd;
+            transition: border-color 0.2s;
+        }
+        .faq-search-bar input:focus { border-color: var(--primary-light); }
+        .faq-category {
+            margin-bottom: 20px;
+        }
+        .faq-category-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+        .faq-category-title i {
+            font-size: 16px;
+        }
+        .faq-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-bottom: 10px;
+            transition: box-shadow 0.2s;
+        }
+        .faq-item:hover { box-shadow: var(--shadow-sm); }
         .faq-question {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 16px; cursor: pointer; font-weight: 600; font-size: 14px;
-            background: none; border: none; width: 100%; text-align: left;
-            font-family: 'Inter', sans-serif; color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
         }
         .faq-question:hover { background: #f9fafb; }
-        .faq-question i { font-size: 12px; color: var(--text-muted); transition: transform 0.3s; }
-        .faq-item.open .faq-question i { transform: rotate(180deg); }
-        .faq-answer { display: none; padding: 0 16px 14px; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+        .faq-question .faq-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .faq-icon.icon-purple { background: #EDE9FE; color: #7C3AED; }
+        .faq-icon.icon-blue { background: #DBEAFE; color: #2563EB; }
+        .faq-icon.icon-teal { background: #D1FAE5; color: #059669; }
+        .faq-icon.icon-rose { background: #FFE4E6; color: #E11D48; }
+        .faq-icon.icon-amber { background: #FEF3C7; color: #D97706; }
+        .faq-icon.icon-cyan { background: #CFFAFE; color: #0891B2; }
+        .faq-question .faq-chevron {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+        .faq-item.open .faq-question .faq-chevron { transform: rotate(180deg); }
+        .faq-answer {
+            display: none;
+            padding: 0 16px 14px 60px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
         .faq-item.open .faq-answer { display: block; }
+        .faq-support-card {
+            background: linear-gradient(135deg, #1B4222 0%, #3d6b2e 50%, #6b8c42 100%);
+            border-radius: var(--radius-md);
+            padding: 28px 24px;
+            text-align: center;
+            color: white;
+            margin-top: 24px;
+        }
+        .faq-support-card .support-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+        .faq-support-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .faq-support-card p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .faq-support-card .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            color: var(--primary-dark);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .faq-support-card .btn-contact:hover {
+            background: #f0fdf4;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
         /* Toggle switch */
         .notif-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
@@ -210,14 +337,6 @@
         <div id="sidebar-container"></div>
         <main class="main-content">
             <header class="topbar">
-                <div class="greeting">
-                    <h1 id="user-greeting">Hai, Subekti Rahman</h1>
-                    <p>Yuk, selesaikan kegiatan ini dan tetap produktif.</p>
-                </div>
-                <div class="topbar-actions">
-                    <a href="notifikasi.html" class="icon-btn"><i class="fa-regular fa-bell"></i></a>
-                    <a href="pengaturan.html" class="user-avatar"><i class="fa-solid fa-circle-user"></i></a>
-                </div>
             </header>
             <div class="content-view active">
                 <h1 class="page-title">Settings</h1>
@@ -337,12 +456,84 @@
                 <h2><i class="fa-solid fa-circle-question"></i> FAQ</h2>
                 <button class="subpage-close" onclick="closeSubpage('faq')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="faq-item"><button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')"><span>Apa itu TaskFlow?</span><i class="fa-solid fa-chevron-down"></i></button><div class="faq-answer">TaskFlow adalah aplikasi manajemen tugas yang membantu mahasiswa mengelola prioritas dan produktivitas menggunakan sistem poin prioritas otomatis.</div></div>
-            <div class="faq-item"><button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')"><span>Bagaimana cara menambah kegiatan?</span><i class="fa-solid fa-chevron-down"></i></button><div class="faq-answer">Klik menu <strong>"Tambah Kegiatan"</strong> di sidebar atau tombol <strong>(+)</strong> di dashboard. Isi data kegiatan dan sistem akan otomatis menghitung prioritas.</div></div>
-            <div class="faq-item"><button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')"><span>Bagaimana sistem prioritas bekerja?</span><i class="fa-solid fa-chevron-down"></i></button><div class="faq-answer">Sistem menggunakan Rule-Based Engine dengan poin dari 5 faktor: tenggat waktu, kategori, jenis kegiatan, tingkat kesulitan, dan riwayat keterlambatan.</div></div>
-            <div class="faq-item"><button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')"><span>Bagaimana cara edit atau hapus kegiatan?</span><i class="fa-solid fa-chevron-down"></i></button><div class="faq-answer">Buka <strong>"Semua Kegiatan"</strong>, klik ikon titik tiga (⋮) lalu pilih <strong>"Edit"</strong> atau <strong>"Hapus"</strong>.</div></div>
-            <div class="faq-item"><button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')"><span>Apa arti setiap warna prioritas?</span><i class="fa-solid fa-chevron-down"></i></button><div class="faq-answer"><strong style="color:#7F1D1D">■ TERLEWAT</strong> — Melewati deadline<br><strong style="color:#F05252">■ Sangat Tinggi</strong> — Kerjakan sekarang<br><strong style="color:#FACA15">■ Tinggi</strong> — Jadwalkan segera<br><strong style="color:#FF8A4C">■ Sedang</strong> — Minggu ini<br><strong style="color:#31C48D">■ Rendah</strong> — Sesuai jadwal</div></div>
-            <div class="faq-item"><button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')"><span>Apakah data saya aman?</span><i class="fa-solid fa-chevron-down"></i></button><div class="faq-answer">Data disimpan di <strong>localStorage</strong> browser. Jangan hapus data browser jika ingin mempertahankan kegiatan Anda.</div></div>
+
+            <!-- Search Bar -->
+            <div class="faq-search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="faq-search-input" placeholder="Cari pertanyaan..." oninput="filterFAQ(this.value)">
+            </div>
+
+            <!-- Kategori: Umum -->
+            <div class="faq-category" id="faq-cat-umum">
+                <div class="faq-category-title">
+                    <i class="fa-solid fa-circle-info" style="color:#1B4222"></i> Umum
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-icon icon-purple"><i class="fa-solid fa-circle-question"></i></span>
+                        <span>Apa itu TaskFlow?</span>
+                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer">TaskFlow adalah aplikasi manajemen tugas yang membantu mahasiswa mengelola prioritas dan produktivitas menggunakan sistem poin prioritas otomatis.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-icon icon-blue"><i class="fa-solid fa-mobile-screen"></i></span>
+                        <span>Apakah TaskFlow gratis?</span>
+                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer">Ya, TaskFlow sepenuhnya gratis untuk digunakan. Semua fitur termasuk manajemen tugas, analitik, dan notifikasi tersedia tanpa biaya apapun.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-icon icon-teal"><i class="fa-solid fa-database"></i></span>
+                        <span>Di mana data saya disimpan?</span>
+                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer">Data disimpan di <strong>localStorage</strong> browser Anda secara lokal. Artinya data tersimpan di perangkat Anda dan tidak dikirim ke server manapun. Jangan hapus data browser jika ingin mempertahankan kegiatan Anda.</div>
+                </div>
+            </div>
+
+            <!-- Kategori: Fitur -->
+            <div class="faq-category" id="faq-cat-fitur">
+                <div class="faq-category-title">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color:#92400E"></i> Fitur
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-icon icon-rose"><i class="fa-solid fa-arrow-up-wide-short"></i></span>
+                        <span>Bagaimana sistem prioritas bekerja?</span>
+                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer">Sistem menggunakan Rule-Based Engine dengan poin dari 5 faktor: tenggat waktu, kategori, jenis kegiatan, tingkat kesulitan, dan riwayat keterlambatan. Semakin tinggi poin, semakin tinggi prioritasnya.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-icon icon-amber"><i class="fa-solid fa-chart-simple"></i></span>
+                        <span>Apa yang ditampilkan di Analistik?</span>
+                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer">Halaman Analistik menampilkan ringkasan performa Anda termasuk: jumlah tugas selesai, progress mingguan, proporsi prioritas, produktivitas, tugas terlambat, dan rata-rata waktu penyelesaian tugas.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-icon icon-cyan"><i class="fa-solid fa-bell"></i></span>
+                        <span>Bagaimana notifikasi bekerja?</span>
+                        <i class="fa-solid fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer">Notifikasi otomatis dibuat berdasarkan status tugas Anda. Anda akan menerima peringatan untuk tugas yang mendekati deadline, tugas prioritas tinggi, serta ringkasan mingguan produktivitas Anda.</div>
+                </div>
+            </div>
+
+            <!-- Support Card -->
+            <div class="faq-support-card">
+                <div class="support-icon"><i class="fa-solid fa-headset"></i></div>
+                <h4>Masih butuh bantuan?</h4>
+                <p>Hubungi tim support kami dan kami akan membantu Anda secepatnya.</p>
+                <button class="btn-contact" onclick="alert('Fitur ini akan tersedia segera!')">
+                    <i class="fa-solid fa-envelope"></i> Hubungi Kami
+                </button>
+            </div>
         </div>
     </div>
 
@@ -419,6 +610,21 @@
             localStorage.setItem('appLanguage', document.querySelector('input[name="language"]:checked').value);
             alert('Bahasa berhasil disimpan!'); closeSubpage('bahasa');
         });
+
+        // FAQ Search/Filter
+        function filterFAQ(query) {
+            const q = query.toLowerCase().trim();
+            document.querySelectorAll('#subpage-faq .faq-item').forEach(item => {
+                const questionText = item.querySelector('.faq-question span:not(.faq-icon)').textContent.toLowerCase();
+                const answerText = item.querySelector('.faq-answer').textContent.toLowerCase();
+                item.style.display = (q === '' || questionText.includes(q) || answerText.includes(q)) ? '' : 'none';
+            });
+            // Hide category titles if all items hidden
+            document.querySelectorAll('.faq-category').forEach(cat => {
+                const visibleItems = cat.querySelectorAll('.faq-item:not([style*="display: none"])');
+                cat.style.display = visibleItems.length > 0 ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>

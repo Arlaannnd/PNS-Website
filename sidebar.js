@@ -2,29 +2,35 @@ window.injectSidebar = function (activeTarget) {
     const sidebarHTML = `
         <aside class="sidebar">
             <div class="sidebar-header">
-                <i class="fa-solid fa-circle-check"></i>
+                <img src="Group 31.png" alt="TaskFlow Logo">
                 <h2>TaskFlow</h2>
             </div>
             
             <nav class="sidebar-nav">
                 <a href="dashboard.html" class="nav-item ${activeTarget === 'dashboard' ? 'active' : ''}">
-                    <i class="fa-solid fa-table-cells-large"></i>
+                    <img src="Group 64.png" alt="Dashboard" class="nav-icon">
                     Dashboard
                 </a>
                 <a href="semua-kegiatan.html" class="nav-item ${activeTarget === 'all-tasks' ? 'active' : ''}">
-                    <i class="fa-solid fa-list-ul"></i>
+                    <div class="semua-kegiatan-icon">
+                        <div class="line-1"></div>
+                        <div class="line-2"></div>
+                        <div class="line-3"></div>
+                    </div>
                     Semua Kegiatan
                 </a>
                 <a href="tambah-kegiatan.html" class="nav-item ${activeTarget === 'add-task' ? 'active' : ''}">
-                    <i class="fa-solid fa-plus-circle"></i>
+                    <div class="add-task-icon-wrapper">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
                     Tambah Kegiatan
                 </a>
                 <a href="notifikasi.html" class="nav-item ${activeTarget === 'notifications' ? 'active' : ''}">
-                    <i class="fa-regular fa-bell"></i>
+                    <img src="Group 12.png" alt="Notifikasi" class="nav-icon">
                     Notifikasi
                 </a>
                 <a href="analistik.html" class="nav-item ${activeTarget === 'analytics' ? 'active' : ''}">
-                    <i class="fa-solid fa-chart-simple"></i>
+                    <img src="Group 63.png" alt="Analistik Kegiatan" class="nav-icon">
                     Analistik Kegiatan
                 </a>
             </nav>

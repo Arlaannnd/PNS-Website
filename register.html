@@ -14,7 +14,7 @@
     <div class="view auth-container active">
         <div class="auth-left">
             <div class="logo">
-                <i class="fa-solid fa-circle-check"></i>
+                <img src="Group 31.png" alt="TaskFlow Logo">
                 <div>
                     <h1>TaskFlow</h1>
                     <p>Kelola Produktivitas Lebih Cerdas</p>
@@ -23,7 +23,7 @@
             <h2 class="auth-tagline">Kelola semua produktivitasmu<br>dengan lebih cerdas.</h2>
             <ul class="auth-features">
                 <li>
-                    <i class="fa-regular fa-clipboard"></i>
+                    <i class="fa-solid fa-clipboard-list"></i>
                     <span>Kelola semua tugas<br>dalam satu tempat.</span>
                 </li>
                 <li>
@@ -35,6 +35,13 @@
                     <span>Notifikasi tidak mengganggu tapi<br>tetap ngingetin.</span>
                 </li>
             </ul>
+            
+            <div class="auth-floating-images">
+                <img src="Group 8.png" alt="" class="float-img float-1">
+                <img src="Group 9.png" alt="" class="float-img float-2">
+                <img src="Group 11.png" alt="" class="float-img float-3">
+                <img src="apake.png" alt="" class="float-img float-4">
+            </div>
         </div>
         <div class="auth-right">
             <div class="auth-form-container">
@@ -50,19 +57,19 @@
                         <label>Email</label>
                         <div class="input-with-icon">
                             <i class="fa-regular fa-envelope"></i>
-                            <input type="email" id="regEmail" placeholder="contoh@gmail.com" required>
+                            <input type="email" id="regEmail" placeholder="contoh@gmail.com" required pattern=".*\.com$" title="Harus menggunakan email berakhiran .com">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
-                        <div class="input-with-icon">
+                        <div class="input-with-icon no-left-icon">
                             <input type="password" placeholder="Masukkan password" required>
                             <i class="fa-regular fa-eye show-pwd"></i>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Konfirmasi Password</label>
-                        <div class="input-with-icon">
+                        <div class="input-with-icon no-left-icon">
                             <input type="password" placeholder="Ulangi password" required>
                             <i class="fa-regular fa-eye show-pwd"></i>
                         </div>
