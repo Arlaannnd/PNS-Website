@@ -117,7 +117,7 @@ textarea {
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
-    background: #fdfdfd;
+    background: #f7f7f7;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -130,17 +130,40 @@ input:focus, select:focus, textarea:focus {
     align-items: center;
 }
 
-.input-with-icon i {
+.input-with-icon i,
+.input-with-icon svg {
     position: absolute;
     color: var(--text-muted);
+    font-size: 16px;
+    z-index: 2;
+    pointer-events: none;
 }
 
-.input-with-icon i:first-child {
+.input-with-icon i:first-child,
+.input-with-icon svg:first-child {
     left: 16px;
 }
 
 .input-with-icon input {
     padding-left: 40px;
+    position: relative;
+}
+
+.input-with-icon.no-left-icon input {
+    padding-left: 16px;
+    padding-right: 40px;
+}
+
+/* Sembunyikan icon bawaan browser pada input date & time dan jadikan seluruh area bisa diklik */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
 }
 
 .input-with-icon .show-pwd {
@@ -175,40 +198,43 @@ input:focus, select:focus, textarea:focus {
 
 /* Welcome View */
 .modal-overlay {
-    background-color: var(--primary-dark);
+    background: linear-gradient(to bottom, #08160b 0%, #19381e 100%);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .welcome-card {
-    background-color: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(to bottom, #15311b 0%, #254a2a 100%);
     padding: 40px;
-    border-radius: var(--radius-lg);
+    border-radius: 24px;
     text-align: center;
     color: white;
     width: 100%;
     max-width: 400px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-card .logo {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 30px;
+    justify-content: center;
+    text-align: left;
+    gap: 16px;
+    margin-bottom: 40px;
 }
 
-.welcome-card .logo i {
-    font-size: 48px;
-    color: var(--priority-green);
+.welcome-card .logo img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
 }
 
 .welcome-card .logo h1 {
-    font-size: 24px;
+    font-size: 28px;
     margin-bottom: 4px;
+    font-weight: 700;
 }
 
 .welcome-card .logo p {
@@ -218,6 +244,7 @@ input:focus, select:focus, textarea:focus {
 
 .welcome-card h2 {
     font-size: 20px;
+    font-weight: 500;
     margin-bottom: 8px;
 }
 
@@ -234,13 +261,13 @@ input:focus, select:focus, textarea:focus {
 }
 
 .welcome-card .btn-outline {
-    background-color: transparent;
+    background: linear-gradient(to bottom, #0a170d 0%, #15311b 100%);
     color: white;
-    border: 1px solid white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .welcome-card .btn-outline:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(to bottom, #061108 0%, #102614 100%);
 }
 
 .welcome-card .btn-primary {
@@ -265,6 +292,54 @@ input:focus, select:focus, textarea:focus {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-left > * {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-floating-images {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.auth-floating-images img {
+    position: absolute;
+    object-fit: contain;
+    opacity: 0.5;
+}
+
+.float-1 {
+    bottom: -15px;
+    left: -15px;
+    width: 90px;
+    opacity: 0.3;
+}
+.float-2 {
+    bottom: 60px;
+    left: 12%;
+    width: 120px;
+    opacity: 0.6;
+}
+.float-3 {
+    bottom: -10px;
+    left: 45%;
+    width: 130px;
+    opacity: 0.7;
+}
+.float-4 {
+    bottom: -20px;
+    right: -10px;
+    width: 200px;
+    opacity: 0.5;
 }
 
 .auth-left .logo {
@@ -274,9 +349,10 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 60px;
 }
 
-.auth-left .logo i {
-    font-size: 32px;
-    color: var(--priority-green);
+.auth-left .logo img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
 }
 
 .auth-left .logo h1 {
@@ -304,14 +380,21 @@ input:focus, select:focus, textarea:focus {
 
 .auth-features li {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
 }
 
 .auth-features i {
-    font-size: 24px;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 4px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.08);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .auth-features span {
@@ -335,7 +418,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .auth-form-container h2 {
-    font-size: 28px;
+    font-size: 32px;
+    font-weight: 700;
     margin-bottom: 8px;
     text-align: center;
 }
@@ -422,9 +506,10 @@ input:focus, select:focus, textarea:focus {
     padding: 0 10px;
 }
 
-.sidebar-header i {
-    font-size: 28px;
-    color: var(--priority-green);
+.sidebar-header img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .sidebar-nav {
@@ -444,6 +529,66 @@ input:focus, select:focus, textarea:focus {
     font-weight: 500;
     font-size: 14px;
     transition: all 0.2s;
+}
+
+.nav-item i {
+    color: #31C48D;
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.nav-item .nav-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.add-task-icon-wrapper {
+    background-color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-task-icon-wrapper i {
+    color: var(--primary-dark) !important;
+    font-size: 14px !important;
+    width: auto !important;
+}
+
+.semua-kegiatan-icon {
+    width: 22px;
+    height: 24px;
+    border: 2px solid white;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    padding: 4px 3px;
+    justify-content: center;
+    gap: 3px;
+    box-sizing: border-box;
+}
+
+.semua-kegiatan-icon div {
+    height: 2px;
+    background-color: white;
+    border-radius: 2px;
+}
+
+.semua-kegiatan-icon .line-1 {
+    width: 100%;
+}
+
+.semua-kegiatan-icon .line-2 {
+    width: 75%;
+}
+
+.semua-kegiatan-icon .line-3 {
+    width: 50%;
 }
 
 .nav-item:hover {

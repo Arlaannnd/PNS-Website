@@ -2,7 +2,13 @@
 function hitungStatistik(dataKegiatan) {
   let skorArray = dataKegiatan.map(k => k.skorPrioritas);
   let totalKegiatan = skorArray.length;
-  if (totalKegiatan < 2) return null;
+  if (totalKegiatan === 0) return {
+    totalKegiatan: 0, rataRata: "0.00", median: "0.00", modus: "Tidak ada",
+    standarDeviasi: "0.00", probabilitasKeterlambatan: "0.00%",
+    tugasTerlambatAbsolut: 0, produktivitasMingguan: "0%",
+    dataPieChart: { "TERLEWAT": 0, "Sangat Tinggi": 0, "Tinggi": 0, "Sedang": 0, "Rendah": 0 },
+    dataBarChart: { "Mon": 0, "Tue": 0, "Wed": 0, "Thu": 0, "Fri": 0, "Sat": 0, "Sun": 0 }
+  };
 
   // 1. Mean (Rata-rata)
   let sum = skorArray.reduce((acc, val) => acc + val, 0);
@@ -26,8 +32,11 @@ function hitungStatistik(dataKegiatan) {
   }
 
   // 4. Standar Deviasi (Rumus Sampel n-1 agar sesuai Excel STDEV.S)
-  let variance = skorArray.reduce((acc, val) => acc + Math.pow(val - rataRata, 2), 0) / (totalKegiatan - 1);
-  let standarDeviasi = Math.sqrt(variance);
+  let standarDeviasi = 0;
+  if (totalKegiatan > 1) {
+    let variance = skorArray.reduce((acc, val) => acc + Math.pow(val - rataRata, 2), 0) / (totalKegiatan - 1);
+    standarDeviasi = Math.sqrt(variance);
+  }
 
   // 5. Probabilitas & Tugas Terlambat
   let pernahTerlambat = dataKegiatan.filter(k => !k.riwayatTerlambat.toLowerCase().includes('tidak')).length;

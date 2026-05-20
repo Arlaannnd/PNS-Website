@@ -206,15 +206,44 @@
             const avgHours = (parseFloat(statsData.rataRata) * 1.5).toFixed(1);
             document.getElementById('stat-mean-time').innerHTML = `${avgHours} <small>jam</small>`;
 
+            // Set Date Dropdown dynamically to current week
+            const today = new Date();
+            const dayOfWeek = today.getDay() || 7; 
+            const firstDay = new Date(today);
+            firstDay.setDate(today.getDate() - dayOfWeek + 1);
+            const lastDay = new Date(firstDay);
+            lastDay.setDate(firstDay.getDate() + 6);
+            
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const firstDayStr = `${firstDay.getDate()} ${firstDay.getMonth() === lastDay.getMonth() ? '' : monthNames[firstDay.getMonth()]}`.trim();
+            const lastDayStr = `${lastDay.getDate()} ${monthNames[lastDay.getMonth()]} ${lastDay.getFullYear()}`;
+            const dateDropdown = document.querySelector('.date-dropdown option');
+            if (dateDropdown) {
+                dateDropdown.textContent = `${firstDayStr} - ${lastDayStr}`;
+            }
+
             // Bar Chart
             const chartContainer = document.getElementById('bar-chart-container');
             chartContainer.innerHTML = '';
             const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-            const maxVal = Math.max(...Object.values(statsData.dataBarChart || {}), 1);
+            const maxVal = Math.max(...Object.values(statsData.dataBarChart || {}), 0);
+            
+            // Generate Dynamic Y-Axis Labels based on maxVal
+            let maxChartVal = maxVal <= 4 ? 4 : Math.ceil(maxVal / 4) * 4;
+            const yAxis = document.querySelector('.y-axis');
+            if (yAxis) {
+                yAxis.innerHTML = `
+                    <span>${maxChartVal}</span>
+                    <span>${maxChartVal * 0.75}</span>
+                    <span>${maxChartVal * 0.5}</span>
+                    <span>${maxChartVal * 0.25}</span>
+                    <span>0</span>
+                `;
+            }
             
             // Find the highest value to make it yellow (like the image)
             let maxDay = "";
-            let highest = -1;
+            let highest = 0;
             days.forEach(d => {
                 if((statsData.dataBarChart[d] || 0) > highest) {
                     highest = statsData.dataBarChart[d];
@@ -224,7 +253,6 @@
             
             days.forEach(day => {
                 const val = statsData.dataBarChart[day] || 0;
-                const maxChartVal = 20; // Sesuai label Y-Axis gambar
                 let heightPct = (val / maxChartVal) * 100;
                 if(heightPct > 100) heightPct = 100;
                 
