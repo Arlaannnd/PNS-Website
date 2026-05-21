@@ -2,13 +2,13 @@ window.injectSidebar = function (activeTarget) {
     const sidebarHTML = `
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="Group 31.png" alt="TaskFlow Logo">
+                <img src="./gambar/Group 31.png" alt="TaskFlow Logo">
                 <h2>TaskFlow</h2>
             </div>
             
             <nav class="sidebar-nav">
                 <a href="dashboard.html" class="nav-item ${activeTarget === 'dashboard' ? 'active' : ''}">
-                    <img src="Group 64.png" alt="Dashboard" class="nav-icon">
+                    <img src="./gambar/Group 64.png" alt="Dashboard" class="nav-icon">
                     Dashboard
                 </a>
                 <a href="semua-kegiatan.html" class="nav-item ${activeTarget === 'all-tasks' ? 'active' : ''}">
@@ -26,11 +26,11 @@ window.injectSidebar = function (activeTarget) {
                     Tambah Kegiatan
                 </a>
                 <a href="notifikasi.html" class="nav-item ${activeTarget === 'notifications' ? 'active' : ''}">
-                    <img src="Group 12.png" alt="Notifikasi" class="nav-icon">
+                    <img src="./gambar/Group 12.png" alt="Notifikasi" class="nav-icon">
                     Notifikasi
                 </a>
                 <a href="analistik.html" class="nav-item ${activeTarget === 'analytics' ? 'active' : ''}">
-                    <img src="Group 63.png" alt="Analistik Kegiatan" class="nav-icon">
+                    <img src="./gambar/Group 63.png" alt="Analistik Kegiatan" class="nav-icon">
                     Analistik Kegiatan
                 </a>
             </nav>
