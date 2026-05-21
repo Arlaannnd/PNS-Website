@@ -86,3 +86,154 @@ window.updateUserInfo = function () {
         profileTimezoneEl.value = storedTimezone;
     }
 }
+
+// --- DYNAMIC NOTIFICATIONS ENGINE ---
+window.showToastAlert = function(title, text, type = 'info', actionUrl = '', actionText = '') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-alert ${type}`;
+    
+    let iconClass = 'fa-circle-info';
+    if (type === 'danger') iconClass = 'fa-circle-xmark';
+    else if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+    else if (type === 'success') iconClass = 'fa-circle-check';
+
+    let actionButtonHtml = '';
+    if (actionUrl && actionText) {
+        actionButtonHtml = `
+            <div class="toast-actions">
+                <a href="${actionUrl}" class="toast-btn primary">${actionText}</a>
+                <button class="toast-btn secondary" onclick="this.closest('.toast-alert').classList.remove('show'); setTimeout(() => this.closest('.toast-alert').remove(), 400)">Tutup</button>
+            </div>
+        `;
+    }
+
+    toast.innerHTML = `
+        <div class="toast-icon"><i class="fa-solid ${iconClass}"></i></div>
+        <div class="toast-body">
+            <h4>${title}</h4>
+            <p>${text}</p>
+            ${actionButtonHtml}
+        </div>
+        <button class="toast-close" onclick="this.closest('.toast-alert').classList.remove('show'); setTimeout(() => this.closest('.toast-alert').remove(), 400)">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    // Auto dismiss if no action buttons
+    if (!actionButtonHtml) {
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }
+        }, 5000);
+    }
+};
+
+window.checkDynamicNotifications = function() {
+    const raw = localStorage.getItem('taskData');
+    const tasks = raw ? JSON.parse(raw) : [];
+
+    const deadlineEnabled = localStorage.getItem('t-deadline') !== 'false';
+    const priorityEnabled = localStorage.getItem('t-prioritas') !== 'false';
+
+    let countOverdue = 0;
+    let countUrgent = 0;
+
+    tasks.forEach(task => {
+        if (task.status === 'Belum') {
+            if (task.tenggatAngka < 0) {
+                countOverdue++;
+            } else if (task.tenggatAngka <= 2) {
+                countUrgent++;
+            }
+        }
+    });
+
+    const totalUrgent = countOverdue + countUrgent;
+
+    // Update badges
+    const notifLinks = document.querySelectorAll('a[href="notifikasi.html"]');
+    notifLinks.forEach(link => {
+        if (link.classList.contains('nav-item')) {
+            // Sidebar item
+            let existingBadge = link.querySelector('.notif-sidebar-badge');
+            if (existingBadge) existingBadge.remove();
+            
+            if (totalUrgent > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'notif-sidebar-badge';
+                badge.style.cssText = 'background-color: var(--priority-red); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; display: inline-block;';
+                badge.textContent = totalUrgent;
+                link.appendChild(badge);
+            }
+        } else {
+            // Header bell button
+            let existingBadge = link.querySelector('.notif-badge');
+            if (existingBadge) existingBadge.remove();
+            
+            // Remove the static span white dot in Android if any
+            let staticDot = link.querySelector('span[style*="width:10px"]');
+            if (staticDot) staticDot.remove();
+            
+            let staticDot2 = link.querySelector('span[style*="background-color:white"]');
+            if (staticDot2) staticDot2.remove();
+
+            if (totalUrgent > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'notif-badge';
+                badge.textContent = totalUrgent;
+                link.appendChild(badge);
+            }
+        }
+    });
+
+    // Show toast alerts (only once per session)
+    if (!sessionStorage.getItem('lastToastShown')) {
+        if (countOverdue > 0 && deadlineEnabled) {
+            window.showToastAlert(
+                '🚨 Kegiatan Terlewat!',
+                `Ada ${countOverdue} kegiatan yang sudah melewati tenggat waktu! Segera selesaikan tugas Anda.`,
+                'danger',
+                'notifikasi.html',
+                'Selesaikan Sekarang'
+            );
+            sessionStorage.setItem('lastToastShown', 'true');
+        } else if (countUrgent > 0 && deadlineEnabled) {
+            window.showToastAlert(
+                '⚠️ Deadline Mendekati!',
+                `Kamu memiliki ${countUrgent} kegiatan yang perlu diselesaikan dalam 2 hari ini!`,
+                'warning',
+                'notifikasi.html',
+                'Lihat Notifikasi'
+            );
+            sessionStorage.setItem('lastToastShown', 'true');
+        }
+    }
+};
+
+// Auto run check on DOMContentLoaded and slightly after
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(window.checkDynamicNotifications, 100);
+});
+
+// Also hook into injectSidebar so it runs when sidebar is injected
+const originalInjectSidebar = window.injectSidebar;
+window.injectSidebar = function(activeTarget) {
+    originalInjectSidebar(activeTarget);
+    setTimeout(window.checkDynamicNotifications, 50);
+};

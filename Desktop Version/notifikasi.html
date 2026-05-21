@@ -7,6 +7,28 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .notif-complete-btn:hover {
+            background-color: #15803d !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(22, 101, 52, 0.15);
+        }
+        .notif-complete-btn:active {
+            transform: translateY(0);
+        }
+        #btn-mark-all-done:hover {
+            background-color: #15803d !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(22, 101, 52, 0.15);
+        }
+        #btn-mark-all-done:active {
+            transform: translateY(0);
+        }
+        .search-bar:focus-within {
+            border-color: #166534 !important;
+            box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="view main-layout active">
@@ -20,10 +42,24 @@
                 <h1 class="page-title" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">Notifikasi</h1>
                 <p class="page-subtitle" style="font-size: 16px; color: #6B7280; margin-bottom: 24px;">Pantau tenggat waktu terdekat.</p>
                 
-                <div style="display: flex; gap: 12px; margin-bottom: 24px;" id="notif-filters">
-                    <button class="notif-filter active" data-filter="all" style="background: #166534; color: white; border: none; padding: 8px 24px; border-radius: 9999px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">All</button>
-                    <button class="notif-filter" data-filter="unread" style="background: white; color: #111827; border: 1px solid #E5E7EB; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;">Belum Dibaca</button>
-                    <button class="notif-filter" data-filter="important" style="background: white; color: #111827; border: 1px solid #E5E7EB; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;">Penting</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px;">
+                    <!-- Left: Filters -->
+                    <div style="display: flex; gap: 12px;" id="notif-filters">
+                        <button class="notif-filter active" data-filter="all" style="background: #166534; color: white; border: none; padding: 8px 24px; border-radius: 9999px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">All</button>
+                        <button class="notif-filter" data-filter="unread" style="background: white; color: #111827; border: 1px solid #E5E7EB; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;">Belum Dibaca</button>
+                        <button class="notif-filter" data-filter="important" style="background: white; color: #111827; border: 1px solid #E5E7EB; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;">Penting</button>
+                    </div>
+                    
+                    <!-- Right: Search and Mark All -->
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div class="search-bar" style="display: flex; align-items: center; background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0 16px; height: 40px; width: 250px;">
+                            <i class="fa-solid fa-magnifying-glass" style="color: #9CA3AF; margin-right: 10px;"></i>
+                            <input type="text" id="search-notif" placeholder="Cari notifikasi..." style="border: none; outline: none; font-size: 13px; width: 100%; font-family: inherit;">
+                        </div>
+                        <button id="btn-mark-all-done" onclick="window.tandaiSemuaSelesai()" style="background: #166534; color: white; border: none; padding: 0 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; height: 40px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap;">
+                            <i class="fa-solid fa-circle-check"></i> Tandai Semua Selesai
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="notifications-list" id="notifications-list">
@@ -93,21 +129,34 @@
             });
         });
 
+        // Search trigger
+        document.getElementById('search-notif').addEventListener('input', () => {
+            renderNotifications();
+        });
+
         function renderNotifications() {
             const list = document.getElementById('notifications-list');
             list.innerHTML = '';
+            
+            const query = document.getElementById('search-notif').value.toLowerCase().trim();
             
             // Mengambil task yang belum selesai untuk "Hari Ini" dan yang sudah selesai untuk "Kemarin"
             let hariIniTasks = taskData.filter(t => t.status === 'Belum').sort((a, b) => a.tenggatAngka - b.tenggatAngka);
             let kemarinTasks = taskData.filter(t => t.status !== 'Belum').sort((a, b) => a.tenggatAngka - b.tenggatAngka);
             
-            // Filter logic
+            // Filter logic by tab
             if (activeNotifFilter === 'unread') {
-                kemarinTasks = []; // yang sudah dibaca/selesai kita sembunyikan
+                kemarinTasks = []; 
             } else if (activeNotifFilter === 'important') {
                 const isImportant = t => ['TERLEWAT', 'Sangat Tinggi', 'Tinggi'].includes(t.labelPrioritas);
                 hariIniTasks = hariIniTasks.filter(isImportant);
                 kemarinTasks = kemarinTasks.filter(isImportant);
+            }
+
+            // Filter logic by search text
+            if (query !== '') {
+                hariIniTasks = hariIniTasks.filter(t => t.nama.toLowerCase().includes(query));
+                kemarinTasks = kemarinTasks.filter(t => t.nama.toLowerCase().includes(query));
             }
             
             let html = '';
@@ -140,12 +189,18 @@
                             </div>
                             <div>
                                 <div style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 2px;">${title}</div>
-                                <div style="font-size: 12px; color: #6B7280;">Tugas ${task.nama} akan mendekati tenggat waktu pada ${task.tenggatHari}</div>
+                                <div style="font-size: 12px; color: #6B7280; display: flex; flex-direction: column; gap: 4px;">
+                                    <span>Tugas ${task.nama} akan mendekati tenggat waktu pada ${task.tenggatHari}</span>
+                                    <div>${getPriorityBadge(task.labelPrioritas)}</div>
+                                </div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 16px; flex-shrink: 0;">
                             <span style="font-size: 12px; color: #6B7280;">09:00 AM</span>
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: #EF4444;"></span>
+                            <button onclick="selesaikanTugasLangsung(${task.id}, '${task.nama.replace(/'/g, "\\'")}')" class="notif-complete-btn" title="Selesaikan Kegiatan Ini" style="background: #166534; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; font-family: inherit; transition: all 0.2s; white-space: nowrap;">
+                                <i class="fa-solid fa-check"></i> Selesai
+                            </button>
                         </div>
                     </div>
                     `;
@@ -163,7 +218,6 @@
                 kemarinTasks.forEach((task, index) => {
                     const borderBottom = index < kemarinTasks.length - 1 ? 'border-bottom: 1px solid #E5E7EB;' : '';
                     
-                    // Kita asumsikan tugas yang Selesai / Review ini sudah "Dibaca" / lampau
                     let iconBg = '#9CA3AF';
                     let iconClass = task.status === 'Selesai' ? 'fa-check' : 'fa-info';
                     let title = task.status === 'Selesai' ? 'Tugas Selesai' : 'Status Diperbarui';
@@ -176,7 +230,10 @@
                             </div>
                             <div>
                                 <div style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 2px;">${title}</div>
-                                <div style="font-size: 12px; color: #6B7280;">Penyelesaian tugas ${task.nama} berhasil diperbarui</div>
+                                <div style="font-size: 12px; color: #6B7280; display: flex; flex-direction: column; gap: 4px;">
+                                    <span>Penyelesaian tugas ${task.nama} berhasil diperbarui</span>
+                                    <div>${getPriorityBadge(task.labelPrioritas)}</div>
+                                </div>
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
@@ -194,6 +251,104 @@
             
             list.innerHTML = html;
         }
+
+        window.selesaikanTugasLangsung = function(taskId, taskName) {
+            const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            const taskIndex = currentData.findIndex(t => t.id === taskId);
+            if (taskIndex > -1) {
+                currentData[taskIndex].status = "Selesai";
+                currentData[taskIndex].hariSelesai = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date().getDay()];
+                
+                localStorage.setItem('taskData', JSON.stringify(currentData));
+                
+                // Update our local reference
+                const newResult = window.initApp();
+                taskData.length = 0;
+                newResult.dataTersortir.forEach(item => taskData.push(item));
+                
+                // Show dynamic success toast!
+                if (window.showToastAlert) {
+                    window.showToastAlert(
+                        '🎉 Tugas Selesai!',
+                        `Kegiatan "${taskName}" telah berhasil diselesaikan!`,
+                        'success'
+                    );
+                }
+                
+                // Re-render
+                renderNotifications();
+                
+                // Re-check global badge counts
+                if (window.checkDynamicNotifications) {
+                    window.checkDynamicNotifications();
+                }
+            }
+        };
+
+        window.tandaiSemuaSelesai = function() {
+            const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            let completedCount = 0;
+            
+            const query = document.getElementById('search-notif').value.toLowerCase().trim();
+            const sortedByUrgency = [...currentData].sort((a, b) => a.tenggatAngka - b.tenggatAngka);
+            
+            sortedByUrgency.forEach(task => {
+                if (task.status === "Belum") {
+                    // Filter matching filters
+                    let passFilter = true;
+                    if (activeNotifFilter === 'important') {
+                        passFilter = ['TERLEWAT', 'Sangat Tinggi', 'Tinggi'].includes(task.labelPrioritas);
+                    }
+
+                    if (passFilter && query !== '') {
+                        passFilter = task.nama.toLowerCase().includes(query);
+                    }
+
+                    if (passFilter) {
+                        const idx = currentData.findIndex(t => t.id === task.id);
+                        if (idx > -1) {
+                            currentData[idx].status = "Selesai";
+                            currentData[idx].hariSelesai = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date().getDay()];
+                            completedCount++;
+                        }
+                    }
+                }
+            });
+            
+            if (completedCount > 0) {
+                localStorage.setItem('taskData', JSON.stringify(currentData));
+                
+                // Update our local reference
+                const newResult = window.initApp();
+                taskData.length = 0;
+                newResult.dataTersortir.forEach(item => taskData.push(item));
+                
+                // Show success toast
+                if (window.showToastAlert) {
+                    window.showToastAlert(
+                        '🎉 Semua Selesai!',
+                        `${completedCount} kegiatan telah ditandai sebagai selesai sekaligus!`,
+                        'success'
+                    );
+                }
+                
+                // Re-render
+                renderNotifications();
+                
+                // Re-check global badge counts
+                if (window.checkDynamicNotifications) {
+                    window.checkDynamicNotifications();
+                }
+            } else {
+                if (window.showToastAlert) {
+                    window.showToastAlert(
+                        '💡 Info',
+                        'Tidak ada kegiatan yang perlu diselesaikan.',
+                        'info'
+                    );
+                }
+            }
+        };
 
         renderNotifications();
     </script>

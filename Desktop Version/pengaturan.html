@@ -429,9 +429,9 @@
                 <h2><i class="fa-solid fa-bell"></i> Preferensi Notifikasi</h2>
                 <button class="subpage-close" onclick="closeSubpage('notifikasi')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="notif-row"><div class="notif-label"><strong>Notifikasi Deadline</strong><p>Pemberitahuan saat tugas mendekati tenggat waktu</p></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
-            <div class="notif-row"><div class="notif-label"><strong>Notifikasi Prioritas</strong><p>Pemberitahuan saat ada tugas prioritas tinggi</p></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
-            <div class="notif-row"><div class="notif-label"><strong>Ringkasan Mingguan</strong><p>Ringkasan produktivitas setiap minggu</p></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+            <div class="notif-row"><div class="notif-label"><strong>Notifikasi Deadline</strong><p>Pemberitahuan saat tugas mendekati tenggat waktu</p></div><label class="toggle"><input type="checkbox" id="t-deadline" checked><span class="slider"></span></label></div>
+            <div class="notif-row"><div class="notif-label"><strong>Notifikasi Prioritas</strong><p>Pemberitahuan saat ada tugas prioritas tinggi</p></div><label class="toggle"><input type="checkbox" id="t-prioritas" checked><span class="slider"></span></label></div>
+            <div class="notif-row"><div class="notif-label"><strong>Ringkasan Mingguan</strong><p>Ringkasan produktivitas setiap minggu</p></div><label class="toggle"><input type="checkbox" id="t-weekly"><span class="slider"></span></label></div>
         </div>
     </div>
 
@@ -610,6 +610,34 @@
             localStorage.setItem('appLanguage', document.querySelector('input[name="language"]:checked').value);
             alert('Bahasa berhasil disimpan!'); closeSubpage('bahasa');
         });
+
+        // Notification settings
+        function loadNotifSettings() {
+            ['t-deadline', 't-prioritas', 't-weekly'].forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    const saved = localStorage.getItem(id);
+                    if (saved === 'true') {
+                        checkbox.checked = true;
+                    } else if (saved === 'false') {
+                        checkbox.checked = false;
+                    } else if (id !== 't-weekly') {
+                        // default true for deadline and priority
+                        checkbox.checked = true;
+                        localStorage.setItem(id, 'true');
+                    } else {
+                        // default false for weekly
+                        checkbox.checked = false;
+                        localStorage.setItem(id, 'false');
+                    }
+
+                    checkbox.addEventListener('change', function() {
+                        localStorage.setItem(id, this.checked);
+                    });
+                }
+            });
+        }
+        loadNotifSettings();
 
         // FAQ Search/Filter
         function filterFAQ(query) {

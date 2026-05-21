@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .notif-complete-btn:hover {
+            background-color: var(--primary-light) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(95, 138, 34, 0.2);
+        }
+        .notif-complete-btn:active {
+            transform: translateY(0);
+        }
+        .notification-item {
+            transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+        }
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+    </style>
 </head>
 <body>
     <div class="view main-layout active">
@@ -22,6 +39,24 @@
             </div>
 
             <div class="content-view active" style="margin-top:-20px; position:relative; z-index:2;">
+                <!-- Search & Action Controls -->
+                <div class="search-filter-row" style="display: flex; flex-direction: column; gap: 12px; margin: 0 24px 20px 24px;">
+                    <div style="display: flex; gap: 10px; width: 100%; align-items: center;">
+                        <div class="search-bar" style="flex: 1; display: flex; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0 16px; height: 48px;">
+                            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted); margin-right: 10px;"></i>
+                            <input type="text" id="search-notif" placeholder="Cari notifikasi..." style="border: none; outline: none; font-size: 14px; font-family: inherit; width: 100%; color: var(--text-main);">
+                        </div>
+                        <button id="btn-mark-all-done" class="btn btn-primary" onclick="window.tandaiSemuaSelesai()" style="width: auto; height: 48px; padding: 0 16px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                            <i class="fa-solid fa-circle-check"></i> Tandai Semua Selesai
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 8px;" id="notif-filters">
+                        <button class="notif-filter active" data-filter="all" style="background: var(--primary-dark); color: white; border: none; padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Semua</button>
+                        <button class="notif-filter" data-filter="unread" style="background: white; color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;">Belum Selesai</button>
+                        <button class="notif-filter" data-filter="important" style="background: white; color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;">Penting</button>
+                    </div>
+                </div>
                 
                 <div class="notifications-list" id="notifications-list">
                     <!-- Injected by JS -->
@@ -41,15 +76,61 @@
         const result = window.initApp();
         const taskData = result.dataTersortir;
 
+        let activeNotifFilter = 'all';
+
+        // Connect filters
+        document.querySelectorAll('.notif-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.notif-filter').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = 'white';
+                    b.style.color = 'var(--text-main)';
+                    b.style.border = '1px solid var(--border-color)';
+                    b.style.fontWeight = '500';
+                });
+                
+                this.classList.add('active');
+                this.style.background = 'var(--primary-dark)';
+                this.style.color = 'white';
+                this.style.border = 'none';
+                this.style.fontWeight = '600';
+                
+                activeNotifFilter = this.getAttribute('data-filter');
+                renderNotifications();
+            });
+        });
+
+        // Connect Search
+        document.getElementById('search-notif').addEventListener('input', () => {
+            renderNotifications();
+        });
+
         function renderNotifications() {
             const list = document.getElementById('notifications-list');
             list.innerHTML = '';
             
+            const query = document.getElementById('search-notif').value.toLowerCase().trim();
             const sortedByUrgency = [...taskData].sort((a, b) => a.tenggatAngka - b.tenggatAngka);
             let count = 0;
             
             sortedByUrgency.forEach(task => {
-                if (task.status === "Belum" && count < 5) {
+                // Filter matching status and filter tabs
+                let passFilter = false;
+                if (activeNotifFilter === 'all') {
+                    // Show all unresolved, or if search matches
+                    passFilter = (task.status === "Belum");
+                } else if (activeNotifFilter === 'unread') {
+                    passFilter = (task.status === "Belum");
+                } else if (activeNotifFilter === 'important') {
+                    passFilter = (task.status === "Belum" && ['TERLEWAT', 'Sangat Tinggi', 'Tinggi'].includes(task.labelPrioritas));
+                }
+
+                // Filter matching search text
+                if (passFilter && query !== '') {
+                    passFilter = task.nama.toLowerCase().includes(query);
+                }
+
+                if (passFilter) {
                     let alertClass = "alert-green";
                     let iconClass = "fa-check";
                     let msg = `Kegiatan ${task.nama} dijadwalkan pada ${task.tenggatHari}.`;
@@ -73,13 +154,18 @@
                     }
 
                     list.innerHTML += `
-                        <div class="notification-item ${alertClass}">
-                            <div class="notif-icon"><i class="fa-solid ${iconClass}"></i></div>
-                            <div class="notif-content">
-                                <h4>${task.nama}</h4>
-                                <p>${msg}</p>
-                                <span class="task-badge ${task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green'}" style="margin-top:8px; display:inline-block;">Prioritas: ${task.labelPrioritas}</span>
+                        <div class="notification-item ${alertClass}" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex-grow: 1;">
+                                <div class="notif-icon"><i class="fa-solid ${iconClass}"></i></div>
+                                <div class="notif-content">
+                                    <h4>${task.nama}</h4>
+                                    <p>${msg}</p>
+                                    <span class="task-badge ${task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green'}" style="margin-top:8px; display:inline-block;">Prioritas: ${task.labelPrioritas}</span>
+                                </div>
                             </div>
+                            <button onclick="selesaikanTugasLangsung(${task.id}, '${task.nama.replace(/'/g, "\\'")}')" class="notif-complete-btn" title="Selesaikan Kegiatan Ini" style="background: var(--primary-dark); color: white; border: none; padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap;">
+                                <i class="fa-solid fa-check"></i> Selesai
+                            </button>
                         </div>
                     `;
                     count++;
@@ -87,9 +173,109 @@
             });
             
             if (count === 0) {
-                list.innerHTML = '<p style="color:var(--text-muted)">Tidak ada notifikasi saat ini.</p>';
+                list.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--text-muted); background: white; border-radius: 8px; border: 1px solid var(--border-color); margin: 0 24px;">Tidak ada notifikasi saat ini.</div>';
             }
         }
+
+        window.selesaikanTugasLangsung = function(taskId, taskName) {
+            const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            const taskIndex = currentData.findIndex(t => t.id === taskId);
+            if (taskIndex > -1) {
+                currentData[taskIndex].status = "Selesai";
+                currentData[taskIndex].hariSelesai = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date().getDay()];
+                
+                localStorage.setItem('taskData', JSON.stringify(currentData));
+                
+                // Update our local reference
+                const newResult = window.initApp();
+                taskData.length = 0;
+                newResult.dataTersortir.forEach(item => taskData.push(item));
+                
+                // Show dynamic success toast!
+                if (window.showToastAlert) {
+                    window.showToastAlert(
+                        '🎉 Tugas Selesai!',
+                        `Kegiatan "${taskName}" telah berhasil diselesaikan!`,
+                        'success'
+                    );
+                }
+                
+                // Re-render
+                renderNotifications();
+                
+                // Re-check global badge counts
+                if (window.checkDynamicNotifications) {
+                    window.checkDynamicNotifications();
+                }
+            }
+        };
+
+        window.tandaiSemuaSelesai = function() {
+            const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+            let completedCount = 0;
+            
+            const query = document.getElementById('search-notif').value.toLowerCase().trim();
+            const sortedByUrgency = [...currentData].sort((a, b) => a.tenggatAngka - b.tenggatAngka);
+            
+            sortedByUrgency.forEach(task => {
+                if (task.status === "Belum") {
+                    // Apply filters to match what's shown
+                    let passFilter = false;
+                    if (activeNotifFilter === 'all' || activeNotifFilter === 'unread') {
+                        passFilter = true;
+                    } else if (activeNotifFilter === 'important') {
+                        passFilter = ['TERLEWAT', 'Sangat Tinggi', 'Tinggi'].includes(task.labelPrioritas);
+                    }
+
+                    if (passFilter && query !== '') {
+                        passFilter = task.nama.toLowerCase().includes(query);
+                    }
+
+                    if (passFilter) {
+                        const idx = currentData.findIndex(t => t.id === task.id);
+                        if (idx > -1) {
+                            currentData[idx].status = "Selesai";
+                            currentData[idx].hariSelesai = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date().getDay()];
+                            completedCount++;
+                        }
+                    }
+                }
+            });
+            
+            if (completedCount > 0) {
+                localStorage.setItem('taskData', JSON.stringify(currentData));
+                
+                // Update our local reference
+                const newResult = window.initApp();
+                taskData.length = 0;
+                newResult.dataTersortir.forEach(item => taskData.push(item));
+                
+                // Show success toast
+                if (window.showToastAlert) {
+                    window.showToastAlert(
+                        '🎉 Semua Selesai!',
+                        `${completedCount} kegiatan telah ditandai sebagai selesai sekaligus!`,
+                        'success'
+                    );
+                }
+                
+                // Re-render
+                renderNotifications();
+                
+                // Re-check global badge counts
+                if (window.checkDynamicNotifications) {
+                    window.checkDynamicNotifications();
+                }
+            } else {
+                if (window.showToastAlert) {
+                    window.showToastAlert(
+                        '💡 Info',
+                        'Tidak ada kegiatan yang perlu diselesaikan.',
+                        'info'
+                    );
+                }
+            }
+        };
 
         renderNotifications();
     </script>
