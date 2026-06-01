@@ -87,6 +87,7 @@
         </main>
     </div>
 
+    <script src="./database/authService.js"></script>
     <script src="./backend_logic/data.js"></script>
     <script src="./backend_logic/ruleEngine.js"></script>
     <script src="./backend_logic/scripting.js"></script>
@@ -262,8 +263,7 @@
             }
             window.selesaikanTugasLangsung = async function (taskId, taskName) {
                 try {
-                    const module = await import('./database/supabaseclient.js');
-                    const supabase = module.supabase;
+                    const supabase = await window.authService.getSupabase();
                     const hariIniStr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
 
                     const { error } = await supabase
@@ -294,7 +294,7 @@
                     }
 
                 } catch (err) {
-                    alert("Gagal menyelesaikan tugas: " + err.message);
+                    await window.showCustomModal({ title: "Gagal", message: "Gagal menyelesaikan tugas: " + err.message, type: "error", confirmText: "Tutup" });
                     console.error(err);
                 }
             };
@@ -322,8 +322,7 @@
 
                 if (idsToUpdate.length > 0) {
                     try {
-                        const module = await import('./database/supabaseclient.js');
-                        const supabase = module.supabase;
+                        const supabase = await window.authService.getSupabase();
                         const hariIniStr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
 
                         const { error } = await supabase
@@ -354,7 +353,7 @@
                         }
 
                     } catch (err) {
-                        alert("Gagal memperbarui banyak tugas: " + err.message);
+                        await window.showCustomModal({ title: "Gagal", message: "Gagal memperbarui banyak tugas: " + err.message, type: "error", confirmText: "Tutup" });
                         console.error(err);
                     }
                 } else {

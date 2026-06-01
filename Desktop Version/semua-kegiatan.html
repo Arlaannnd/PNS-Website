@@ -329,6 +329,7 @@
         </div>
     </div>
 
+    <script src="./database/authService.js"></script>
     <script src="./backend_logic/data.js"></script>
     <script src="./backend_logic/ruleEngine.js"></script>
     <script src="./backend_logic/scripting.js"></script>
@@ -404,14 +405,22 @@
                             actionButton = `<button class="action-undo" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> Batalkan</button>`;
                         } else if (task.status === "Review") {
                             actionButton = `
-                            <button class="action-done" onclick="window.selesaikanTugas(${task.id})"><i class="fa-solid fa-check"></i> Tandai Selesai</button>
+                            <button class="action-done" onclick="window.selesaikanKegiatanTimer(${task.id})"><i class="fa-solid fa-check"></i> Tandai Selesai</button>
                             <button class="action-undo" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> In Progress</button>
                         `;
                         } else {
-                            actionButton = `
-                            <button class="action-done" onclick="window.selesaikanTugas(${task.id})"><i class="fa-solid fa-check"></i> Tandai Selesai</button>
-                            <button class="action-review" onclick="window.reviewTugas(${task.id})"><i class="fa-solid fa-eye"></i> Tandai Review</button>
-                        `;
+                            if (task.waktuMulai) {
+                                actionButton = `
+                                <button class="action-done" onclick="window.selesaikanKegiatanTimer(${task.id})" style="color: var(--primary-dark);"><i class="fa-solid fa-stop"></i> Selesai Mengerjakan</button>
+                                <button class="action-review" onclick="window.reviewTugas(${task.id})"><i class="fa-solid fa-eye"></i> Tandai Review</button>
+                                `;
+                            } else {
+                                actionButton = `
+                                <button class="action-done" onclick="window.mulaiKegiatan(${task.id})" style="color: var(--primary-color);"><i class="fa-solid fa-play"></i> Mulai Kerjakan</button>
+                                <button class="action-done" onclick="window.selesaikanKegiatanTimer(${task.id})"><i class="fa-solid fa-check"></i> Langsung Selesai</button>
+                                <button class="action-review" onclick="window.reviewTugas(${task.id})"><i class="fa-solid fa-eye"></i> Tandai Review</button>
+                                `;
+                            }
                         }
 
                         let displayTime = task.tenggatHari;
@@ -513,12 +522,11 @@
             window.selesaikanTugas = async function (taskId) {
                 const task = taskData.find(t => t.id === taskId);
                 if (!task) return;
-                if (!confirm(`Tandai kegiatan "${task.nama}" sebagai selesai?`)) return;
-                if (!confirm(`Konfirmasi: Anda yakin "${task.nama}" sudah benar-benar selesai?`)) return;
+                const confirmRes = await window.showCustomModal({ title: "Tandai Selesai", message: `Konfirmasi: Anda yakin "${task.nama}" sudah benar-benar selesai?`, type: "confirm", confirmText: "Ya, Selesai" });
+                if (!confirmRes) return;
 
                 try {
-                    const module = await import('./database/supabaseclient.js');
-                    const supabase = module.supabase;
+                    const supabase = await window.authService.getSupabase();
 
                     const hariIniStr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
 
@@ -532,10 +540,10 @@
 
                     if (error) throw error;
 
-                    alert("Tugas ditandai selesai!");
+                    await window.showCustomModal({ title: "Berhasil", message: "Tugas ditandai selesai!", type: "success", confirmText: "OK" });
                     window.location.reload();
                 } catch (err) {
-                    alert("Gagal memperbarui status tugas: " + err.message);
+                    await window.showCustomModal({ title: "Gagal", message: "Gagal memperbarui status tugas: " + err.message, type: "error", confirmText: "Tutup" });
                     console.error(err);
                 }
             };
@@ -544,11 +552,11 @@
                 const task = taskData.find(t => t.id === taskId);
                 if (!task) return;
 
-                if (!confirm(`Kembalikan kegiatan "${task.nama}" menjadi In Progress?\n\nStatus akan kembali menjadi "Belum".`)) return;
+                const confirmRes = await window.showCustomModal({ title: "Batalkan Tugas", message: `Kembalikan kegiatan "${task.nama}" menjadi In Progress?\n\nStatus akan kembali menjadi "Belum".`, type: "confirm", confirmText: "Ya, Kembalikan" });
+                if (!confirmRes) return;
 
                 try {
-                    const module = await import('./database/supabaseclient.js');
-                    const supabase = module.supabase;
+                    const supabase = await window.authService.getSupabase();
 
                     const { error } = await supabase
                         .from('kegiatan')
@@ -560,10 +568,10 @@
 
                     if (error) throw error;
 
-                    alert("Status kegiatan dibatalkan menjadi In Progress!");
+                    await window.showCustomModal({ title: "Berhasil", message: "Status kegiatan dibatalkan menjadi In Progress!", type: "success", confirmText: "OK" });
                     window.location.reload();
                 } catch (err) {
-                    alert("Gagal membatalkan status tugas: " + err.message);
+                    await window.showCustomModal({ title: "Gagal", message: "Gagal membatalkan status tugas: " + err.message, type: "error", confirmText: "Tutup" });
                     console.error(err);
                 }
             };
@@ -572,11 +580,11 @@
                 const task = taskData.find(t => t.id === taskId);
                 if (!task) return;
 
-                if (!confirm(`Tandai kegiatan "${task.nama}" untuk Review?\n\nStatus akan berubah menjadi "Review".`)) return;
+                const confirmRes = await window.showCustomModal({ title: "Tandai Review", message: `Tandai kegiatan "${task.nama}" untuk Review?\n\nStatus akan berubah menjadi "Review".`, type: "confirm", confirmText: "Ya, Review" });
+                if (!confirmRes) return;
 
                 try {
-                    const module = await import('./database/supabaseclient.js');
-                    const supabase = module.supabase;
+                    const supabase = await window.authService.getSupabase();
 
                     const { error } = await supabase
                         .from('kegiatan')
@@ -588,18 +596,18 @@
 
                     if (error) throw error;
 
-                    alert("Tugas ditandai untuk Review!");
+                    await window.showCustomModal({ title: "Berhasil", message: "Tugas ditandai untuk Review!", type: "success", confirmText: "OK" });
                     window.location.reload();
                 } catch (err) {
-                    alert("Gagal memperbarui status tugas: " + err.message);
+                    await window.showCustomModal({ title: "Gagal", message: "Gagal memperbarui status tugas: " + err.message, type: "error", confirmText: "Tutup" });
                     console.error(err);
                 }
             };
 
-            window.editTugas = function (taskId) {
+            window.editTugas = async function (taskId) {
                 document.querySelectorAll('.kebab-dropdown.show').forEach(d => d.classList.remove('show'));
 
-                const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
+                const currentData = window.taskData || [];
                 const task = currentData.find(t => t.id === taskId);
                 if (!task) return;
 
@@ -636,8 +644,7 @@
                 const riwayatInput = document.getElementById('edit-task-late').value;
 
                 try {
-                    const module = await import('./database/supabaseclient.js');
-                    const supabase = module.supabase;
+                    const supabase = await window.authService.getSupabase();
 
                     const targetDate = new Date();
                     targetDate.setDate(targetDate.getDate() + deadlineInput);
@@ -657,10 +664,10 @@
 
                     if (error) throw error;
 
-                    alert("Kegiatan berhasil diperbarui!");
+                    await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil diperbarui!", type: "success", confirmText: "OK" });
                     window.location.reload();
                 } catch (err) {
-                    alert("Gagal memperbarui kegiatan: " + err.message);
+                    await window.showCustomModal({ title: "Gagal", message: "Gagal memperbarui kegiatan: " + err.message, type: "error", confirmText: "Tutup" });
                     console.error(err);
                 }
             });
@@ -670,13 +677,13 @@
 
                 const task = taskData.find(t => t.id === taskId);
                 if (!task) return;
-                if (!confirm(`Apakah Anda yakin ingin menghapus kegiatan "${task.nama}"?`)) return;
-
-                if (!confirm(`PERINGATAN: Tindakan ini tidak dapat dibatalkan!\n\nHapus "${task.nama}" secara permanen?`)) return;
+                const confirmRes1 = await window.showCustomModal({ title: "Hapus Kegiatan", message: `Apakah Anda yakin ingin menghapus kegiatan "${task.nama}"?`, type: "confirm", confirmText: "Ya, Hapus" });
+                if (!confirmRes1) return;
+                const confirmRes2 = await window.showCustomModal({ title: "Peringatan Terakhir", message: `PERINGATAN: Tindakan ini tidak dapat dibatalkan!\n\nHapus "${task.nama}" secara permanen?`, type: "confirm", confirmText: "Ya, Hapus Permanen" });
+                if (!confirmRes2) return;
 
                 try {
-                    const module = await import('./database/supabaseclient.js');
-                    const supabase = module.supabase;
+                    const supabase = await window.authService.getSupabase();
 
                     const { error } = await supabase
                         .from('kegiatan')
@@ -685,10 +692,10 @@
 
                     if (error) throw error;
 
-                    alert("Kegiatan berhasil dihapus!");
+                    await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil dihapus!", type: "success", confirmText: "OK" });
                     window.location.reload();
                 } catch (err) {
-                    alert("Gagal menghapus kegiatan: " + err.message);
+                    await window.showCustomModal({ title: "Gagal", message: "Gagal menghapus kegiatan: " + err.message, type: "error", confirmText: "Tutup" });
                     console.error(err);
                 }
             };

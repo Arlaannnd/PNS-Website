@@ -197,6 +197,12 @@
 
             if (weekSelect) {
                 weekSelect.innerHTML = '';
+                
+                const allOption = document.createElement('option');
+                allOption.value = 'all';
+                allOption.textContent = 'Semua Waktu';
+                allOption.selected = true;
+                weekSelect.appendChild(allOption);
                 for (let offset = -4; offset <= 4; offset++) {
                     const startOfWeek = new Date(now);
                     startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
@@ -218,27 +224,31 @@
                     const option = document.createElement('option');
                     option.value = offset;
                     option.textContent = text;
-                    if (offset === 0) option.selected = true;
                     weekSelect.appendChild(option);
                 }
                 
                 weekSelect.addEventListener('change', (e) => {
-                    renderAnalytics(parseInt(e.target.value), allTaskData);
+                    renderAnalytics(e.target.value, allTaskData);
                 });
             }
 
             function renderAnalytics(offset, allTasks) {
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
-                const endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6);
-                
-                const taskData = allTasks.filter(t => {
-                    const deadlineDate = new Date();
-                    deadlineDate.setHours(0,0,0,0);
-                    deadlineDate.setDate(deadlineDate.getDate() + (t.tenggatAngka || 0));
-                    return deadlineDate >= startOfWeek && deadlineDate <= endOfWeek;
-                });
+                let taskData = allTasks;
+
+                if (offset !== 'all') {
+                    offset = parseInt(offset);
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    
+                    taskData = allTasks.filter(t => {
+                        const deadlineDate = new Date();
+                        deadlineDate.setHours(0,0,0,0);
+                        deadlineDate.setDate(deadlineDate.getDate() + (t.tenggatAngka || 0));
+                        return deadlineDate >= startOfWeek && deadlineDate <= endOfWeek;
+                    });
+                }
                 
                 const statsData = window.hitungStatistik(taskData);
 
@@ -389,7 +399,7 @@
                 }
             }
 
-            renderAnalytics(0, allTaskData);
+            renderAnalytics('all', allTaskData);
         });
     </script>
 </body>

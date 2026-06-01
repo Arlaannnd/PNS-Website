@@ -172,6 +172,7 @@
         </main>
     </div>
 
+    <script src="./database/authService.js"></script>
     <script src="./backend_logic/sidebar.js"></script>
     <script>
         window.injectSidebar('add-task');
@@ -188,17 +189,16 @@
             const riwayatInput = document.getElementById('task-late').value;
 
             if (!dateInput) {
-                alert("Mohon isi tanggal deadline!");
+                await window.showCustomModal({ title: "Peringatan", message: "Mohon isi tanggal deadline!", type: "error", confirmText: "Tutup" });
                 return;
             }
 
             try {
-                const module = await import('./database/supabaseclient.js');
-                const supabase = module.supabase;
+                const supabase = await window.authService.getSupabase();
 
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    alert("Sesi habis, silakan login ulang!");
+                    await window.showCustomModal({ title: "Sesi Habis", message: "Sesi habis, silakan login ulang!", type: "error", confirmText: "Tutup" });
                     return;
                 }
 
@@ -217,11 +217,11 @@
 
                 if (error) throw error;
 
-                alert('Kegiatan berhasil ditambahkan ke database online!');
+                await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil ditambahkan ke database online!", type: "success", confirmText: "OK" });
                 window.location.href = 'dashboard.html';
 
             } catch (err) {
-                alert("Gagal menyimpan kegiatan: " + err.message);
+                await window.showCustomModal({ title: "Gagal", message: "Gagal menyimpan kegiatan: " + err.message, type: "error", confirmText: "Tutup" });
                 console.error(err);
             }
         });

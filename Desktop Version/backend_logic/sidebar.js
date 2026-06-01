@@ -156,7 +156,7 @@ window.showToastAlert = function (title, text, type = 'info', actionUrl = '', ac
 };
 
 window.checkDynamicNotifications = async function () {
-    if (!window.taskData && window.loadTaskData) {
+    if ((!window.taskData || window.taskData.length === 0) && window.loadTaskData) {
         await window.loadTaskData();
     }
     const tasks = window.taskData || [];
@@ -167,18 +167,34 @@ window.checkDynamicNotifications = async function () {
 
     let countOverdue = 0;
     let countUrgent = 0;
+    let currentUrgentIds = [];
 
     tasks.forEach(task => {
         if (task.status === 'Belum') {
             if (task.tenggatAngka < 0) {
                 countOverdue++;
+                currentUrgentIds.push(task.id);
             } else if (task.tenggatAngka <= 2) {
                 countUrgent++;
+                currentUrgentIds.push(task.id);
             }
         }
     });
 
     const totalUrgent = countOverdue + countUrgent;
+    
+    let lastSeenUrgentTasks = [];
+    try {
+        lastSeenUrgentTasks = JSON.parse(localStorage.getItem('lastSeenUrgentTasks') || '[]');
+    } catch(e) {}
+
+    let shouldShowBadge = false;
+    if (window.location.pathname.includes('notifikasi.html')) {
+        localStorage.setItem('lastSeenUrgentTasks', JSON.stringify(currentUrgentIds));
+        shouldShowBadge = false;
+    } else {
+        shouldShowBadge = currentUrgentIds.some(id => !lastSeenUrgentTasks.includes(id));
+    }
 
     const notifLinks = document.querySelectorAll('a[href="notifikasi.html"]');
     notifLinks.forEach(link => {
@@ -186,7 +202,7 @@ window.checkDynamicNotifications = async function () {
             let existingBadge = link.querySelector('.notif-sidebar-badge');
             if (existingBadge) existingBadge.remove();
 
-            if (totalUrgent > 0) {
+            if (shouldShowBadge && totalUrgent > 0) {
                 const badge = document.createElement('span');
                 badge.className = 'notif-sidebar-badge';
                 badge.style.cssText = 'background-color: var(--priority-red); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; display: inline-block;';
@@ -197,7 +213,7 @@ window.checkDynamicNotifications = async function () {
             let existingBadge = link.querySelector('.notif-badge');
             if (existingBadge) existingBadge.remove();
 
-            if (totalUrgent > 0) {
+            if (shouldShowBadge && totalUrgent > 0) {
                 const badge = document.createElement('span');
                 badge.className = 'notif-badge';
                 badge.textContent = totalUrgent;
@@ -227,11 +243,101 @@ window.checkDynamicNotifications = async function () {
             sessionStorage.setItem('lastToastShown', 'true');
         }
     }
+
+    // Call checkActiveTimer now that taskData is loaded
+    if (window.checkActiveTimer) {
+        window.checkActiveTimer();
+    }
+};
+
+window.activeTimerInterval = null;
+window.checkActiveTimer = function () {
+    if (!window.taskData) return;
+
+    let activeTask = window.taskData.find(t => t.waktuMulai && t.status !== 'Selesai');
+
+    const fallbackId = sessionStorage.getItem('activeTimerTaskId');
+    if (!activeTask && fallbackId) {
+        activeTask = window.taskData.find(t => t.id == fallbackId && t.status !== 'Selesai');
+        if (activeTask && !activeTask.waktuMulai) {
+            activeTask.waktuMulai = new Date().toISOString();
+        }
+    }
+
+    if (activeTask) {
+        let timerContainer = document.getElementById('active-timer-banner');
+        if (!timerContainer) {
+            timerContainer = document.createElement('div');
+            timerContainer.id = 'active-timer-banner';
+            timerContainer.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--primary-dark);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 50px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            `;
+            document.body.appendChild(timerContainer);
+        }
+
+        const startTime = new Date(activeTask.waktuMulai).getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = Math.floor((now - startTime) / 1000);
+
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
+
+            const timeStr = [
+                hours.toString().padStart(2, '0'),
+                minutes.toString().padStart(2, '0'),
+                seconds.toString().padStart(2, '0')
+            ].join(':');
+
+            timerContainer.innerHTML = `
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-stopwatch fa-spin" style="font-size:16px;"></i>
+                    </div>
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:10px; opacity:0.8; line-height:1; margin-bottom:2px;">Sedang Mengerjakan</span>
+                        <span style="font-size:13px; line-height:1.2; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 150px;">${activeTask.nama}</span>
+                    </div>
+                </div>
+                <div style="font-size:20px; font-variant-numeric: tabular-nums; letter-spacing: 1px; margin: 0 8px;">${timeStr}</div>
+                <div style="display:flex; gap: 8px;">
+                    <button onclick="window.batalkanTimer(${activeTask.id})" title="Hentikan Timer" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; transition: background 0.2s;"><i class="fa-solid fa-pause"></i></button>
+                    <button onclick="window.selesaikanKegiatanTimer(${activeTask.id})" style="background: white; color: #1e293b; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size:12px; transition: background 0.2s;">Selesai</button>
+                </div>
+            `;
+        }
+
+        updateTimer();
+        if (window.activeTimerInterval) clearInterval(window.activeTimerInterval);
+        window.activeTimerInterval = setInterval(updateTimer, 1000);
+    } else {
+        const timerContainer = document.getElementById('active-timer-banner');
+        if (timerContainer) timerContainer.remove();
+        if (window.activeTimerInterval) clearInterval(window.activeTimerInterval);
+    }
 };
 
 // Auto run check on DOMContentLoaded and slightly after
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(window.checkDynamicNotifications, 100);
+    setTimeout(window.checkActiveTimer, 100);
     setTimeout(window.updateUserInfo, 150);
 });
 
@@ -240,5 +346,30 @@ const originalInjectSidebar = window.injectSidebar;
 window.injectSidebar = function (activeTarget) {
     originalInjectSidebar(activeTarget);
     setTimeout(window.checkDynamicNotifications, 50);
+    setTimeout(window.checkActiveTimer, 50);
     setTimeout(window.updateUserInfo, 100);
+    setTimeout(() => {
+        const logoutBtn = document.getElementById('btn-logout');
+        if (logoutBtn && !logoutBtn.hasAttribute('data-logout-bound')) {
+            logoutBtn.setAttribute('data-logout-bound', 'true');
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (window.showCustomModal) {
+                    const confirmRes = await window.showCustomModal({
+                        title: "Keluar Akun",
+                        message: "Apakah Anda yakin ingin keluar dari akun ini?",
+                        type: "confirm",
+                        confirmText: "Ya, Keluar"
+                    });
+                    if (!confirmRes) return;
+                } else {
+                    if (!confirm("Apakah Anda yakin ingin keluar dari akun ini?")) return;
+                }
+                if (window.authService) {
+                    await window.authService.signOut();
+                }
+                window.location.href = 'index.html';
+            });
+        }
+    }, 150);
 };

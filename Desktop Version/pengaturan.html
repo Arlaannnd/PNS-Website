@@ -785,13 +785,15 @@
                 <div class="support-icon"><i class="fa-solid fa-headset"></i></div>
                 <h4>Masih butuh bantuan?</h4>
                 <p>Hubungi tim support kami dan kami akan membantu Anda secepatnya.</p>
-                <button class="btn-contact" onclick="alert('Fitur ini akan tersedia segera!')">
+                <button class="btn-contact"
+                    onclick="window.showCustomModal({title:'Info', message:'Fitur ini akan tersedia segera!', type:'success', confirmText:'OK'})">
                     <i class="fa-solid fa-envelope"></i> Hubungi Kami
                 </button>
             </div>
         </div>
     </div>
 
+    <script src="./database/authService.js"></script>
     <script src="./database/authService.js"></script>
     <script src="./backend_logic/data.js"></script>
     <script src="./backend_logic/ruleEngine.js"></script>
@@ -831,8 +833,8 @@
                     document.getElementById('profile-nickname-input').value = namaPanggilan;
                     document.getElementById('display-email').textContent = emailReal;
                     document.getElementById('profile-email-input').value = emailReal;
-                    if(profile.gender) document.getElementById('profile-gender-input').value = profile.gender;
-                    if(profile.timezone) document.getElementById('profile-timezone-input').value = profile.timezone;
+                    if (profile.gender) document.getElementById('profile-gender-input').value = profile.gender;
+                    if (profile.timezone) document.getElementById('profile-timezone-input').value = profile.timezone;
 
                     // Apply notification settings if available
                     if (profile.t_deadline !== undefined) document.getElementById('t-deadline').checked = profile.t_deadline;
@@ -880,9 +882,9 @@
 
                 window.updateUserInfo();
                 closeSubpage('profil');
-                alert('Profil berhasil disinkronkan secara online!');
+                await window.showCustomModal({ title: "Berhasil", message: "Profil berhasil disinkronkan secara online!", type: "success", confirmText: "OK" });
             } catch (err) {
-                alert('Gagal sinkronisasi profil: ' + err.message);
+                await window.showCustomModal({ title: "Gagal", message: "Gagal sinkronisasi profil: " + err.message, type: "error", confirmText: "Tutup" });
                 console.error(err);
             } finally {
                 btn.textContent = originalText;
@@ -891,17 +893,20 @@
         });
 
         // Toggle notifications listeners
-        document.getElementById('t-deadline').addEventListener('change', async function(e) {
+        document.getElementById('t-deadline').addEventListener('change', async function (e) {
             await window.authService.updateProfile({ t_deadline: e.target.checked });
         });
-        document.getElementById('t-prioritas').addEventListener('change', async function(e) {
+        document.getElementById('t-prioritas').addEventListener('change', async function (e) {
             await window.authService.updateProfile({ t_prioritas: e.target.checked });
         });
 
-        document.getElementById('securityForm').addEventListener('submit', function (e) {
+        document.getElementById('securityForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            if (document.getElementById('new-password').value !== document.getElementById('confirm-password').value) { alert('Kata sandi tidak cocok!'); return; }
-            alert('Kata sandi berhasil diperbarui!');
+            if (document.getElementById('new-password').value !== document.getElementById('confirm-password').value) {
+                await window.showCustomModal({ title: "Peringatan", message: "Kata sandi tidak cocok!", type: "error", confirmText: "Tutup" });
+                return;
+            }
+            await window.showCustomModal({ title: "Berhasil", message: "Kata sandi berhasil diperbarui!", type: "success", confirmText: "OK" });
             this.reset(); closeSubpage('keamanan');
         });
 
@@ -912,9 +917,10 @@
             });
         });
 
-        document.getElementById('btn-save-lang').addEventListener('click', function () {
+        document.getElementById('btn-save-lang').addEventListener('click', async function () {
             localStorage.setItem('appLanguage', document.querySelector('input[name="language"]:checked').value);
-            alert('Bahasa berhasil disimpan!'); closeSubpage('bahasa');
+            await window.showCustomModal({ title: "Berhasil", message: "Bahasa berhasil disimpan!", type: "success", confirmText: "OK" });
+            closeSubpage('bahasa');
         });
 
         function filterFAQ(query) {

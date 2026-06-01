@@ -2,8 +2,7 @@ window.taskData = [];
 
 window.loadTaskData = async function () {
   try {
-    const module = await import('../database/supabaseclient.js');
-    const supabase = module.supabase;
+    const supabase = await window.authService.getSupabase();
 
     const { data, error } = await supabase.from('kegiatan').select('*');
 
@@ -35,7 +34,9 @@ window.loadTaskData = async function () {
           tingkatKesulitan: item.tingkat_kesulitan || 3,
           riwayatTerlambat: item.pernah_terlambat || "Tidak",
           hariSelesai: item.hari_selesai,
-          status: item.status || "Belum"
+          status: item.status || "Belum",
+          waktuMulai: item.waktu_mulai || null,
+          durasiDetik: item.durasi_detik || 0
         };
       });
 

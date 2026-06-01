@@ -172,9 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!error) {
             await loadDataAsync();
             renderAllTasks(document.getElementById('search-tasks').value);
-            alert("Tugas ditandai selesai!");
+            await window.showCustomModal({ title: "Berhasil", message: "Tugas ditandai selesai!", type: "success", confirmText: "OK" });
         } else {
-            alert("Gagal menandai selesai: " + error);
+            await window.showCustomModal({ title: "Gagal", message: "Gagal menandai selesai: " + error, type: "error", confirmText: "Tutup" });
             if(btn) {
                 btn.textContent = 'Tandai Selesai';
                 btn.disabled = false;
@@ -213,11 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!error) {
             e.target.reset();
-            alert('Kegiatan berhasil ditambahkan dan disimpan!');
+            await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil ditambahkan dan disimpan!", type: "success", confirmText: "OK" });
             await loadDataAsync();
             showContentView('dashboard-content');
         } else {
-            alert('Gagal menambahkan kegiatan: ' + error);
+            await window.showCustomModal({ title: "Gagal", message: "Gagal menambahkan kegiatan: " + error, type: "error", confirmText: "Tutup" });
         }
     });
 

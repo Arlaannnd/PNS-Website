@@ -176,13 +176,26 @@
                 tasks.forEach(task => {
                     const priorityClass = task.labelPrioritas === 'TERLEWAT' ? 'priority-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'priority-sangat-tinggi' : task.labelPrioritas === 'Tinggi' ? 'priority-tinggi' : task.labelPrioritas === 'Sedang' ? 'priority-sedang' : 'priority-normal';
                     const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+
+                    let actionBtn = '';
+                    if (task.status !== 'Selesai') {
+                        if (task.waktuMulai) {
+                            actionBtn = `<button onclick="window.selesaikanKegiatanTimer(${task.id})" style="background: var(--primary-dark); color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-stop"></i> Selesai</button>`;
+                        } else {
+                            actionBtn = `<button onclick="window.mulaiKegiatan(${task.id})" style="background: var(--primary-color); color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-play"></i> Mulai</button>`;
+                        }
+                    }
+
                     container.innerHTML += `
                         <div class="task-card ${priorityClass}">
                             <h4>${task.nama}</h4>
                             <span class="task-cat">${task.kategori}</span>
-                            <div class="task-card-footer">
-                                <span class="task-time">${task.tenggatHari || '-'}</span>
-                                <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                            <div class="task-card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                                <div>
+                                    <span class="task-time" style="margin-right: 8px;">${task.tenggatHari || '-'}</span>
+                                    <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                                </div>
+                                ${actionBtn}
                             </div>
                         </div>
                     `;
@@ -227,7 +240,10 @@
                     const deadlineDate = new Date(now);
                     deadlineDate.setDate(now.getDate() + (task.tenggatAngka || 0));
                     deadlineDate.setHours(0, 0, 0, 0);
-                    const key = deadlineDate.toISOString().slice(0, 10);
+                    const year = deadlineDate.getFullYear();
+                    const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(deadlineDate.getDate()).padStart(2, '0');
+                    const key = `${year}-${month}-${day}`;
                     if (!taskDeadlineMap[key]) taskDeadlineMap[key] = [];
                     taskDeadlineMap[key].push(task);
                 });
@@ -251,7 +267,10 @@
                             const d = new Date(startOfWeek);
                             d.setDate(startOfWeek.getDate() + i);
                             const isToday = d.toDateString() === now.toDateString();
-                            const key = d.toISOString().slice(0, 10);
+                            const year = d.getFullYear();
+                            const month = String(d.getMonth() + 1).padStart(2, '0');
+                            const day = String(d.getDate()).padStart(2, '0');
+                            const key = `${year}-${month}-${day}`;
                             const dayTasks = taskDeadlineMap[key] || [];
                             const hasTasks = dayTasks.length > 0;
 
@@ -303,13 +322,23 @@
                     const priorityClass = task.labelPrioritas === 'TERLEWAT' ? 'priority-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'priority-sangat-tinggi' : task.labelPrioritas === 'Tinggi' ? 'priority-tinggi' : task.labelPrioritas === 'Sedang' ? 'priority-sedang' : 'priority-normal';
                     const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
 
+                    let actionBtn = '';
+                    if (task.waktuMulai) {
+                        actionBtn = `<button onclick="window.selesaikanKegiatanTimer(${task.id})" style="background: var(--primary-dark); color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-stop"></i> Selesai</button>`;
+                    } else {
+                        actionBtn = `<button onclick="window.mulaiKegiatan(${task.id})" style="background: var(--primary-color); color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-play"></i> Mulai</button>`;
+                    }
+
                     tasksList.innerHTML += `
                         <div class="task-card ${priorityClass}">
                             <h4>${task.nama}</h4>
                             <span class="task-cat">${task.kategori}</span>
-                            <div class="task-card-footer">
-                                <span class="task-time">${task.tenggatHari}</span>
-                                <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                            <div class="task-card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                                <div>
+                                    <span class="task-time" style="margin-right: 8px;">${task.tenggatHari}</span>
+                                    <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                                </div>
+                                ${actionBtn}
                             </div>
                         </div>
                     `;

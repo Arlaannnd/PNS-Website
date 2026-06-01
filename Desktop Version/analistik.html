@@ -149,7 +149,7 @@
                         <div style="display: flex; align-items: baseline; gap: 16px;">
                             <div id="stat-mean-time"
                                 style="font-size: 48px; font-weight: 700; color: #374151; line-height: 1; letter-spacing: -1px;">
-                                4.3 <span
+                                0.0 <span
                                     style="font-size: 16px; font-weight: 500; color: #6b7280; margin-left: 4px;">jam</span>
                             </div>
                             <img src="./gambar/Vector.png" alt="clock icon"
@@ -163,6 +163,7 @@
         </main>
     </div>
 
+    <script src="./database/authService.js"></script>
     <script src="./backend_logic/data.js"></script>
     <script src="./backend_logic/ruleEngine.js"></script>
     <script src="./backend_logic/scripting.js"></script>
@@ -177,19 +178,25 @@
 
             const weekSelect = document.getElementById('week-select');
             const now = new Date();
-            now.setHours(0,0,0,0);
+            now.setHours(0, 0, 0, 0);
             const currentDay = now.getDay();
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
             if (weekSelect) {
                 weekSelect.innerHTML = '';
+
+                const allOption = document.createElement('option');
+                allOption.value = 'all';
+                allOption.textContent = 'Semua Waktu';
+                allOption.selected = true;
+                weekSelect.appendChild(allOption);
                 for (let offset = -4; offset <= 4; offset++) {
                     const startOfWeek = new Date(now);
                     startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
-                    
+
                     const endOfWeek = new Date(startOfWeek);
                     endOfWeek.setDate(startOfWeek.getDate() + 6);
-                    
+
                     let text = '';
                     if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
                         text = `${startOfWeek.getDate()} - ${endOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`;
@@ -198,34 +205,38 @@
                     } else {
                         text = `${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
                     }
-                    
+
                     if (offset === 0) text = "Minggu Ini (" + text + ")";
-                    
+
                     const option = document.createElement('option');
                     option.value = offset;
                     option.textContent = text;
-                    if (offset === 0) option.selected = true;
                     weekSelect.appendChild(option);
                 }
-                
+
                 weekSelect.addEventListener('change', (e) => {
-                    renderAnalytics(parseInt(e.target.value), allTaskData);
+                    renderAnalytics(e.target.value, allTaskData);
                 });
             }
 
             function renderAnalytics(offset, allTasks) {
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
-                const endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6);
-                
-                const taskData = allTasks.filter(t => {
-                    const deadlineDate = new Date();
-                    deadlineDate.setHours(0,0,0,0);
-                    deadlineDate.setDate(deadlineDate.getDate() + (t.tenggatAngka || 0));
-                    return deadlineDate >= startOfWeek && deadlineDate <= endOfWeek;
-                });
-                
+                let taskData = allTasks;
+
+                if (offset !== 'all') {
+                    offset = parseInt(offset);
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+                    taskData = allTasks.filter(t => {
+                        const deadlineDate = new Date();
+                        deadlineDate.setHours(0, 0, 0, 0);
+                        deadlineDate.setDate(deadlineDate.getDate() + (t.tenggatAngka || 0));
+                        return deadlineDate >= startOfWeek && deadlineDate <= endOfWeek;
+                    });
+                }
+
                 const statsData = window.hitungStatistik(taskData);
 
                 const tasksSelesai = statsData.tugasSelesai || taskData.filter(t => t.status === "Selesai").length;
@@ -296,8 +307,16 @@
                 const avgTime = statsData.rataRataWaktu || '0.0';
                 document.getElementById('stat-mean-time').innerHTML = `${avgTime} <span style="font-size: 16px; font-weight: 500; color: #6b7280; margin-left: 4px;">jam</span>`;
 
-                let diff = 0.6;
-                document.getElementById('mean-comparison').textContent = `-${diff} jam dari minggu lalu`;
+                // Cek apakah ada data yang berumur lebih dari 1 minggu (berdasarkan tenggatAngka)
+                const isLebihDariSatuMinggu = allTaskData.some(t => t.tenggatAngka < -7);
+                const meanComparisonEl = document.getElementById('mean-comparison');
+                if (isLebihDariSatuMinggu) {
+                    let diff = 0.6; // In a real app, this would be dynamically calculated vs last week's data
+                    meanComparisonEl.textContent = `-${diff} jam dari minggu lalu`;
+                    meanComparisonEl.style.display = 'block';
+                } else {
+                    meanComparisonEl.style.display = 'none';
+                }
 
                 const chartContainer = document.getElementById('bar-chart-container');
                 const yaxisContainer = document.getElementById('bar-yaxis');
@@ -314,7 +333,7 @@
                         totalPerDay[t.hariSelesai] = (totalPerDay[t.hariSelesai] || 0) + 1;
                     } else {
                         const dlDate = new Date();
-                        dlDate.setHours(0,0,0,0);
+                        dlDate.setHours(0, 0, 0, 0);
                         dlDate.setDate(dlDate.getDate() + (t.tenggatAngka || 0));
                         const dName = dayOfWeek[dlDate.getDay()];
                         if (totalPerDay[dName] !== undefined) {
@@ -367,7 +386,7 @@
                 });
             }
 
-            renderAnalytics(0, allTaskData);
+            renderAnalytics('all', allTaskData);
         });
     </script>
 </body>

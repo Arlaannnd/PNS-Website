@@ -162,9 +162,9 @@
             btn.disabled = false;
 
             if (error) {
-                alert('Gagal sinkronisasi profil: ' + error.message);
+                await window.showCustomModal({ title: "Gagal", message: "Gagal sinkronisasi profil: " + error.message, type: "error", confirmText: "Tutup" });
             } else {
-                alert('Pengaturan profil berhasil disimpan!');
+                await window.showCustomModal({ title: "Berhasil", message: "Pengaturan profil berhasil disimpan!", type: "success", confirmText: "OK" });
                 window.location.href = 'pengaturan.html';
             }
         });

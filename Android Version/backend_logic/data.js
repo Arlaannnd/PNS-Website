@@ -33,7 +33,9 @@ window.loadTaskData = async function () {
           tingkatKesulitan: item.tingkat_kesulitan || 3,
           riwayatTerlambat: item.pernah_terlambat || "Tidak",
           hariSelesai: item.hari_selesai,
-          status: item.status || "Belum"
+          status: item.status || "Belum",
+          waktuMulai: item.waktu_mulai || null,
+          durasiDetik: item.durasi_detik || 0
         };
       });
     }

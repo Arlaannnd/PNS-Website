@@ -54,14 +54,17 @@ function hitungStatistik(dataKegiatan) {
   let produktivitasPct = totalKegiatan > 0 ? Math.round((tugasSelesai / totalKegiatan) * 100) : 0;
 
   let totalWaktu = 0;
-  let jumlahSelesai = 0;
+  let jumlahSelesaiDenganDurasi = 0;
   dataKegiatan.forEach(k => {
     if (k.status === "Selesai") {
-      totalWaktu += Math.max(1, Math.abs(k.tenggatAngka));
-      jumlahSelesai++;
+      let durasi = k.durasiDetik || 0;
+      if (durasi > 0) {
+        totalWaktu += durasi;
+        jumlahSelesaiDenganDurasi++;
+      }
     }
   });
-  let rataRataWaktu = jumlahSelesai > 0 ? (totalWaktu / jumlahSelesai) : 0;
+  let rataRataWaktu = jumlahSelesaiDenganDurasi > 0 ? (totalWaktu / jumlahSelesaiDenganDurasi) / 3600 : 0;
 
   return {
     totalKegiatan: totalKegiatan,
