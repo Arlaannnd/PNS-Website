@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remora - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="greeting">
+                    <h1 id="user-greeting">Hai, </h1>
+                    <p>Yuk, selesaikan kegiatan hari ini dan tetap produktif.</p>
+                </div>
+                <div class="topbar-actions">
+                    <a href="notifikasi.html" class="icon-btn"><i class="fa-regular fa-bell"></i></a>
+                    <a href="pengaturan.html" class="user-avatar">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-view active">
+                <h3 class="section-title">Kamu memiliki <span id="task-count">0</span> kegiatan hari ini</h3>
+
+                <div class="date-selector">
+                    <div class="today-card">
+                        <div class="day">Hari Ini</div>
+                        <div class="date-num" id="today-date-num">0</div>
+                        <div class="month-year" id="today-month-year">-</div>
+                    </div>
+                    <div class="week-days-wrapper"
+                        style="flex: 1; display: flex; align-items: center; background-color: var(--card-bg); border-radius: var(--radius-md); padding: 16px 24px; box-shadow: var(--shadow-sm); gap: 16px;">
+                        <button class="next-week" id="btn-prev-week" style="margin:0;"><i
+                                class="fa-solid fa-chevron-left"></i></button>
+                        <div style="flex: 1; overflow: hidden; position: relative;">
+                            <div class="week-days" id="week-days-container"
+                                style="transition: transform 0.3s ease, opacity 0.3s ease; padding: 0; box-shadow: none; background: transparent; width: 100%;">
+                            </div>
+                        </div>
+                        <button class="next-week" id="btn-next-week" style="margin:0;"><i
+                                class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="day-panel-overlay"
+                    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:200; transition:opacity 0.3s;"
+                    onclick="closeDayPanel()"></div>
+                <div id="day-panel"
+                    style="display:none; position:fixed; top:50%; left:50%; background:white; border-radius:24px; z-index:201; padding:24px; max-height:80vh; overflow-y:auto; transition:all 0.35s cubic-bezier(0.4,0,0.2,1); transform:translate(-50%, -40%); opacity:0; width:100%; max-width:500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <div>
+                            <h3 id="day-panel-title" style="font-size:18px; font-weight:700; margin-bottom:4px;">Tugas
+                            </h3>
+                            <p id="day-panel-date" style="font-size:13px; color:var(--text-muted); margin:0;"></p>
+                        </div>
+                        <button onclick="closeDayPanel()"
+                            style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-muted);"><i
+                                class="fa-solid fa-times"></i></button>
+                    </div>
+                    <div id="day-panel-tasks" style="display:flex; flex-direction:column; gap:12px;"></div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="tasks-section">
+                        <div class="section-header">
+                            <h3>Tugas Mendatang</h3>
+                            <a href="semua-kegiatan.html">See All</a>
+                        </div>
+                        <div class="task-list" id="upcoming-tasks-list">
+                        </div>
+                    </div>
+
+                    <div class="stats-section">
+                        <div class="stat-card">
+                            <h3>Progress Today</h3>
+                            <div class="progress-content">
+                                <div class="circular-progress">
+                                    <svg viewBox="0 0 36 36" class="circular-chart green">
+                                        <path class="circle-bg"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="progress-circle" stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <text x="18" y="20.35" class="percentage" id="progress-pct-text">0%</text>
+                                    </svg>
+                                </div>
+                                <div class="progress-text">
+                                    <h4 id="progress-title">Mulai kerjakan!</h4>
+                                    <p id="progress-desc">Kamu menyelesaikan 0 kegiatan dari 0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <h3>Ringkasan Prioritas</h3>
+                            <div class="priority-summary">
+                                <div class="legend">
+                                    <div class="legend-item"><span class="dot terlewat"></span>Terlewat <span
+                                            id="pt-terlewat">0%</span></div>
+                                    <div class="legend-item"><span class="dot red"></span>Sangat Tinggi <span
+                                            id="pt-sangat-tinggi">0%</span></div>
+                                    <div class="legend-item"><span class="dot yellow"></span>Tinggi <span
+                                            id="pt-tinggi">0%</span></div>
+                                    <div class="legend-item"><span class="dot orange"></span>Sedang <span
+                                            id="pt-sedang">0%</span></div>
+                                    <div class="legend-item"><span class="dot green"></span>Rendah <span
+                                            id="pt-normal">0%</span></div>
+                                </div>
+                                <div class="donut-chart-container">
+                                    <div class="donut-chart" id="dashboard-donut-chart">
+                                        <div class="center-text">
+                                            <strong id="total-tasks-stat">0</strong>
+                                            <span>Total Tugas</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="tambah-kegiatan.html" class="fab-add" style="text-decoration:none">
+                    <i class="fa-solid fa-plus"></i>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script src="./backend_logic/data.js"></script>
+    <script src="./backend_logic/ruleEngine.js"></script>
+    <script src="./backend_logic/scripting.js"></script>
+    <script src="./backend_logic/app.js"></script>
+    <script src="./backend_logic/sidebar.js"></script>
+    <script>
+        window.injectSidebar('dashboard');
+        window.updateUserInfo();
+
+        function openDayPanel(dateObj, tasks) {
+            const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            document.getElementById('day-panel-title').textContent = `${dayNames[dateObj.getDay()]}, ${dateObj.getDate()} ${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+            document.getElementById('day-panel-date').textContent = tasks.length > 0 ? `${tasks.length} tugas memiliki deadline hari ini` : 'Tidak ada tugas pada hari ini';
+
+            const container = document.getElementById('day-panel-tasks');
+            container.innerHTML = '';
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px 0;">🎉 Tidak ada tugas untuk hari ini!</p>';
+            } else {
+                tasks.forEach(task => {
+                    const priorityClass = task.labelPrioritas === 'TERLEWAT' ? 'priority-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'priority-sangat-tinggi' : task.labelPrioritas === 'Tinggi' ? 'priority-tinggi' : task.labelPrioritas === 'Sedang' ? 'priority-sedang' : 'priority-normal';
+                    const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+                    container.innerHTML += `
+                        <div class="task-card ${priorityClass}">
+                            <h4>${task.nama}</h4>
+                            <span class="task-cat">${task.kategori}</span>
+                            <div class="task-card-footer">
+                                <span class="task-time">${task.tenggatHari || '-'}</span>
+                                <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const overlay = document.getElementById('day-panel-overlay');
+            const panel = document.getElementById('day-panel');
+            overlay.style.display = 'block';
+            panel.style.display = 'block';
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                panel.style.transform = 'translate(-50%, -50%)';
+                panel.style.opacity = '1';
+            });
+        }
+
+        window.closeDayPanel = function () {
+            const overlay = document.getElementById('day-panel-overlay');
+            const panel = document.getElementById('day-panel');
+            panel.style.transform = 'translate(-50%, -40%)';
+            panel.style.opacity = '0';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                panel.style.display = 'none';
+            }, 350);
+        };
+
+        window.initApp().then(result => {
+            const taskData = result.dataTersortir;
+            const statsData = result.hasilStatistik;
+
+            const now = new Date();
+            const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const dayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            document.getElementById('today-date-num').textContent = now.getDate();
+            document.getElementById('today-month-year').textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}, ${dayNames[now.getDay()]}`;
+
+            const weekContainer = document.getElementById('week-days-container');
+            let currentWeekOffset = 0;
+
+            if (weekContainer) {
+                const taskDeadlineMap = {};
+                taskData.forEach(task => {
+                    if (task.status === 'Selesai') return;
+                    const deadlineDate = new Date(now);
+                    deadlineDate.setDate(now.getDate() + (task.tenggatAngka || 0));
+                    deadlineDate.setHours(0, 0, 0, 0);
+                    const key = deadlineDate.toISOString().slice(0, 10);
+                    if (!taskDeadlineMap[key]) taskDeadlineMap[key] = [];
+                    taskDeadlineMap[key].push(task);
+                });
+
+                function renderWeek(offset, direction = '') {
+                    if (direction === 'left') {
+                        weekContainer.style.transform = 'translateX(20px)';
+                        weekContainer.style.opacity = '0';
+                    } else if (direction === 'right') {
+                        weekContainer.style.transform = 'translateX(-20px)';
+                        weekContainer.style.opacity = '0';
+                    }
+
+                    setTimeout(() => {
+                        weekContainer.innerHTML = '';
+                        const currentDay = now.getDay();
+                        const startOfWeek = new Date(now);
+                        startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
+
+                        for (let i = 0; i < 7; i++) {
+                            const d = new Date(startOfWeek);
+                            d.setDate(startOfWeek.getDate() + i);
+                            const isToday = d.toDateString() === now.toDateString();
+                            const key = d.toISOString().slice(0, 10);
+                            const dayTasks = taskDeadlineMap[key] || [];
+                            const hasTasks = dayTasks.length > 0;
+
+                            const el = document.createElement('div');
+                            el.className = `day-item ${isToday ? 'active' : ''}`;
+                            el.style.cursor = 'pointer';
+                            el.innerHTML = `
+                                <span>${dayNamesShort[d.getDay()]}</span>
+                                <strong>${d.getDate()}</strong>
+                                ${hasTasks ?
+                                    `<span style="width:6px; height:6px; background:\${isToday ? 'white' : 'var(--primary-light)'}; border-radius:50%; display:inline-block; margin-top:2px;"></span>` :
+                                    `<span style="width:6px; height:6px; display:inline-block;"></span>`}
+                            `;
+                            el.addEventListener('click', () => {
+                                document.querySelectorAll('#week-days-container .day-item').forEach(x => x.classList.remove('selected'));
+                                el.classList.add('selected');
+                                openDayPanel(d, dayTasks);
+                            });
+                            weekContainer.appendChild(el);
+                        }
+
+                        weekContainer.style.transform = 'translateX(0)';
+                        weekContainer.style.opacity = '1';
+                    }, direction ? 150 : 0);
+                }
+
+                renderWeek(0);
+
+                document.getElementById('btn-prev-week')?.addEventListener('click', () => {
+                    currentWeekOffset--;
+                    renderWeek(currentWeekOffset, 'left');
+                });
+
+                document.getElementById('btn-next-week')?.addEventListener('click', () => {
+                    currentWeekOffset++;
+                    renderWeek(currentWeekOffset, 'right');
+                });
+            }
+
+            const belumTasks = taskData.filter(t => t.status !== 'Selesai');
+            document.getElementById('task-count').textContent = belumTasks.length;
+
+            const tasksList = document.getElementById('upcoming-tasks-list');
+            belumTasks.slice(0, 3).forEach(task => {
+                const priorityClass = task.labelPrioritas === 'TERLEWAT' ? 'priority-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'priority-sangat-tinggi' : task.labelPrioritas === 'Tinggi' ? 'priority-tinggi' : task.labelPrioritas === 'Sedang' ? 'priority-sedang' : 'priority-normal';
+                const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+
+                tasksList.innerHTML += `
+                <div class="task-card ${priorityClass}">
+                    <h4>${task.nama}</h4>
+                    <span class="task-cat">${task.kategori}</span>
+                    <div class="task-card-footer">
+                        <span class="task-time">${task.tenggatHari}</span>
+                        <span class="task-badge ${badgeClass}">${task.labelPrioritas}</span>
+                    </div>
+                </div>
+            `;
+            });
+
+            if (belumTasks.length === 0) {
+                tasksList.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:20px;">Semua tugas sudah selesai! 🎉</p>';
+            }
+
+            if (statsData) {
+                const totalTasks = taskData.length;
+                const tasksSelesai = statsData.tugasSelesai || taskData.filter(t => t.status === "Selesai").length;
+                const progressPct = totalTasks > 0 ? Math.round((tasksSelesai / totalTasks) * 100) : 0;
+
+                document.getElementById('progress-circle').setAttribute('stroke-dasharray', `${progressPct}, 100`);
+                document.getElementById('progress-pct-text').textContent = `${progressPct}%`;
+                document.getElementById('progress-desc').textContent = `Kamu menyelesaikan ${tasksSelesai} kegiatan dari ${totalTasks}`;
+
+                if (progressPct >= 75) {
+                    document.getElementById('progress-title').textContent = 'Luar Biasa! 🎉';
+                } else if (progressPct >= 50) {
+                    document.getElementById('progress-title').textContent = 'Bagus! Terus lanjutkan!';
+                } else if (progressPct >= 25) {
+                    document.getElementById('progress-title').textContent = 'Ayo semangat!';
+                } else if (tasksSelesai > 0) {
+                    document.getElementById('progress-title').textContent = 'Mulai bagus!';
+                } else {
+                    document.getElementById('progress-title').textContent = 'Mulai kerjakan!';
+                }
+            }
+
+            if (statsData && statsData.dataPieChart) {
+                const total = taskData.length;
+                const terlewat = statsData.dataPieChart['TERLEWAT'] || 0;
+                const sangatTinggi = statsData.dataPieChart['Sangat Tinggi'] || 0;
+                const tinggi = statsData.dataPieChart['Tinggi'] || 0;
+                const sedang = statsData.dataPieChart['Sedang'] || 0;
+                const normal = statsData.dataPieChart['Rendah'] || 0;
+
+                document.getElementById('total-tasks-stat').textContent = total;
+
+                if (total > 0) {
+                    document.getElementById('pt-terlewat').textContent = Math.round((terlewat / total) * 100) + '%';
+                    document.getElementById('pt-sangat-tinggi').textContent = Math.round((sangatTinggi / total) * 100) + '%';
+                    document.getElementById('pt-tinggi').textContent = Math.round((tinggi / total) * 100) + '%';
+                    document.getElementById('pt-sedang').textContent = Math.round((sedang / total) * 100) + '%';
+                    document.getElementById('pt-normal').textContent = Math.round((normal / total) * 100) + '%';
+
+                    const terwPct = (terlewat / total) * 100;
+                    const stPct = terwPct + ((sangatTinggi / total) * 100);
+                    const tPct = stPct + ((tinggi / total) * 100);
+                    const sPct = tPct + ((sedang / total) * 100);
+
+                    const donut = document.getElementById('dashboard-donut-chart');
+                    if (donut) {
+                        donut.style.background = `conic-gradient(var(--priority-terlewat) 0% ${terwPct}%, var(--priority-red) ${terwPct}% ${stPct}%, var(--priority-yellow) ${stPct}% ${tPct}%, var(--priority-orange) ${tPct}% ${sPct}%, var(--priority-green) ${sPct}% 100%)`;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

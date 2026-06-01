@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remora - Kata Sandi & Keamanan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sec-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-sm)
+        }
+
+        .sec-field {
+            margin-bottom: 18px
+        }
+
+        .sec-field label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px
+        }
+
+        .sec-field input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            outline: none;
+            transition: border-color .2s
+        }
+
+        .sec-field input:focus {
+            border-color: var(--primary-dark)
+        }
+
+        .sec-field input::placeholder {
+            color: #9CA3AF
+        }
+
+        .btn-ubah {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            margin-top: 8px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div class="page-header" style="text-align:center;padding-bottom:40px;background-color:var(--bg-color);">
+                <div class="page-header-content">
+                    <a href="pengaturan.html"
+                        style="color:var(--text-main);font-size:20px;position:absolute;left:24px;"><i
+                            class="fa-solid fa-arrow-left"></i></a>
+                    <h1 style="font-size:20px;font-weight:700;margin:0;color:var(--text-main);">Kata Sandi & Keamanan
+                    </h1>
+                </div>
+            </div>
+            <div class="content-view active" style="padding:0 24px;margin-top:10px;">
+                <div class="sec-card">
+                    <form id="pwd-form">
+                        <div class="sec-field">
+                            <label>Kata Sandi Lama</label>
+                            <input type="password" id="old-pwd" placeholder="Masukkan kata sandi lama" required>
+                        </div>
+                        <div class="sec-field">
+                            <label>Kata Sandi Baru</label>
+                            <input type="password" id="new-pwd" placeholder="Masukkan kata sandi baru" required>
+                        </div>
+                        <div class="sec-field">
+                            <label>Konfirmasi Kata Sandi</label>
+                            <input type="password" id="conf-pwd" placeholder="Konfirmasi kata sandi baru" required>
+                        </div>
+                        <button type="submit" class="btn-ubah">Ubah Kata Sandi</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./database/authService.js"></script>
+    <script src="./backend_logic/data.js"></script>
+    <script src="./backend_logic/ruleEngine.js"></script>
+    <script src="./backend_logic/scripting.js"></script>
+    <script src="./backend_logic/app.js"></script>
+    <script src="./backend_logic/sidebar.js"></script>
+    <script>
+        window.injectSidebar('settings');
+        document.getElementById('pwd-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const n = document.getElementById('new-pwd').value;
+            const c = document.getElementById('conf-pwd').value;
+            if (n.length < 6) { alert('Kata sandi minimal 6 karakter!'); return; }
+            if (n !== c) { alert('Kata sandi baru tidak cocok!'); return; }
+            alert('Kata sandi berhasil diubah!');
+            window.location.href = 'pengaturan.html';
+        });
+    </script>
+</body>
+
+</html>

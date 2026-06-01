@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remora - Semua Kegiatan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1><a href="dashboard.html" style="color:var(--text-main); font-size:20px;"><i
+                                class="fa-solid fa-arrow-left" style="margin-right: 20px;"></i></a>
+                        Semua Kegiatan</h1>
+                    <p style="color: #7A7A72; font-size: 10; margin-left: 45px;">Kelola semua tugas kamu.</p>
+                </div>
+            </div>
+
+            <div class="content-view active">
+                <div class="search-filter-row">
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-tasks" placeholder="Cari kegiatan...">
+                    </div>
+                    <div style="position: relative;">
+                        <button class="filter-btn" id="filter-toggle-btn"><i class="fa-solid fa-filter"></i></button>
+                        <div id="filter-dropdown"
+                            style="display:none; position:absolute; top:52px; right:0; background:white; border-radius:var(--radius-md); box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:8px 0; z-index:50; min-width:180px;">
+                            <button class="filter-dropdown-item active" data-filter="All">All</button>
+                            <button class="filter-dropdown-item" data-filter="In Progress">In Progress</button>
+                            <button class="filter-dropdown-item" data-filter="Completed">Completed</button>
+                            <button class="filter-dropdown-item" data-filter="Review">Review</button>
+                            <hr style="border:none; border-top:1px solid #E5E7EB; margin:4px 0;">
+                            <button class="filter-dropdown-item" data-filter="TERLEWAT">TERLEWAT</button>
+                            <button class="filter-dropdown-item" data-filter="Sangat Tinggi">Sangat Tinggi</button>
+                            <button class="filter-dropdown-item" data-filter="Tinggi">Tinggi</button>
+                            <button class="filter-dropdown-item" data-filter="Sedang">Sedang</button>
+                            <button class="filter-dropdown-item" data-filter="Rendah">Rendah</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="display:flex; justify-content:space-between; padding:0 24px; margin-top:16px; align-items:center;">
+                    <h3 style="font-size:14px;">Sort by</h3>
+                    <div style="position:relative;">
+                        <button id="sort-toggle-btn"
+                            style="font-size:14px; font-weight:600; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; color:var(--text-main);"><span
+                                id="sort-label">Deadline</span> <i class="fa-solid fa-chevron-down"></i></button>
+                        <div id="sort-dropdown"
+                            style="display:none; position:absolute; top:32px; right:0; background:white; border-radius:var(--radius-md); box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:8px 0; z-index:50; min-width:180px;">
+                            <button class="filter-dropdown-item active" data-sort="deadline">Deadline</button>
+                            <button class="filter-dropdown-item" data-sort="kesulitan">Tingkat Kesulitan</button>
+                            <button class="filter-dropdown-item" data-sort="prioritas">Prioritas</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive" style="margin-top: 20px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Kegiatan</th>
+                                <th>Kategori</th>
+                                <th>Deadline</th>
+                                <th>Label Prioritas</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-tasks-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .filter-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.15s;
+        }
+
+        .filter-dropdown-item:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-dropdown-item.active {
+            background: var(--primary-dark);
+            color: white;
+            font-weight: 600;
+        }
+
+        .task-row-done td:not(:last-child) {
+            opacity: 0.6;
+        }
+
+        .task-row-done strong {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .action-menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .action-dots {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .action-dots:hover {
+            background: #f3f4f6;
+        }
+
+        .action-popup {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background: white;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+            padding: 6px 0;
+            z-index: 9999;
+            min-width: 150px;
+        }
+
+        .action-popup.open {
+            display: block;
+        }
+
+        .action-popup button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.15s;
+        }
+
+        .action-popup button:hover {
+            background: #f3f4f6;
+        }
+
+        .action-popup button.delete-btn {
+            color: var(--priority-red);
+        }
+
+        .action-popup button.delete-btn:hover {
+            background: #fef2f2;
+        }
+
+        .action-popup button.review-btn {
+            color: #0284C7;
+        }
+
+        .action-popup button.review-btn:hover {
+            background: #F0F9FF;
+        }
+
+        .action-popup button.undo-btn {
+            color: #B45309;
+        }
+
+        .action-popup button.undo-btn:hover {
+            background: #FFFBEB;
+        }
+    </style>
+
+    <script src="./database/authService.js"></script>
+    <script src="./backend_logic/data.js"></script>
+    <script src="./backend_logic/ruleEngine.js"></script>
+    <script src="./backend_logic/scripting.js"></script>
+    <script src="./backend_logic/app.js"></script>
+    <script src="./backend_logic/sidebar.js"></script>
+    <script>
+        window.injectSidebar('all-tasks');
+        window.updateUserInfo();
+
+        let taskData = [];
+        let activeStatusFilter = 'all';
+        let activeSortBy = 'deadline';
+
+        window.initApp().then(result => {
+            taskData = result.dataTersortir;
+            renderAllTasks();
+
+            document.getElementById('search-tasks').addEventListener('input', renderAllTasks);
+
+            document.querySelectorAll('#filter-dropdown .filter-dropdown-item').forEach(chip => {
+                chip.addEventListener('click', function () {
+                    document.querySelectorAll('#filter-dropdown .filter-dropdown-item').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    const val = this.getAttribute('data-filter');
+
+                    if (val === 'All') activeStatusFilter = 'all';
+                    else if (val === 'In Progress') activeStatusFilter = 'in-progress';
+                    else if (val === 'Completed') activeStatusFilter = 'completed';
+                    else activeStatusFilter = val;
+
+                    document.getElementById('filter-dropdown').style.display = 'none';
+                    renderAllTasks();
+                });
+            });
+
+            document.querySelectorAll('#sort-dropdown .filter-dropdown-item').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('#sort-dropdown .filter-dropdown-item').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    activeSortBy = this.getAttribute('data-sort');
+                    document.getElementById('sort-label').textContent = this.textContent;
+                    document.getElementById('sort-dropdown').style.display = 'none';
+                    renderAllTasks();
+                });
+            });
+        });
+
+        function renderAllTasks() {
+            const container = document.getElementById('all-tasks-table-body');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const searchText = document.getElementById('search-tasks').value.toLowerCase();
+
+            let filtered = taskData.filter(t => {
+                if (searchText && !t.nama.toLowerCase().includes(searchText)) return false;
+                if (activeStatusFilter === 'completed' && t.status !== 'Selesai') return false;
+                if (activeStatusFilter === 'in-progress' && t.status !== 'Belum') return false;
+                if (activeStatusFilter === 'review' && t.status !== 'Review') return false;
+                if (['TERLEWAT', 'Sangat Tinggi', 'Tinggi', 'Sedang', 'Rendah'].includes(activeStatusFilter)) {
+                    return t.labelPrioritas === activeStatusFilter;
+                }
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                if (activeSortBy === 'deadline') {
+                    return a.tenggatAngka - b.tenggatAngka;
+                } else if (activeSortBy === 'kesulitan') {
+                    return b.tingkatKesulitan - a.tingkatKesulitan;
+                } else if (activeSortBy === 'prioritas') {
+                    return b.skorPrioritas - a.skorPrioritas;
+                }
+                return 0;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--text-muted);">Tidak ada kegiatan yang sesuai.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach((task, index) => {
+                const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+                const isSelesai = task.status === "Selesai";
+
+                let actionButton = '';
+                if (task.status === "Selesai") {
+                    actionButton = `<button class="undo-btn" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> Batalkan</button>`;
+                } else if (task.status === "Review") {
+                    actionButton = `
+                        <button onclick="window.selesaikanTugas(${task.id})"><i class="fa-solid fa-check"></i> Selesai</button>
+                        <button class="undo-btn" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> In Progress</button>
+                    `;
+                } else {
+                    actionButton = `
+                        <button onclick="window.selesaikanTugas(${task.id})"><i class="fa-solid fa-check"></i> Selesai</button>
+                        <button class="review-btn" onclick="window.reviewTugas(${task.id})"><i class="fa-solid fa-eye"></i> Tandai Review</button>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <tr class="${isSelesai ? 'task-row-done' : ''}">
+                        <td>${index + 1}</td>
+                        <td><strong>${task.nama}</strong><br><small style="color:var(--text-muted); font-size:11px;">${task.jenis}</small></td>
+                        <td>${task.kategori}</td>
+                        <td>${task.tenggatHari}</td>
+                        <td><span class="task-badge ${badgeClass}" style="margin:0">${task.labelPrioritas}</span></td>
+                        <td>${task.status}</td>
+                        <td>
+                            <div class="action-menu-wrapper">
+                                <button class="action-dots" onclick="window.toggleKebab(event, ${task.id})">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                                <div class="action-popup" id="kebab-${task.id}">
+                                    ${actionButton}
+                                    <button onclick="window.editTugas(${task.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                                    <button class="delete-btn" onclick="window.hapusTugas(${task.id})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('sort-toggle-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const d = document.getElementById('sort-dropdown');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+            document.getElementById('filter-dropdown').style.display = 'none';
+        });
+
+        document.getElementById('filter-toggle-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const d = document.getElementById('filter-dropdown');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+            document.getElementById('sort-dropdown').style.display = 'none';
+        });
+
+        window.toggleKebab = function (event, taskId) {
+            event.stopPropagation();
+            document.querySelectorAll('.action-popup.open').forEach(d => {
+                if (d.id !== 'kebab-' + taskId) d.classList.remove('open');
+            });
+            const dropdown = document.getElementById('kebab-' + taskId);
+            if (dropdown) dropdown.classList.toggle('open');
+        };
+
+        document.addEventListener('click', () => {
+            const sd = document.getElementById('sort-dropdown');
+            const fd = document.getElementById('filter-dropdown');
+            if (sd) sd.style.display = 'none';
+            if (fd) fd.style.display = 'none';
+            document.querySelectorAll('.action-popup.open').forEach(d => d.classList.remove('open'));
+        });
+
+        window.selesaikanTugas = async function (taskId) {
+            const task = taskData.find(t => t.id === taskId);
+            if (!task || !confirm(`Tandai kegiatan "${task.nama}" sebagai selesai?`)) return;
+
+            try {
+                const supabase = await window.authService.getSupabase();
+                const hariIniStr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
+
+                const { error } = await supabase
+                    .from('kegiatan')
+                    .update({ status: "Selesai", hari_selesai: hariIniStr })
+                    .eq('id', taskId);
+
+                if (error) throw error;
+                alert("Tugas ditandai selesai!");
+                window.location.reload();
+            } catch (err) {
+                alert("Gagal memperbarui status: " + err.message);
+            }
+        };
+
+        window.batalkanTugas = async function (taskId) {
+            const task = taskData.find(t => t.id === taskId);
+            if (!task || !confirm(`Kembalikan kegiatan "${task.nama}" menjadi In Progress?`)) return;
+
+            try {
+                const supabase = await window.authService.getSupabase();
+                const { error } = await supabase
+                    .from('kegiatan')
+                    .update({ status: "Belum", hari_selesai: null })
+                    .eq('id', taskId);
+
+                if (error) throw error;
+                alert("Status kegiatan dikembalikan menjadi In Progress!");
+                window.location.reload();
+            } catch (err) {
+                alert("Gagal membatalkan status: " + err.message);
+            }
+        };
+
+        window.reviewTugas = async function (taskId) {
+            const task = taskData.find(t => t.id === taskId);
+            if (!task || !confirm(`Tandai kegiatan "${task.nama}" untuk Review?`)) return;
+
+            try {
+                const supabase = await window.authService.getSupabase();
+                const { error } = await supabase
+                    .from('kegiatan')
+                    .update({ status: "Review", hari_selesai: null })
+                    .eq('id', taskId);
+
+                if (error) throw error;
+                alert("Tugas ditandai untuk Review!");
+                window.location.reload();
+            } catch (err) {
+                alert("Gagal memperbarui status: " + err.message);
+            }
+        };
+
+        window.hapusTugas = async function (taskId) {
+            const task = taskData.find(t => t.id === taskId);
+            if (!task || !confirm(`Apakah Anda yakin menghapus "${task.nama}" permanen?`)) return;
+
+            try {
+                const supabase = await window.authService.getSupabase();
+                const { error } = await supabase.from('kegiatan').delete().eq('id', taskId);
+
+                if (error) throw error;
+                alert("Kegiatan berhasil dihapus!");
+                window.location.reload();
+            } catch (err) {
+                alert("Gagal menghapus kegiatan: " + err.message);
+            }
+        };
+
+        window.editTugas = function (taskId) {
+            const task = taskData.find(t => t.id === taskId);
+            if (!task) return;
+
+            const modalId = document.getElementById('edit-task-id');
+            if (modalId) {
+                modalId.value = task.id;
+                document.getElementById('edit-task-name').value = task.nama;
+                document.getElementById('edit-task-category').value = task.kategori;
+                document.getElementById('edit-task-type').value = task.jenis;
+                document.getElementById('edit-task-diff').value = task.tingkatKesulitan;
+                document.getElementById('edit-task-deadline').value = task.tenggatAngka;
+                document.getElementById('edit-task-late').value = task.riwayatTerlambat;
+                document.getElementById('edit-modal').classList.add('show');
+            } else {
+                alert("Gunakan halaman edit untuk memodifikasi tugas.");
+            }
+        };
+    </script>
+</body>
+
+</html>

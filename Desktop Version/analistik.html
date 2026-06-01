@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remora - Analistik Kegiatan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="topbar">
+            </header>
+
+            <div class="content-view active">
+                <div class="analytics-header-row">
+                    <div>
+                        <h1 class="page-title">Analitik Kegiatan</h1>
+                        <p class="page-subtitle" style="margin-bottom:0">Ringkasan performa dan prioritas kegiatan.</p>
+                    </div>
+                    <div class="date-dropdown">
+                        <select id="week-select">
+                            <option>6 - 12 Mei 2026</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="analytics-grid-2x3">
+                    <div class="stat-card">
+                        <h3>Tugas Selesai</h3>
+                        <p id="stat-total-text">0 dari 0 tugas.</p>
+                        <div class="bar-chart-area">
+                            <div class="bar-chart-yaxis" id="bar-yaxis">
+                            </div>
+                            <div class="bar-chart-container" id="bar-chart-container">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="display: flex; flex-direction: column; text-align: left;">
+                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #000;">Progress
+                            Mingguan</h3>
+                        <p id="stat-progress-text"
+                            style="font-size: 13px; color: #6b7280; line-height: 1.4; margin-bottom: 24px;">Kamu
+                            menyelesaikan 0<br>kegiatan dari 0.</p>
+                        <div style="display: flex; justify-content: center; width: 100%;">
+                            <div class="circular-progress" style="position: relative; width: 110px; height: 110px;">
+                                <svg viewBox="0 0 36 36" style="width: 100%; height: 100%;">
+                                    <path fill="none" stroke="#bbf7d0" stroke-width="2.5"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path id="circle-progress-path" fill="none" stroke="#65a30d" stroke-width="2.5"
+                                        stroke-dasharray="0, 100" stroke-linecap="round"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <text x="18" y="21.5" id="circle-progress-text"
+                                        style="font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; fill: #000; text-anchor: middle;">0%</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="display: flex; flex-direction: column; text-align: left;">
+                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #000;">Prioritas
+                            Terbanyak</h3>
+                        <p style="font-size: 13px; color: #6b7280; line-height: 1.4; margin-bottom: 24px;">Proporsi
+                            tugas berdasarkan<br>tingkat prioritas.</p>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4B5563;">
+                                    <span
+                                        style="width: 12px; height: 12px; border-radius: 50%; background: var(--priority-terlewat);"></span>Terlambat
+                                    <span id="pt-terlewat" style="margin-left: 2px;">0%</span>
+                                </div>
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4B5563;">
+                                    <span
+                                        style="width: 12px; height: 12px; border-radius: 50%; background: var(--priority-red);"></span>Sangat
+                                    Tinggi <span id="pt-sangat-tinggi" style="margin-left: 2px;">0%</span>
+                                </div>
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4B5563;">
+                                    <span
+                                        style="width: 12px; height: 12px; border-radius: 50%; background: var(--priority-yellow);"></span>Tinggi
+                                    <span id="pt-tinggi" style="margin-left: 2px;">0%</span>
+                                </div>
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4B5563;">
+                                    <span
+                                        style="width: 12px; height: 12px; border-radius: 50%; background: var(--priority-orange);"></span>Sedang
+                                    <span id="pt-sedang" style="margin-left: 2px;">0%</span>
+                                </div>
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4B5563;">
+                                    <span
+                                        style="width: 12px; height: 12px; border-radius: 50%; background: var(--priority-green);"></span>Rendah
+                                    <span id="pt-normal" style="margin-left: 2px;">0%</span>
+                                </div>
+                            </div>
+
+                            <div style="position: relative; width: 110px; height: 110px; flex-shrink: 0;">
+                                <div id="donut-chart"
+                                    style="width: 100%; height: 100%; border-radius: 50%; background: #e5e7eb;">
+                                    <div
+                                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                        <strong id="total-tasks-stat"
+                                            style="font-size: 26px; font-weight: 700; color: #000; line-height: 1;">0</strong>
+                                        <span style="font-size: 10px; color: #6B7280; margin-top: 2px;">Total
+                                            Tugas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3 id="prod-title" class="text-green">Produktivitas Mingguan</h3>
+                        <p id="prod-desc">Peningkatan dari minggu lalu.</p>
+                        <div class="stat-value-large">
+                            <span id="stat-prod">0%</span>
+                            <img id="prod-icon" src="./gambar/Group 21.png" alt=""
+                                style="width:32px; height:32px; object-fit:contain;">
+                        </div>
+                        <p class="stat-comparison" id="prod-comparison">Berdasarkan tugas selesai</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3 class="text-red">Tugas Terlambat</h3>
+                        <p>Tugas yang melewati deadline</p>
+                        <div class="stat-value-large">
+                            <span id="stat-late">0</span>
+                            <img id="late-icon" src="./gambar/Group 85.png" alt=""
+                                style="width:32px; height:32px; object-fit:contain;">
+                        </div>
+                        <p class="stat-comparison" id="late-comparison">Tugas dengan deadline terlewat</p>
+                    </div>
+
+                    <div class="stat-card" style="display: flex; flex-direction: column; text-align: left;">
+                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #000;">Rata-rata
+                            Penyelesaian</h3>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 24px;">Waktu rata-rata menyelesaikan
+                            tugas.</p>
+                        <div style="display: flex; align-items: baseline; gap: 16px;">
+                            <div id="stat-mean-time"
+                                style="font-size: 48px; font-weight: 700; color: #374151; line-height: 1; letter-spacing: -1px;">
+                                4.3 <span
+                                    style="font-size: 16px; font-weight: 500; color: #6b7280; margin-left: 4px;">jam</span>
+                            </div>
+                            <img src="./gambar/Vector.png" alt="clock icon"
+                                style="width: 32px; height: 32px; object-fit: contain;">
+                        </div>
+                        <p id="mean-comparison" style="font-size: 13px; color: #6b7280; margin-top: 24px;">-0.6 jam dari
+                            minggu lalu</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="./backend_logic/data.js"></script>
+    <script src="./backend_logic/ruleEngine.js"></script>
+    <script src="./backend_logic/scripting.js"></script>
+    <script src="./backend_logic/app.js"></script>
+    <script src="./backend_logic/sidebar.js"></script>
+    <script>
+        window.injectSidebar('analytics');
+        window.updateUserInfo();
+        window.initApp().then(result => {
+            const allTaskData = result.dataTersortir;
+            if (!allTaskData) return;
+
+            const weekSelect = document.getElementById('week-select');
+            const now = new Date();
+            now.setHours(0,0,0,0);
+            const currentDay = now.getDay();
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            if (weekSelect) {
+                weekSelect.innerHTML = '';
+                for (let offset = -4; offset <= 4; offset++) {
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
+                    
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    
+                    let text = '';
+                    if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
+                        text = `${startOfWeek.getDate()} - ${endOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`;
+                    } else if (startOfWeek.getFullYear() === endOfWeek.getFullYear()) {
+                        text = `${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`;
+                    } else {
+                        text = `${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
+                    }
+                    
+                    if (offset === 0) text = "Minggu Ini (" + text + ")";
+                    
+                    const option = document.createElement('option');
+                    option.value = offset;
+                    option.textContent = text;
+                    if (offset === 0) option.selected = true;
+                    weekSelect.appendChild(option);
+                }
+                
+                weekSelect.addEventListener('change', (e) => {
+                    renderAnalytics(parseInt(e.target.value), allTaskData);
+                });
+            }
+
+            function renderAnalytics(offset, allTasks) {
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - ((currentDay + 6) % 7) + (offset * 7));
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                
+                const taskData = allTasks.filter(t => {
+                    const deadlineDate = new Date();
+                    deadlineDate.setHours(0,0,0,0);
+                    deadlineDate.setDate(deadlineDate.getDate() + (t.tenggatAngka || 0));
+                    return deadlineDate >= startOfWeek && deadlineDate <= endOfWeek;
+                });
+                
+                const statsData = window.hitungStatistik(taskData);
+
+                const tasksSelesai = statsData.tugasSelesai || taskData.filter(t => t.status === "Selesai").length;
+                document.getElementById('stat-total-text').textContent = `${tasksSelesai} dari ${taskData.length} tugas.`;
+
+                const progressPct = taskData.length ? Math.round((tasksSelesai / taskData.length) * 100) : 0;
+                document.getElementById('stat-progress-text').innerHTML = `Kamu menyelesaikan ${tasksSelesai}<br>kegiatan dari ${taskData.length}.`;
+                document.getElementById('circle-progress-path').setAttribute('stroke-dasharray', `${progressPct}, 100`);
+                document.getElementById('circle-progress-text').textContent = `${progressPct}%`;
+
+                const total = taskData.length;
+                const terlewat = statsData.dataPieChart['TERLEWAT'] || 0;
+                const sangatTinggi = statsData.dataPieChart['Sangat Tinggi'] || 0;
+                const tinggi = statsData.dataPieChart['Tinggi'] || 0;
+                const sedang = statsData.dataPieChart['Sedang'] || 0;
+                const normal = statsData.dataPieChart['Rendah'] || 0;
+
+                document.getElementById('total-tasks-stat').textContent = total;
+                if (total > 0) {
+                    document.getElementById('pt-terlewat').textContent = Math.round((terlewat / total) * 100) + '%';
+                    document.getElementById('pt-sangat-tinggi').textContent = Math.round((sangatTinggi / total) * 100) + '%';
+                    document.getElementById('pt-tinggi').textContent = Math.round((tinggi / total) * 100) + '%';
+                    document.getElementById('pt-sedang').textContent = Math.round((sedang / total) * 100) + '%';
+                    document.getElementById('pt-normal').textContent = Math.round((normal / total) * 100) + '%';
+
+                    const terwPct = (terlewat / total) * 100;
+                    const stPct = terwPct + ((sangatTinggi / total) * 100);
+                    const tPct = stPct + ((tinggi / total) * 100);
+                    const sPct = tPct + ((sedang / total) * 100);
+
+                    const donut = document.getElementById('donut-chart');
+                    if (donut) {
+                        donut.style.background = `conic-gradient(var(--priority-terlewat) 0% ${terwPct}%, var(--priority-red) ${terwPct}% ${stPct}%, var(--priority-yellow) ${stPct}% ${tPct}%, var(--priority-orange) ${tPct}% ${sPct}%, var(--priority-green) ${sPct}% 100%)`;
+                    }
+                } else {
+                    document.getElementById('pt-terlewat').textContent = '0%';
+                    document.getElementById('pt-sangat-tinggi').textContent = '0%';
+                    document.getElementById('pt-tinggi').textContent = '0%';
+                    document.getElementById('pt-sedang').textContent = '0%';
+                    document.getElementById('pt-normal').textContent = '0%';
+
+                    const donut = document.getElementById('donut-chart');
+                    if (donut) {
+                        donut.style.background = `#e5e7eb`;
+                    }
+                }
+
+                const prodPct = statsData.produktivitasAngka || 0;
+                document.getElementById('stat-prod').textContent = statsData.produktivitasMingguan;
+
+                if (prodPct >= 50) {
+                    document.getElementById('prod-title').className = 'text-green';
+                    document.getElementById('prod-comparison').textContent = `${tasksSelesai} dari ${taskData.length} tugas selesai`;
+                } else {
+                    document.getElementById('prod-title').className = 'text-red';
+                    document.getElementById('prod-comparison').textContent = `${tasksSelesai} dari ${taskData.length} tugas selesai`;
+                }
+
+                const lateCount = statsData.tugasTerlambatAbsolut;
+                document.getElementById('stat-late').textContent = lateCount;
+
+                if (lateCount > 0) {
+                    document.getElementById('late-comparison').textContent = `${lateCount} tugas sudah melewati deadline`;
+                } else {
+                    document.getElementById('late-comparison').textContent = 'Semua tugas masih dalam tenggat waktu';
+                }
+
+                const avgTime = statsData.rataRataWaktu || '0.0';
+                document.getElementById('stat-mean-time').innerHTML = `${avgTime} <span style="font-size: 16px; font-weight: 500; color: #6b7280; margin-left: 4px;">jam</span>`;
+
+                let diff = 0.6;
+                document.getElementById('mean-comparison').textContent = `-${diff} jam dari minggu lalu`;
+
+                const chartContainer = document.getElementById('bar-chart-container');
+                const yaxisContainer = document.getElementById('bar-yaxis');
+                chartContainer.innerHTML = '';
+                yaxisContainer.innerHTML = '';
+
+                const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+                const totalPerDay = { "Mon": 0, "Tue": 0, "Wed": 0, "Thu": 0, "Fri": 0, "Sat": 0, "Sun": 0 };
+                const completedPerDay = { ...statsData.dataBarChart };
+                const dayOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                taskData.forEach(t => {
+                    if (t.status === "Selesai" && t.hariSelesai) {
+                        totalPerDay[t.hariSelesai] = (totalPerDay[t.hariSelesai] || 0) + 1;
+                    } else {
+                        const dlDate = new Date();
+                        dlDate.setHours(0,0,0,0);
+                        dlDate.setDate(dlDate.getDate() + (t.tenggatAngka || 0));
+                        const dName = dayOfWeek[dlDate.getDay()];
+                        if (totalPerDay[dName] !== undefined) {
+                            totalPerDay[dName] = (totalPerDay[dName] || 0) + 1;
+                        }
+                    }
+                });
+
+                days.forEach(d => {
+                    const completed = completedPerDay[d] || 0;
+                    if (totalPerDay[d] < completed) {
+                        totalPerDay[d] = completed;
+                    }
+                });
+
+                const allValues = days.map(d => Math.max(totalPerDay[d] || 0, completedPerDay[d] || 0));
+                const maxVal = Math.max(...allValues, 1);
+                const yMax = Math.ceil(maxVal / 5) * 5 || 5;
+                const ySteps = [0, Math.round(yMax * 0.25), Math.round(yMax * 0.5), Math.round(yMax * 0.75), yMax];
+
+                ySteps.forEach(v => {
+                    yaxisContainer.innerHTML += `<span>${v}</span>`;
+                });
+
+                let maxDay = "";
+                let highest = -1;
+                days.forEach(d => {
+                    if ((completedPerDay[d] || 0) > highest) {
+                        highest = completedPerDay[d] || 0;
+                        maxDay = d;
+                    }
+                });
+
+                days.forEach(day => {
+                    const total = totalPerDay[day] || 0;
+                    const completed = completedPerDay[day] || 0;
+                    const bgHeightPct = yMax > 0 ? (total / yMax) * 100 : 0;
+                    const fgHeightPct = total > 0 ? (completed / total) * 100 : 0;
+                    const isHighlight = (day === maxDay && highest > 0);
+                    const isEmpty = total === 0 && completed === 0;
+
+                    chartContainer.innerHTML += `
+                    <div class="bar-wrapper ${isEmpty ? 'bar-empty' : ''}">
+                        <div class="bar-bg ${isHighlight ? 'highlight-bg' : ''}" style="height: ${Math.max(bgHeightPct, 6)}%">
+                            <div class="bar-fg ${isHighlight ? 'highlight' : ''}" style="height: ${fgHeightPct}%"></div>
+                        </div>
+                        <span class="bar-label">${day}</span>
+                    </div>
+                `;
+                });
+            }
+
+            renderAnalytics(0, allTaskData);
+        });
+    </script>
+</body>
+
+</html>
