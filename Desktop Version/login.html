@@ -116,23 +116,6 @@
                 btn.disabled = false;
                 document.getElementById('loginErrorMsg').style.display = 'block';
             } else {
-                try {
-                    const supabase = await window.authService.getSupabase();
-                    const { data: profileData, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('namaLengkap')
-                        .eq('id', data.user.id)
-                        .single();
-
-                    if (profileData && profileData.namaLengkap) {
-                        localStorage.setItem('userName', profileData.namaLengkap);
-                        localStorage.setItem('userNickname', profileData.namaLengkap.split(' ')[0]);
-                    }
-                    localStorage.setItem('userEmail', email);
-                } catch (err) {
-                    console.error('Gagal memuat profil user:', err);
-                }
-
                 window.location.href = 'dashboard.html';
             }
         });

@@ -49,12 +49,14 @@ window.injectSidebar = function (activeTarget) {
     }
 }
 
-window.updateUserInfo = function () {
-    const storedName = localStorage.getItem('userName') || 'Subekti Rahman';
-    const storedNickname = localStorage.getItem('userNickname') || 'Subekti';
-    const storedEmail = localStorage.getItem('userEmail') || 'subekti@contoh.com';
-    const storedGender = localStorage.getItem('userGender') || 'Laki-laki';
-    const storedTimezone = localStorage.getItem('userTimezone') || 'WIB';
+window.updateUserInfo = async function () {
+    const { data: profile } = await window.authService.getProfile();
+
+    const storedName = profile?.namalengkap || 'Subekti Rahman';
+    const storedNickname = profile?.nickname || 'Subekti';
+    const storedEmail = profile?.email || 'subekti@contoh.com';
+    const storedGender = profile?.gender || 'Laki-laki';
+    const storedTimezone = profile?.timezone || 'WIB';
 
     const greetingEl = document.getElementById('user-greeting');
     if (greetingEl) {
@@ -141,12 +143,15 @@ window.showToastAlert = function (title, text, type = 'info', actionUrl = '', ac
     }
 };
 
-window.checkDynamicNotifications = function () {
-    const raw = localStorage.getItem('taskData');
-    const tasks = raw ? JSON.parse(raw) : [];
+window.checkDynamicNotifications = async function () {
+    if (!window.taskData && window.loadTaskData) {
+        await window.loadTaskData();
+    }
+    const tasks = window.taskData || [];
 
-    const deadlineEnabled = localStorage.getItem('t-deadline') !== 'false';
-    const priorityEnabled = localStorage.getItem('t-prioritas') !== 'false';
+    const { data: profile } = await window.authService.getProfile();
+    const deadlineEnabled = profile?.t_deadline !== false;
+    const priorityEnabled = profile?.t_prioritas !== false;
 
     let countOverdue = 0;
     let countUrgent = 0;

@@ -113,9 +113,6 @@
             if (error) {
                 alert('Gagal Daftar: ' + error);
             } else {
-                localStorage.setItem('userName', name);
-                localStorage.setItem('userEmail', email);
-
                 alert('Pendaftaran berhasil! Silakan login.');
                 window.location.href = 'login.html';
             }

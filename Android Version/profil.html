@@ -85,27 +85,34 @@
             </div>
         </main>
     </div>
+    <script src="./database/authService.js"></script>
     <script src="./backend_logic/sidebar.js"></script>
     <script>
         window.injectSidebar('settings');
-        const storedName = localStorage.getItem('userName') || 'Subekti Rahman';
-        const storedNickname = localStorage.getItem('userNickname') || 'Subekti';
-        const storedEmail = localStorage.getItem('userEmail') || 'subekti@contoh.com';
-        const storedGender = localStorage.getItem('userGender') || 'Laki-laki';
-        const storedTimezone = localStorage.getItem('userTimezone') || 'WIB';
-        const storedAvatar = localStorage.getItem('userAvatar');
 
-        document.getElementById('profile-name-input').value = storedName;
-        document.getElementById('profile-nickname-input').value = storedNickname;
-        document.getElementById('profile-email-input').value = storedEmail;
-        document.getElementById('profile-gender-input').value = storedGender;
-        document.getElementById('profile-timezone-input').value = storedTimezone;
+        async function loadProfile() {
+            const { data: profile } = await window.authService.getProfile();
+            const storedName = profile?.namalengkap || 'Subekti Rahman';
+            const storedNickname = profile?.nickname || 'Subekti';
+            const storedEmail = profile?.email || 'subekti@contoh.com';
+            const storedGender = profile?.gender || 'Laki-laki';
+            const storedTimezone = profile?.timezone || 'WIB';
 
-        if (storedAvatar) {
-            document.getElementById('avatar-icon').style.display = 'none';
-            document.getElementById('avatar-img').src = storedAvatar;
-            document.getElementById('avatar-img').style.display = 'block';
+            document.getElementById('profile-name-input').value = storedName;
+            document.getElementById('profile-nickname-input').value = storedNickname;
+            document.getElementById('profile-email-input').value = storedEmail;
+            document.getElementById('profile-gender-input').value = storedGender;
+            document.getElementById('profile-timezone-input').value = storedTimezone;
+
+            const storedAvatar = localStorage.getItem('userAvatar');
+            if (storedAvatar) {
+                document.getElementById('avatar-icon').style.display = 'none';
+                document.getElementById('avatar-img').src = storedAvatar;
+                document.getElementById('avatar-img').style.display = 'block';
+            }
         }
+
+        loadProfile();
 
         let tempAvatarDataUrl = null;
         const uploadInput = document.getElementById('profile-upload');
@@ -126,7 +133,7 @@
             }
         });
 
-        document.getElementById('settingsForm').addEventListener('submit', function (e) {
+        document.getElementById('settingsForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const name = document.getElementById('profile-name-input').value;
             const nickname = document.getElementById('profile-nickname-input').value;
@@ -134,17 +141,32 @@
             const gender = document.getElementById('profile-gender-input').value;
             const timezone = document.getElementById('profile-timezone-input').value;
 
-            localStorage.setItem('userName', name);
-            localStorage.setItem('userNickname', nickname);
-            localStorage.setItem('userEmail', email);
-            localStorage.setItem('userGender', gender);
-            localStorage.setItem('userTimezone', timezone);
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Menyimpan...';
+            btn.disabled = true;
+
+            const { error } = await window.authService.updateProfile({
+                namalengkap: name,
+                nickname: nickname,
+                email: email,
+                gender: gender,
+                timezone: timezone
+            });
+
             if (tempAvatarDataUrl) {
                 localStorage.setItem('userAvatar', tempAvatarDataUrl);
             }
 
-            alert('Pengaturan profil berhasil disimpan!');
-            window.location.href = 'pengaturan.html';
+            btn.textContent = originalText;
+            btn.disabled = false;
+
+            if (error) {
+                alert('Gagal sinkronisasi profil: ' + error.message);
+            } else {
+                alert('Pengaturan profil berhasil disimpan!');
+                window.location.href = 'pengaturan.html';
+            }
         });
     </script>
 </body>

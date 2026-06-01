@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('link-register').addEventListener('click', (e) => { e.preventDefault(); views.login.style.display = 'none'; views.register.style.display = 'block'; });
     document.getElementById('link-login').addEventListener('click', (e) => { e.preventDefault(); views.register.style.display = 'none'; views.login.style.display = 'block'; });
 
-    document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); showView(views.main); showContentView('dashboard-content'); loadData(); });
-    document.getElementById('register-form').addEventListener('submit', (e) => { e.preventDefault(); showView(views.main); showContentView('dashboard-content'); loadData(); });
+    document.getElementById('login-form').addEventListener('submit', async (e) => { e.preventDefault(); showView(views.main); showContentView('dashboard-content'); await loadDataAsync(); });
+    document.getElementById('register-form').addEventListener('submit', async (e) => { e.preventDefault(); showView(views.main); showContentView('dashboard-content'); await loadDataAsync(); });
     document.getElementById('btn-logout').addEventListener('click', (e) => { e.preventDefault(); showView(views.welcome); });
 
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
@@ -73,19 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('fab-add-task').addEventListener('click', () => { showContentView('add-task-content'); });
     document.getElementById('btn-cancel-task').addEventListener('click', () => { showContentView('dashboard-content'); });
 
-    function loadData() {
-        const result = initApp();
+    async function loadDataAsync() {
+        if (window.loadTaskData) {
+            await window.loadTaskData();
+        }
+        const result = typeof initApp === 'function' ? initApp() : window.initApp();
         taskData = result.dataTersortir;
         statsData = result.hasilStatistik;
 
         renderDashboard();
-    }
-
-    function saveAndReloadData(newDataArray) {
-        localStorage.setItem('taskData', JSON.stringify(newDataArray));
-        rawData.length = 0;
-        newDataArray.forEach(item => rawData.push(item));
-        loadData();
     }
 
     function renderDashboard() {
@@ -160,54 +156,70 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAllTasks(e.target.value);
     });
 
-    window.selesaikanTugas = function (taskId) {
-        const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
-        const taskIndex = currentData.findIndex(t => t.id === taskId);
-        if (taskIndex > -1) {
-            currentData[taskIndex].status = "Selesai";
-            currentData[taskIndex].hariSelesai = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
-            saveAndReloadData(currentData);
+    window.selesaikanTugas = async function (taskId) {
+        const hariSelesai = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
+        const btn = document.querySelector(`button[onclick="window.selesaikanTugas(${taskId})"]`);
+        if(btn) {
+            btn.textContent = 'Memproses...';
+            btn.disabled = true;
+        }
+
+        const { error } = await window.authService.updateTask(taskId, {
+            status: "Selesai",
+            hari_selesai: hariSelesai
+        });
+
+        if (!error) {
+            await loadDataAsync();
             renderAllTasks(document.getElementById('search-tasks').value);
             alert("Tugas ditandai selesai!");
+        } else {
+            alert("Gagal menandai selesai: " + error);
+            if(btn) {
+                btn.textContent = 'Tandai Selesai';
+                btn.disabled = false;
+            }
         }
     };
 
-    document.getElementById('add-task-form').addEventListener('submit', (e) => {
+    document.getElementById('add-task-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        btn.textContent = 'Menyimpan...';
+        btn.disabled = true;
 
         const nama = document.getElementById('task-name').value;
         const kategori = document.getElementById('task-category').value;
         const prioritasInput = document.getElementById('task-priority').value;
         const dateInput = document.getElementById('task-date').value;
 
-        let tenggatAngka = 7;
-        if (dateInput) {
-            const targetDate = new Date(dateInput);
-            const today = new Date();
-            const diffTime = targetDate - today;
-            tenggatAngka = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        }
-
         const newTask = {
-            id: Date.now(),
-            nama: nama,
-            jenis: "Individu",
+            nama_kegiatan: nama,
+            jenis_kegiatan: "Individu",
             kategori: kategori || "Tugas",
-            tenggatAngka: tenggatAngka,
-            bebanSKS: 2,
-            tingkatKesulitan: prioritasInput === "Sangat Tinggi" ? 5 : 3,
-            riwayatTerlambat: "Tidak Pernah",
-            hariSelesai: null,
+            tenggat_waktu: dateInput || null,
+            beban_sks: 2,
+            tingkat_kesulitan: prioritasInput === "Sangat Tinggi" ? 5 : 3,
+            pernah_terlambat: "Tidak Pernah",
+            hari_selesai: null,
             status: "Belum"
         };
 
-        const currentData = JSON.parse(localStorage.getItem('taskData') || '[]');
-        currentData.push(newTask);
+        const { error } = await window.authService.addTask(newTask);
 
-        saveAndReloadData(currentData);
-        e.target.reset();
-        alert('Kegiatan berhasil ditambahkan dan disimpan!');
-        showContentView('dashboard-content');
+        btn.textContent = originalText;
+        btn.disabled = false;
+
+        if (!error) {
+            e.target.reset();
+            alert('Kegiatan berhasil ditambahkan dan disimpan!');
+            await loadDataAsync();
+            showContentView('dashboard-content');
+        } else {
+            alert('Gagal menambahkan kegiatan: ' + error);
+        }
     });
 
     function renderNotifications() {

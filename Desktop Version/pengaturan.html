@@ -812,44 +812,32 @@
             }
 
             try {
-                const { session } = await window.authService.getSession();
-                if (session && session.user) {
-                    const supabase = await window.authService.getSupabase();
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('namalengkap')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    const emailReal = session.user.email;
+                const { data: profile } = await window.authService.getProfile();
+                if (profile) {
+                    const emailReal = profile.email || '';
                     const namaDariEmail = emailReal.split('@')[0];
 
-                    let namaReal = profile ? profile.namalengkap : null;
+                    let namaReal = profile.namalengkap || '';
                     const namaAbaikan = ["User", "Pengguna Baru", "Subekti Rahman", "Subekti", null, undefined, ""];
 
-                    if (namaAbaikan.includes(namaReal)) {
+                    if (namaAbaikan.includes(namaReal) || !namaReal) {
                         namaReal = namaDariEmail;
                     }
-                    else if (!namaReal) {
-                        const lokalNama = localStorage.getItem('userName');
-                        if (lokalNama && !namaAbaikan.includes(lokalNama)) {
-                            namaReal = lokalNama;
-                        } else {
-                            namaReal = namaDariEmail;
-                        }
-                    }
 
-                    const namaPanggilan = namaReal.split(' ')[0];
+                    const namaPanggilan = profile.nickname || namaReal.split(' ')[0];
 
                     document.getElementById('display-name').textContent = namaReal;
                     document.getElementById('profile-name-input').value = namaReal;
                     document.getElementById('profile-nickname-input').value = namaPanggilan;
                     document.getElementById('display-email').textContent = emailReal;
                     document.getElementById('profile-email-input').value = emailReal;
+                    if(profile.gender) document.getElementById('profile-gender-input').value = profile.gender;
+                    if(profile.timezone) document.getElementById('profile-timezone-input').value = profile.timezone;
 
-                    localStorage.setItem('userName', namaReal);
-                    localStorage.setItem('userNickname', namaPanggilan);
-                    localStorage.setItem('userEmail', emailReal);
+                    // Apply notification settings if available
+                    if (profile.t_deadline !== undefined) document.getElementById('t-deadline').checked = profile.t_deadline;
+                    if (profile.t_prioritas !== undefined) document.getElementById('t-prioritas').checked = profile.t_prioritas;
+
                     window.updateUserInfo();
                 }
             } catch (err) {
@@ -868,6 +856,9 @@
 
             const nameInput = document.getElementById('profile-name-input').value;
             const nicknameInput = document.getElementById('profile-nickname-input').value;
+            const emailInput = document.getElementById('profile-email-input').value;
+            const genderInput = document.getElementById('profile-gender-input').value;
+            const timezoneInput = document.getElementById('profile-timezone-input').value;
 
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.textContent;
@@ -875,23 +866,15 @@
             btn.disabled = true;
 
             try {
-                const { session } = await window.authService.getSession();
-                if (!session) throw new Error("Sesi masuk tidak ditemukan. Silakan login ulang.");
-
-                const module = await import('./database/supabaseclient.js');
-                const supabase = module.supabase;
-
-                const { error } = await supabase
-                    .from('profiles')
-                    .upsert({
-                        id: session.user.id,
-                        namalengkap: nameInput
-                    });
+                const { error } = await window.authService.updateProfile({
+                    namalengkap: nameInput,
+                    nickname: nicknameInput,
+                    email: emailInput,
+                    gender: genderInput,
+                    timezone: timezoneInput
+                });
 
                 if (error) throw error;
-
-                localStorage.setItem('userName', nameInput);
-                localStorage.setItem('userNickname', nicknameInput);
 
                 document.getElementById('display-name').textContent = nameInput;
 
@@ -905,6 +888,14 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
             }
+        });
+
+        // Toggle notifications listeners
+        document.getElementById('t-deadline').addEventListener('change', async function(e) {
+            await window.authService.updateProfile({ t_deadline: e.target.checked });
+        });
+        document.getElementById('t-prioritas').addEventListener('change', async function(e) {
+            await window.authService.updateProfile({ t_prioritas: e.target.checked });
         });
 
         document.getElementById('securityForm').addEventListener('submit', function (e) {

@@ -122,8 +122,8 @@
             e.preventDefault();
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const password = document.getElementById('regPwd').value;
+            const confirmPassword = document.getElementById('regConfPwd').value;
 
             if (password !== confirmPassword) {
                 alert('Password dan Konfirmasi Password tidak cocok!');
@@ -143,9 +143,6 @@
             if (error) {
                 alert('Gagal Daftar: ' + error);
             } else {
-                localStorage.setItem('userName', name);
-                localStorage.setItem('userEmail', email);
-
                 alert('Pendaftaran berhasil! Silakan login.');
                 window.location.href = 'login.html';
             }

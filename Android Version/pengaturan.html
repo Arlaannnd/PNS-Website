@@ -115,54 +115,22 @@
         window.updateUserInfo();
 
         window.initApp().then(async (result) => {
-            const taskData = result.dataTersortir;
-
-            if (taskData) {
-                document.getElementById('stat-total').textContent = taskData.length;
-                document.getElementById('stat-selesai').textContent = taskData.filter(t => t.status === 'Selesai').length;
-                document.getElementById('stat-terlambat').textContent = taskData.filter(t => t.tenggatAngka < 0 || t.labelPrioritas === 'TERLEWAT').length;
-            }
-
             try {
-                const { session } = await window.authService.getSession();
-                if (session && session.user) {
-                    const supabase = await window.authService.getSupabase();
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('namalengkap')
-                        .eq('id', session.user.id)
-                        .single();
+                const { data: profile } = await window.authService.getProfile();
+                if (profile) {
+                    const emailReal = profile.email || '';
+                    const namaDariEmail = emailReal.split('@')[0];
 
-                    const emailReal = session.user.email;
-                    const namaDariEmail = emailReal.split('@')[0]; // Potong email
-
-                    let namaReal = profile ? profile.namalengkap : null;
-
+                    let namaReal = profile.namalengkap || '';
                     const namaAbaikan = ["User", "Pengguna Baru", "Subekti Rahman", "Subekti", null, undefined, ""];
 
-                    if (namaAbaikan.includes(namaReal)) {
+                    if (namaAbaikan.includes(namaReal) || !namaReal) {
                         namaReal = namaDariEmail;
                     }
-                    else if (!namaReal) {
-                        const lokalNama = localStorage.getItem('userName');
-                        if (lokalNama && !namaAbaikan.includes(lokalNama)) {
-                            namaReal = lokalNama;
-                        } else {
-                            namaReal = namaDariEmail;
-                        }
-                    }
-
-                    const namaPanggilan = namaReal.split(' ')[0];
 
                     document.getElementById('display-name').textContent = namaReal;
-                    document.getElementById('profile-name-input').value = namaReal;
-                    document.getElementById('profile-nickname-input').value = namaPanggilan;
                     document.getElementById('display-email').textContent = emailReal;
-                    document.getElementById('profile-email-input').value = emailReal;
 
-                    localStorage.setItem('userName', namaReal);
-                    localStorage.setItem('userNickname', namaPanggilan);
-                    localStorage.setItem('userEmail', emailReal);
                     window.updateUserInfo();
                 }
             } catch (err) {
@@ -170,53 +138,10 @@
             }
         });
 
-        function openSubpage(name) { document.getElementById('subpage-' + name).classList.add('show'); }
-        function closeSubpage(name) { document.getElementById('subpage-' + name).classList.remove('show'); }
+        function openSubpage(name) { document.getElementById('subpage-' + name)?.classList.add('show'); }
+        function closeSubpage(name) { document.getElementById('subpage-' + name)?.classList.remove('show'); }
         document.querySelectorAll('.subpage-overlay').forEach(ov => {
             ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
-        });
-
-        document.getElementById('settingsForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const nameInput = document.getElementById('profile-name-input').value;
-            const nicknameInput = document.getElementById('profile-nickname-input').value;
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.textContent;
-            btn.textContent = 'Menyimpan ke Cloud...';
-            btn.disabled = true;
-
-            try {
-                const { session } = await window.authService.getSession();
-                if (!session) throw new Error("Sesi masuk tidak ditemukan. Silakan login ulang.");
-
-                const supabase = await window.authService.getSupabase();
-
-                const { error } = await supabase
-                    .from('profiles')
-                    .upsert({
-                        id: session.user.id,
-                        namalengkap: nameInput
-                    });
-
-                if (error) throw error;
-
-                localStorage.setItem('userName', nameInput);
-                localStorage.setItem('userNickname', nicknameInput);
-
-                document.getElementById('display-name').textContent = nameInput;
-
-                window.updateUserInfo();
-                closeSubpage('profil');
-                alert('Profil berhasil disinkronkan secara online!');
-            } catch (err) {
-                alert('Gagal sinkronisasi profil: ' + err.message);
-                console.error(err);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
         });
 
         document.getElementById('securityForm').addEventListener('submit', function (e) {

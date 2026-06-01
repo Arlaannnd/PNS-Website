@@ -107,6 +107,80 @@ class AuthService {
             return { session: null, error: error.message };
         }
     }
+
+    async getProfile() {
+        try {
+            const { session, error: sessionError } = await this.getSession();
+            if (sessionError || !session) return { data: null, error: sessionError || 'No session' };
+
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+            
+            return { data, error };
+        } catch (error) {
+            console.error('Error saat getProfile:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
+
+    async updateProfile(updates) {
+        try {
+            const { session, error: sessionError } = await this.getSession();
+            if (sessionError || !session) return { data: null, error: sessionError || 'No session' };
+
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .update(updates)
+                .eq('id', session.user.id);
+            
+            return { data, error };
+        } catch (error) {
+            console.error('Error saat updateProfile:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
+
+    async addTask(taskData) {
+        try {
+            const { session, error: sessionError } = await this.getSession();
+            if (sessionError || !session) return { data: null, error: sessionError || 'No session' };
+
+            taskData.user_id = session.user.id;
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient
+                .from('kegiatan')
+                .insert([taskData]);
+            
+            return { data, error };
+        } catch (error) {
+            console.error('Error saat addTask:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
+
+    async updateTask(taskId, updates) {
+        try {
+            const { session, error: sessionError } = await this.getSession();
+            if (sessionError || !session) return { data: null, error: sessionError || 'No session' };
+
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient
+                .from('kegiatan')
+                .update(updates)
+                .eq('id', taskId)
+                .eq('user_id', session.user.id);
+            
+            return { data, error };
+        } catch (error) {
+            console.error('Error saat updateTask:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
 }
 
 window.authService = new AuthService();

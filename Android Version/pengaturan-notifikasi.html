@@ -125,8 +125,38 @@
     <script src="./backend_logic/sidebar.js"></script>
     <script>
         window.injectSidebar('settings');
-        function togSave(el) { el.classList.toggle('on'); localStorage.setItem(el.id, el.classList.contains('on')); }
-        document.querySelectorAll('.tog').forEach(el => { const v = localStorage.getItem(el.id); if (v === 'true') el.classList.add('on'); else if (v === 'false') el.classList.remove('on'); });
+
+        async function loadSettings() {
+            const { data: profile } = await window.authService.getProfile();
+            if (profile) {
+                if (profile.t_deadline !== undefined) {
+                    const el = document.getElementById('t-deadline');
+                    if (profile.t_deadline) el.classList.add('on'); else el.classList.remove('on');
+                }
+                if (profile.t_prioritas !== undefined) {
+                    const el = document.getElementById('t-prioritas');
+                    if (profile.t_prioritas) el.classList.add('on'); else el.classList.remove('on');
+                }
+            }
+            // t-weekly keeping local storage for now as it may not be in DB
+            const v = localStorage.getItem('t-weekly');
+            if (v === 'true') document.getElementById('t-weekly').classList.add('on');
+            else if (v === 'false') document.getElementById('t-weekly').classList.remove('on');
+        }
+
+        loadSettings();
+
+        async function togSave(el) {
+            el.classList.toggle('on');
+            const isOn = el.classList.contains('on');
+            if (el.id === 't-deadline') {
+                await window.authService.updateProfile({ t_deadline: isOn });
+            } else if (el.id === 't-prioritas') {
+                await window.authService.updateProfile({ t_prioritas: isOn });
+            } else {
+                localStorage.setItem(el.id, isOn);
+            }
+        }
     </script>
 </body>
 

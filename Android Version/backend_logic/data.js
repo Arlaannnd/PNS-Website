@@ -37,10 +37,7 @@ window.loadTaskData = async function () {
           status: item.status || "Belum"
         };
       });
-
-      localStorage.setItem('taskData', JSON.stringify(window.taskData));
     }
-
   } catch (err) {
     console.error("Gagal menarik data kegiatan:", err);
     window.taskData = [];
