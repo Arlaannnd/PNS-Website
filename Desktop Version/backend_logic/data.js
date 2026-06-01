@@ -32,7 +32,6 @@ window.loadTaskData = async function () {
           jenis: item.jenis_kegiatan || "Individu",
           kategori: item.kategori || "Tugas",
           tenggatAngka: tenggatAngka,
-          bebanSKS: item.beban_sks || 2,
           tingkatKesulitan: item.tingkat_kesulitan || 3,
           riwayatTerlambat: item.pernah_terlambat || "Tidak",
           hariSelesai: item.hari_selesai,

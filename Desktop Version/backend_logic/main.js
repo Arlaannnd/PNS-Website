@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.selesaikanTugas = async function (taskId) {
         const hariSelesai = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
         const btn = document.querySelector(`button[onclick="window.selesaikanTugas(${taskId})"]`);
-        if(btn) {
+        if (btn) {
             btn.textContent = 'Memproses...';
             btn.disabled = true;
         }
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Tugas ditandai selesai!");
         } else {
             alert("Gagal menandai selesai: " + error);
-            if(btn) {
+            if (btn) {
                 btn.textContent = 'Tandai Selesai';
                 btn.disabled = false;
             }
@@ -211,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
             jenis_kegiatan: "Individu",
             kategori: kategori || "Tugas",
             tenggat_waktu: dateInput || null,
-            beban_sks: 2,
             tingkat_kesulitan: prioritasInput === "Sangat Tinggi" ? 5 : 3,
             pernah_terlambat: "Tidak Pernah",
             hari_selesai: null,

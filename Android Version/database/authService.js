@@ -27,7 +27,8 @@ class AuthService {
                     .insert([
                         {
                             id: authData.user.id,
-                            namalengkap: namalengkap
+                            namalengkap: namalengkap,
+                            email: email
                         }
                     ]);
 
@@ -119,7 +120,7 @@ class AuthService {
                 .select('*')
                 .eq('id', session.user.id)
                 .single();
-            
+
             return { data, error };
         } catch (error) {
             console.error('Error saat getProfile:', error.message);
@@ -137,7 +138,7 @@ class AuthService {
                 .from('profiles')
                 .update(updates)
                 .eq('id', session.user.id);
-            
+
             return { data, error };
         } catch (error) {
             console.error('Error saat updateProfile:', error.message);
@@ -155,7 +156,7 @@ class AuthService {
             const { data, error } = await supabaseClient
                 .from('kegiatan')
                 .insert([taskData]);
-            
+
             return { data, error };
         } catch (error) {
             console.error('Error saat addTask:', error.message);
@@ -174,7 +175,7 @@ class AuthService {
                 .update(updates)
                 .eq('id', taskId)
                 .eq('user_id', session.user.id);
-            
+
             return { data, error };
         } catch (error) {
             console.error('Error saat updateTask:', error.message);

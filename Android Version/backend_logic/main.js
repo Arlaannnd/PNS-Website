@@ -200,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
             jenis_kegiatan: "Individu",
             kategori: kategori || "Tugas",
             tenggat_waktu: dateInput || null,
-            beban_sks: 2,
             tingkat_kesulitan: prioritasInput === "Sangat Tinggi" ? 5 : 3,
             pernah_terlambat: "Tidak Pernah",
             hari_selesai: null,

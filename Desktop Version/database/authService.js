@@ -29,13 +29,13 @@ class AuthService {
                     .insert([
                         { 
                             id: authData.user.id, 
-                            namalengkap: namalengkap 
+                            namalengkap: namalengkap,
+                            email: email
                         }
                     ]);
 
                 if (profileError) {
-                    console.error('Gagal memasukkan data ke profiles:', profileError.message);
-                    throw profileError;
+                    console.warn('Gagal memasukkan data ke profiles (Mungkin karena RLS/Email Confirmation). Profil akan dibuat saat update pertama:', profileError.message);
                 }
             }
 
