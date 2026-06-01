@@ -50,11 +50,17 @@ window.injectSidebar = function (activeTarget) {
 }
 
 window.updateUserInfo = async function () {
+    const { session } = await window.authService.getSession();
+    if (!session) return;
+
     const { data: profile } = await window.authService.getProfile();
 
-    const storedName = profile?.namalengkap || 'Subekti Rahman';
-    const storedNickname = profile?.nickname || 'Subekti';
-    const storedEmail = profile?.email || 'subekti@contoh.com';
+    const email = session.user.email;
+    const defaultName = email.split('@')[0];
+
+    const storedName = profile?.namalengkap || defaultName;
+    const storedNickname = profile?.nickname || defaultName;
+    const storedEmail = profile?.email || email;
     const storedGender = profile?.gender || 'Laki-laki';
     const storedTimezone = profile?.timezone || 'WIB';
 
@@ -225,10 +231,12 @@ window.checkDynamicNotifications = async function () {
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(window.checkDynamicNotifications, 100);
+    setTimeout(window.updateUserInfo, 150);
 });
 
 const originalInjectSidebar = window.injectSidebar;
 window.injectSidebar = function (activeTarget) {
     originalInjectSidebar(activeTarget);
     setTimeout(window.checkDynamicNotifications, 50);
+    setTimeout(window.updateUserInfo, 100);
 };
