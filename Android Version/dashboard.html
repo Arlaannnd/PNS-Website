@@ -285,8 +285,11 @@
                                     `<span style="width:6px; height:6px; display:inline-block;"></span>`}
                             `;
                             el.addEventListener('click', () => {
-                                // Highlight selected day
-                                document.querySelectorAll('#week-days .day-item').forEach(x => x.classList.remove('selected'));
+                                // Highlight selected day and remove active from today
+                                document.querySelectorAll('#week-days .day-item').forEach(x => {
+                                    x.classList.remove('selected');
+                                    x.classList.remove('active');
+                                });
                                 el.classList.add('selected');
                                 openDayPanel(d, dayTasks);
                             });

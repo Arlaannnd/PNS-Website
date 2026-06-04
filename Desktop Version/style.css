@@ -732,9 +732,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     color: var(--text-muted);
-    padding: 8px 12px;
+    padding: 10px 0;
+    width: 56px;
     border-radius: var(--radius-sm);
     cursor: pointer;
 }
@@ -748,19 +750,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     font-weight: 600;
 }
 
-.day-item.active {
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    box-shadow: var(--shadow-sm);
-}
-
-.day-item.selected:not(.active) {
+.day-item.active,
+.day-item.selected {
     background-color: var(--primary-dark);
     color: white;
+    border: none;
+    box-shadow: none;
 }
 
-.day-item.selected:not(.active) span,
-.day-item.selected:not(.active) strong {
+.day-item.active span,
+.day-item.active strong,
+.day-item.selected span,
+.day-item.selected strong {
     color: white;
 }
 

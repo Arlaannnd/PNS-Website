@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remora - Bahasa</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .lang-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm)
+        }
+
+        .lang-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main)
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .lang-option:hover {
+            border-color: var(--primary-light);
+            background: #f0fdf4
+        }
+
+        .lang-option.selected {
+            border-color: var(--primary-dark);
+            background: #f0fdf4
+        }
+
+        .lang-flag {
+            font-size: 28px;
+            line-height: 1
+        }
+
+        .lang-text h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px
+        }
+
+        .lang-text p {
+            font-size: 12px;
+            color: var(--text-muted)
+        }
+
+        .lang-check {
+            margin-left: auto;
+            font-size: 18px;
+            color: var(--primary-dark);
+            opacity: 0;
+            transition: opacity .2s
+        }
+
+        .lang-option.selected .lang-check {
+            opacity: 1
+        }
+
+        .btn-save-lang {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            margin-top: 8px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="view main-layout active">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div class="page-header" style="text-align:center;padding-bottom:40px;background-color:var(--bg-color);">
+                <div class="page-header-content">
+                    <a href="pengaturan.html"
+                        style="color:var(--text-main);font-size:20px;position:absolute;left:24px;"><i
+                            class="fa-solid fa-arrow-left"></i></a>
+                    <h1 style="font-size:20px;font-weight:700;margin:0;color:var(--text-main);">Bahasa</h1>
+                </div>
+            </div>
+            <div class="content-view active" style="padding:0 24px;margin-top:10px;">
+
+                <div class="lang-card">
+                    <h3><i class="fa-solid fa-globe" style="margin-right:8px;color:var(--primary-dark);"></i>Pilih
+                        Bahasa</h3>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Pilih bahasa yang ingin
+                        digunakan di aplikasi TaskFlow.</p>
+
+                    <div class="lang-option selected" data-lang="id" onclick="selLang(this)">
+                        <span class="lang-flag">🇮🇩</span>
+                        <div class="lang-text">
+                            <h4>Bahasa Indonesia</h4>
+                            <p>Indonesian</p>
+                        </div>
+                        <i class="fa-solid fa-circle-check lang-check"></i>
+                    </div>
+                    <div class="lang-option" data-lang="en" onclick="selLang(this)">
+                        <span class="lang-flag" style="font-size: 15px; font-weight: bold;">EN</span>
+                        <div class="lang-text">
+                            <h4>English</h4>
+                            <p>Inggris</p>
+                        </div>
+                        <i class="fa-solid fa-circle-check lang-check"></i>
+                    </div>
+
+                    <button class="btn-save-lang" onclick="saveLang()">Simpan Bahasa</button>
+                </div>
+
+                <div class="lang-card" style="margin-bottom:40px;">
+                    <h3><i class="fa-solid fa-circle-info"
+                            style="margin-right:8px;color:var(--primary-dark);"></i>Informasi</h3>
+                    <div style="background:var(--bg-color);border-radius:var(--radius-sm);padding:14px;">
+                        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+                            <i class="fa-solid fa-lightbulb" style="color:#F59E0B;margin-right:6px;"></i>
+                            Saat ini TaskFlow hanya mendukung <strong>Bahasa Indonesia</strong> sepenuhnya. Bahasa lain
+                            akan tersedia di pembaruan mendatang.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./database/authService.js"></script>
+    <script src="./backend_logic/data.js"></script>
+    <script src="./backend_logic/ruleEngine.js"></script>
+    <script src="./backend_logic/scripting.js"></script>
+    <script src="./backend_logic/app.js"></script>
+    <script src="./backend_logic/sidebar.js"></script>
+    <script>
+        window.injectSidebar('settings');
+        function selLang(el) { document.querySelectorAll('.lang-option').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); }
+        async function saveLang() { const sel = document.querySelector('.lang-option.selected'); if (sel) { localStorage.setItem('appLanguage', sel.dataset.lang); await window.showCustomModal({ title: "Berhasil", message: 'Bahasa berhasil disimpan: ' + sel.querySelector('h4').textContent, type: "success", confirmText: "OK" }); } }
+        const saved = localStorage.getItem('appLanguage') || 'id';
+        document.querySelectorAll('.lang-option').forEach(o => { o.classList.remove('selected'); if (o.dataset.lang === saved) o.classList.add('selected'); });
+    </script>
+</body>
+
+</html>
