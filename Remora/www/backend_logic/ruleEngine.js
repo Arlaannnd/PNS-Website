@@ -1,7 +1,7 @@
 function getPoinTenggat(tenggatAngka) {
     if (typeof tenggatAngka !== "number") return 6;
-    if (tenggatAngka < 0) return 150;
-    if (tenggatAngka < 3) return 25;
+    if (tenggatAngka <= 0) return 150;
+    if (tenggatAngka <= 3) return 25;
     if (tenggatAngka <= 7) return 18;
     if (tenggatAngka <= 14) return 12;
     return 6;

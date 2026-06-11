@@ -225,14 +225,18 @@ window.activeTimerInterval = null;
 window.checkActiveTimer = function () {
     if (!window.taskData) return;
 
-    let activeTask = window.taskData.find(t => t.waktuMulai && t.status !== 'Selesai');
-
-    // Fallback if database hasn't synced yet
-    const fallbackId = sessionStorage.getItem('activeTimerTaskId');
-    if (!activeTask && fallbackId) {
-        activeTask = window.taskData.find(t => t.id == fallbackId && t.status !== 'Selesai');
-        if (activeTask && !activeTask.waktuMulai) {
-            activeTask.waktuMulai = new Date().toISOString();
+    const activeTaskId = sessionStorage.getItem('activeTimerTaskId');
+    let activeTask = null;
+    
+    if (activeTaskId) {
+        activeTask = window.taskData.find(t => t.id == activeTaskId && t.status !== 'Selesai');
+    }
+    
+    // Fallback if session storage was cleared but database shows a running timer
+    if (!activeTask) {
+        activeTask = window.taskData.find(t => t.waktuMulai && t.status !== 'Selesai');
+        if (activeTask) {
+            sessionStorage.setItem('activeTimerTaskId', activeTask.id);
         }
     }
 
@@ -254,22 +258,27 @@ window.checkActiveTimer = function () {
                 z-index: 9999;
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 10px;
                 font-family: 'Inter', sans-serif;
                 font-weight: 600;
-                width: 90%;
-                max-width: 350px;
+                width: 92%;
+                max-width: 380px;
                 transition: all 0.3s ease;
                 justify-content: space-between;
             `;
             document.body.appendChild(timerContainer);
         }
 
-        const startTime = new Date(activeTask.waktuMulai).getTime();
+        const isPlaying = !!activeTask.waktuMulai;
+        const startTime = isPlaying ? new Date(activeTask.waktuMulai).getTime() : 0;
+        const baseDuration = activeTask.durasiDetik || 0;
 
         function updateTimer() {
-            const now = new Date().getTime();
-            const diff = Math.floor((now - startTime) / 1000);
+            let diff = baseDuration;
+            if (isPlaying) {
+                const now = new Date().getTime();
+                diff += Math.floor((now - startTime) / 1000);
+            }
 
             const hours = Math.floor(diff / 3600);
             const minutes = Math.floor((diff % 3600) / 60);
@@ -281,25 +290,35 @@ window.checkActiveTimer = function () {
                 seconds.toString().padStart(2, '0')
             ].join(':');
 
+            const stateLabel = isPlaying ? "Mengerjakan" : "Dijeda";
+            const iconClass = isPlaying ? "fa-solid fa-stopwatch fa-spin" : "fa-solid fa-stopwatch";
+            const playPauseBtn = isPlaying 
+                ? `<button onclick="window.pauseKegiatanTimer(${activeTask.id})" title="Pause Timer" style="background: rgba(255,255,255,0.2); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;"><i class="fa-solid fa-pause"></i></button>`
+                : `<button onclick="window.resumeKegiatanTimer(${activeTask.id})" title="Lanjutkan Timer" style="background: rgba(255,255,255,0.2); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;"><i class="fa-solid fa-play" style="margin-left: 2px;"></i></button>`;
+
             timerContainer.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
-                    <i class="fa-solid fa-stopwatch fa-spin" style="font-size:16px;"></i>
+                    <i class="${iconClass}" style="font-size:16px; width:16px; text-align:center;"></i>
                     <div style="display:flex; flex-direction:column; min-width:0;">
-                        <span style="font-size:9px; opacity:0.8; line-height:1; margin-bottom:2px;">Mengerjakan</span>
+                        <span style="font-size:9px; opacity:0.8; line-height:1; margin-bottom:2px;">${stateLabel}</span>
                         <span style="font-size:12px; line-height:1.2; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 100%;">${activeTask.nama}</span>
                     </div>
                 </div>
-                <div style="font-size:16px; font-variant-numeric: tabular-nums; letter-spacing: 1px;">${timeStr}</div>
-                <div style="display:flex; gap: 6px;">
-                    <button onclick="window.batalkanTimer(${activeTask.id})" title="Hentikan Timer" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 10px; border-radius: 20px; cursor: pointer;"><i class="fa-solid fa-pause"></i></button>
-                    <button onclick="window.selesaikanKegiatanTimer(${activeTask.id})" style="background: white; color: #1e293b; border: none; padding: 6px 12px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size:11px;">Selesai</button>
+                <div style="font-size:14px; font-variant-numeric: tabular-nums; letter-spacing: 0.5px; margin: 0 4px;">${timeStr}</div>
+                <div style="display:flex; gap: 4px; align-items: center;">
+                    ${playPauseBtn}
+                    <button onclick="window.batalkanTimer(${activeTask.id})" title="Batalkan Timer" style="background: rgba(239,68,68,0.2); color: #fca5a5; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="window.selesaikanKegiatanTimer(${activeTask.id})" style="background: white; color: #1e293b; border: none; padding: 4px 10px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size:11px; height: 28px; flex-shrink: 0;">Selesai</button>
                 </div>
             `;
         }
 
         updateTimer();
         if (window.activeTimerInterval) clearInterval(window.activeTimerInterval);
-        window.activeTimerInterval = setInterval(updateTimer, 1000);
+        
+        if (isPlaying) {
+            window.activeTimerInterval = setInterval(updateTimer, 1000);
+        }
     } else {
         const timerContainer = document.getElementById('active-timer-banner');
         if (timerContainer) timerContainer.remove();

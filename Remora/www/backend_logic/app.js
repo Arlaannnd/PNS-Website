@@ -64,25 +64,37 @@ window.mulaiKegiatan = async function (taskId) {
             try {
                 const { LocalNotifications } = window.Capacitor.Plugins;
                 await LocalNotifications.requestPermissions();
-                
-                // Daftarkan Action Type untuk tombol 'Selesai'
+
                 await LocalNotifications.registerActionTypes({
-                    types: [{
-                        id: 'TASK_ACTIONS',
-                        actions: [{ id: 'finish', title: 'Selesai' }]
-                    }]
+                    types: [
+                        {
+                            id: 'TASK_ACTIONS_PLAYING',
+                            actions: [
+                                { id: 'pause', title: 'Pause' },
+                                { id: 'finish', title: 'Selesai' },
+                                { id: 'cancel', title: 'Cancel' }
+                            ]
+                        },
+                        {
+                            id: 'TASK_ACTIONS_PAUSED',
+                            actions: [
+                                { id: 'play', title: 'Play' },
+                                { id: 'finish', title: 'Selesai' },
+                                { id: 'cancel', title: 'Cancel' }
+                            ]
+                        }
+                    ]
                 });
 
-                // Jadwalkan notifikasi agar muncul
                 await LocalNotifications.schedule({
                     notifications: [{
                         title: "Kegiatan Sedang Berjalan",
                         body: `Anda sedang mengerjakan: ${task.nama}`,
                         id: taskId,
                         schedule: { at: new Date(Date.now() + 1000) },
-                        actionTypeId: 'TASK_ACTIONS',
+                        actionTypeId: 'TASK_ACTIONS_PLAYING',
                         extra: { taskId: taskId },
-                        ongoing: true // Supaya notifikasi sulit di-swipe sembarangan
+                        ongoing: true
                     }]
                 });
             } catch (notifErr) {
@@ -106,6 +118,96 @@ window.mulaiKegiatan = async function (taskId) {
             confirmText: "Tutup"
         });
         console.error(err);
+    }
+};
+
+window.pauseKegiatanTimer = async function (taskId, fromNotification = false) {
+    const task = window.taskData.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+        const supabase = await window.authService.getSupabase();
+        let durasiTambahanDetik = 0;
+        if (task.waktuMulai) {
+            const startTime = new Date(task.waktuMulai);
+            const now = new Date();
+            durasiTambahanDetik = Math.floor((now - startTime) / 1000);
+        }
+
+        const totalDurasi = (task.durasiDetik || 0) + durasiTambahanDetik;
+
+        const { error } = await supabase
+            .from('kegiatan')
+            .update({
+                waktu_mulai: null,
+                durasi_detik: totalDurasi
+            })
+            .eq('id', taskId);
+
+        if (error) throw error;
+
+        if (typeof window.Capacitor !== 'undefined' && window.Capacitor.Plugins.LocalNotifications) {
+            window.Capacitor.Plugins.LocalNotifications.schedule({
+                notifications: [{
+                    title: "Kegiatan Dihentikan Sementara",
+                    body: `Menunggu dilanjutkan: ${task.nama}`,
+                    id: taskId,
+                    schedule: { at: new Date(Date.now() + 1000) },
+                    actionTypeId: 'TASK_ACTIONS_PAUSED',
+                    extra: { taskId: taskId },
+                    ongoing: true
+                }]
+            }).catch(e => console.error(e));
+        }
+
+        if (!fromNotification) {
+            window.location.reload();
+        } else {
+            task.waktuMulai = null;
+            task.durasiDetik = totalDurasi;
+        }
+    } catch (err) {
+        console.error("Gagal menghentikan timer sementara: ", err);
+    }
+};
+
+window.resumeKegiatanTimer = async function (taskId, fromNotification = false) {
+    const task = window.taskData.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+        const supabase = await window.authService.getSupabase();
+        const nowIso = new Date().toISOString();
+        const { error } = await supabase
+            .from('kegiatan')
+            .update({ waktu_mulai: nowIso })
+            .eq('id', taskId);
+
+        if (error) throw error;
+
+        sessionStorage.setItem('activeTimerTaskId', taskId);
+
+        if (typeof window.Capacitor !== 'undefined' && window.Capacitor.Plugins.LocalNotifications) {
+            window.Capacitor.Plugins.LocalNotifications.schedule({
+                notifications: [{
+                    title: "Kegiatan Sedang Berjalan",
+                    body: `Anda sedang mengerjakan: ${task.nama}`,
+                    id: taskId,
+                    schedule: { at: new Date(Date.now() + 1000) },
+                    actionTypeId: 'TASK_ACTIONS_PLAYING',
+                    extra: { taskId: taskId },
+                    ongoing: true
+                }]
+            }).catch(e => console.error(e));
+        }
+
+        if (!fromNotification) {
+            window.location.reload();
+        } else {
+            task.waktuMulai = nowIso;
+        }
+    } catch (err) {
+        console.error("Gagal melanjutkan timer: ", err);
     }
 };
 
@@ -148,26 +250,33 @@ window.selesaikanKegiatanTimer = async function (taskId, skipConfirm = false) {
 
         if (error) throw error;
 
-        // Bersihkan notifikasi jika ada
         if (typeof window.Capacitor !== 'undefined' && window.Capacitor.Plugins.LocalNotifications) {
             window.Capacitor.Plugins.LocalNotifications.cancel({ notifications: [{ id: taskId }] }).catch(e => console.error(e));
         }
 
         sessionStorage.removeItem('activeTimerTaskId');
-        await window.showCustomModal({
-            title: "Tugas Selesai",
-            message: "Waktu pengerjaan telah berhasil direkam.",
-            type: 'success',
-            confirmText: "OK"
-        });
-        window.location.reload();
+
+        if (!skipConfirm) {
+            await window.showCustomModal({
+                title: "Tugas Selesai",
+                message: "Waktu pengerjaan telah berhasil direkam.",
+                type: 'success',
+                confirmText: "OK"
+            });
+            window.location.reload();
+        } else {
+            // Give brief delay to let notification system clean up
+            setTimeout(() => window.location.reload(), 500);
+        }
     } catch (err) {
-        await window.showCustomModal({
-            title: "Gagal",
-            message: "Gagal menyelesaikan tugas: " + err.message,
-            type: 'error',
-            confirmText: "Tutup"
-        });
+        if (!skipConfirm) {
+            await window.showCustomModal({
+                title: "Gagal",
+                message: "Gagal menyelesaikan tugas: " + err.message,
+                type: 'error',
+                confirmText: "Tutup"
+            });
+        }
         console.error(err);
     }
 };
@@ -177,10 +286,10 @@ window.batalkanTimer = async function (taskId) {
     if (!task) return;
 
     const confirmResult = await window.showCustomModal({
-        title: "Hentikan Timer",
-        message: `Hentikan timer untuk kegiatan "${task.nama}" tanpa menyelesaikannya? Waktu yang sudah berjalan akan disimpan.`,
+        title: "Batalkan Timer",
+        message: `Apakah Anda yakin ingin membatalkan timer "${task.nama}"? Waktu pengerjaan saat ini tidak akan disimpan.`,
         type: 'confirm',
-        confirmText: "Hentikan Timer",
+        confirmText: "Ya, Batalkan",
         cancelText: "Batal"
     });
     if (!confirmResult) return;
@@ -188,34 +297,23 @@ window.batalkanTimer = async function (taskId) {
     try {
         const supabase = await window.authService.getSupabase();
 
-        let durasiTambahanDetik = 0;
-        if (task.waktuMulai) {
-            const startTime = new Date(task.waktuMulai);
-            const now = new Date();
-            durasiTambahanDetik = Math.floor((now - startTime) / 1000);
-        }
-
-        const totalDurasi = (task.durasiDetik || 0) + durasiTambahanDetik;
-
         const { error } = await supabase
             .from('kegiatan')
             .update({
-                waktu_mulai: null,
-                durasi_detik: totalDurasi
+                waktu_mulai: null
             })
             .eq('id', taskId);
 
         if (error) throw error;
 
-        // Bersihkan notifikasi jika ada
         if (typeof window.Capacitor !== 'undefined' && window.Capacitor.Plugins.LocalNotifications) {
             window.Capacitor.Plugins.LocalNotifications.cancel({ notifications: [{ id: taskId }] }).catch(e => console.error(e));
         }
 
         sessionStorage.removeItem('activeTimerTaskId');
         await window.showCustomModal({
-            title: "Timer Dihentikan",
-            message: "Waktu pengerjaan telah disimpan.",
+            title: "Timer Dibatalkan",
+            message: "Waktu pengerjaan tidak direkam.",
             type: 'success',
             confirmText: "OK"
         });
@@ -223,7 +321,7 @@ window.batalkanTimer = async function (taskId) {
     } catch (err) {
         await window.showCustomModal({
             title: "Gagal",
-            message: "Gagal menghentikan timer: " + err.message,
+            message: "Gagal membatalkan timer: " + err.message,
             type: 'error',
             confirmText: "Tutup"
         });
@@ -231,17 +329,29 @@ window.batalkanTimer = async function (taskId) {
     }
 };
 
-
-// Registrasi Listener untuk Local Notification Action (ketika tombol 'Selesai' ditekan di Notifikasi)
+// Registrasi Listener untuk Local Notification Actions
 if (typeof window.Capacitor !== 'undefined') {
     document.addEventListener("DOMContentLoaded", () => {
         if (window.Capacitor.Plugins.LocalNotifications) {
             window.Capacitor.Plugins.LocalNotifications.addListener('localNotificationActionPerformed', (notificationAction) => {
+                const taskId = notificationAction.notification.extra.taskId;
+                if (!taskId) return;
+
                 if (notificationAction.actionId === 'finish') {
-                    const taskId = notificationAction.notification.extra.taskId;
-                    if (taskId && typeof window.selesaikanKegiatanTimer === 'function') {
-                        // Selesaikan tugas secara langsung tanpa pop-up konfirmasi
+                    if (typeof window.selesaikanKegiatanTimer === 'function') {
                         window.selesaikanKegiatanTimer(taskId, true);
+                    }
+                } else if (notificationAction.actionId === 'pause') {
+                    if (typeof window.pauseKegiatanTimer === 'function') {
+                        window.pauseKegiatanTimer(taskId, true);
+                    }
+                } else if (notificationAction.actionId === 'play') {
+                    if (typeof window.resumeKegiatanTimer === 'function') {
+                        window.resumeKegiatanTimer(taskId, true);
+                    }
+                } else if (notificationAction.actionId === 'cancel') {
+                    if (typeof window.batalkanTimer === 'function') {
+                        window.batalkanTimer(taskId);
                     }
                 }
             });
