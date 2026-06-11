@@ -70,17 +70,17 @@ window.mulaiKegiatan = async function (taskId) {
                         {
                             id: 'TASK_ACTIONS_PLAYING',
                             actions: [
-                                { id: 'pause', title: 'Pause' },
-                                { id: 'finish', title: 'Selesai' },
-                                { id: 'cancel', title: 'Cancel' }
+                                { id: 'pause', title: 'Pause', foreground: false },
+                                { id: 'finish', title: 'Selesai', foreground: false },
+                                { id: 'cancel', title: 'Cancel', foreground: true }
                             ]
                         },
                         {
                             id: 'TASK_ACTIONS_PAUSED',
                             actions: [
-                                { id: 'play', title: 'Play' },
-                                { id: 'finish', title: 'Selesai' },
-                                { id: 'cancel', title: 'Cancel' }
+                                { id: 'play', title: 'Play', foreground: false },
+                                { id: 'finish', title: 'Selesai', foreground: false },
+                                { id: 'cancel', title: 'Cancel', foreground: true }
                             ]
                         }
                     ]
