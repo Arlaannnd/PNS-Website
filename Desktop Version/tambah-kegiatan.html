@@ -50,7 +50,7 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <label>&nbsp;</label>
+                                    <label>Jam</label>
                                     <div class="input-with-icon">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 16px;">
@@ -217,7 +217,7 @@
 
                 if (error) throw error;
 
-                await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil ditambahkan ke database online!", type: "success", confirmText: "OK" });
+                await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil ditambahkan!", type: "success", confirmText: "OK" });
                 window.location.href = 'dashboard.html';
 
             } catch (err) {

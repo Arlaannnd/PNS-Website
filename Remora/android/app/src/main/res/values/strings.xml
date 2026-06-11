@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Remora-Prority Notification System</string>
+    <string name="title_activity_main">Remora-Prority Notification System</string>
+    <string name="package_name">com.kelompok4.remora</string>
+    <string name="custom_url_scheme">com.kelompok4.remora</string>
+    <string name="server_client_id">270935693328-evftqpnn7e3nmqv5v791c31ojqntalnd.apps.googleusercontent.com</string>
+</resources>

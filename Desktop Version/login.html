@@ -67,7 +67,7 @@
                         <div class="input-with-icon">
                             <i class="fa-solid fa-lock"></i>
                             <input type="password" id="loginPassword" placeholder="Masukkan password" required>
-                            <i class="fa-regular fa-eye show-pwd"></i>
+                            <i class="fa-regular fa-eye show-pwd" style="cursor:pointer; pointer-events:auto; z-index:10;" onclick="togglePwd(this)"></i>
                         </div>
                     </div>
                     <div class="forgot-pwd">
@@ -119,6 +119,20 @@
                 window.location.href = 'dashboard.html';
             }
         });
+    </script>
+    <script>
+        function togglePwd(icon) {
+            const input = icon.parentElement.querySelector('input');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
     </script>
 </body>
 

@@ -1,0 +1,9 @@
+# Abaikan folder berat di semua sub-folder
+**/node_modules/
+**/android/app/build/
+**/android/.gradle/
+
+# Abaikan file sistem dan hasil build
+.DS_Store
+*.apk
+*.aab

@@ -24,7 +24,7 @@ class AuthService {
             if (authData.user) {
                 const { error: profileError } = await supabaseClient
                     .from('profiles')
-                    .insert([
+                    .upsert([
                         {
                             id: authData.user.id,
                             namalengkap: namalengkap,
@@ -191,10 +191,13 @@ class AuthService {
 
 window.authService = new AuthService();
 
-window.showCustomModal = function(options) {
+window.showCustomModal = function (options) {
+    if (window._isModalActive) return Promise.resolve(false);
+    window._isModalActive = true;
+
     return new Promise((resolve) => {
         const { title, message, type = 'confirm', confirmText = 'Ya', cancelText = 'Batal' } = options;
-        
+
         let icon = 'fa-circle-question';
         if (type === 'success') icon = 'fa-circle-check';
         if (type === 'error') icon = 'fa-circle-xmark';
@@ -242,7 +245,8 @@ window.showCustomModal = function(options) {
             overlay.style.opacity = '0';
             modal.style.transform = 'scale(0.95) translateY(15px)';
             setTimeout(() => {
-                if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                window._isModalActive = false;
                 resolve(result);
             }, 300);
         };
@@ -250,10 +254,28 @@ window.showCustomModal = function(options) {
         document.getElementById('modal-confirm').addEventListener('click', () => close(true));
         if (type === 'confirm') {
             document.getElementById('modal-cancel').addEventListener('click', () => close(false));
-            document.getElementById('modal-cancel').addEventListener('mouseover', function() { this.style.background = '#f1f5f9'; });
-            document.getElementById('modal-cancel').addEventListener('mouseout', function() { this.style.background = 'white'; });
+            document.getElementById('modal-cancel').addEventListener('mouseover', function () { this.style.background = '#f1f5f9'; });
+            document.getElementById('modal-cancel').addEventListener('mouseout', function () { this.style.background = 'white'; });
         }
-        document.getElementById('modal-confirm').addEventListener('mouseover', function() { this.style.opacity = '0.9'; });
-        document.getElementById('modal-confirm').addEventListener('mouseout', function() { this.style.opacity = '1'; });
+        document.getElementById('modal-confirm').addEventListener('mouseover', function () { this.style.opacity = '0.9'; });
+        document.getElementById('modal-confirm').addEventListener('mouseout', function () { this.style.opacity = '1'; });
     });
 };
+
+// Global Auth Guard
+(async function () {
+    const path = window.location.pathname;
+    const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('register.html') || path.endsWith('/') || path.includes('lupa-password');
+
+    try {
+        const { session } = await window.authService.getSession();
+
+        if (session && isPublicPage) {
+            window.location.replace('dashboard.html');
+        } else if (!session && !isPublicPage) {
+            window.location.replace('login.html');
+        }
+    } catch (err) {
+        console.error("Auth Guard Error:", err);
+    }
+})();

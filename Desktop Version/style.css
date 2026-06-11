@@ -169,6 +169,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     right: 16px;
     left: auto;
     cursor: pointer;
+    pointer-events: auto;
 }
 
 .input-with-icon .show-pwd:hover {

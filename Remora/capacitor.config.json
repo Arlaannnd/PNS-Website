@@ -1,0 +1,12 @@
+{
+  "appId": "com.namakelompok4.remora",
+  "appName": "Remora",
+  "webDir": "www",
+  "plugins": {
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "serverClientId": "270935693328-evftqpnn7e3nmqv5v791c31ojqntalnd.apps.googleusercontent.com",
+      "forceCodeForRefreshToken": true
+    }
+  }
+}
