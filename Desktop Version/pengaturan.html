@@ -548,7 +548,14 @@
                 <h1 class="page-title">Settings</h1>
                 <div class="settings-new-layout">
                     <div class="profile-card">
-                        <i class="fa-solid fa-circle-user avatar-icon"></i>
+                        <div class="avatar-container" style="position: relative; width: 80px; height: 80px; margin-bottom: 16px; display: flex; justify-content: center; align-items: center;">
+                            <i class="fa-solid fa-circle-user avatar-icon" id="profile-avatar-icon" style="font-size: 80px; color: var(--primary-dark); margin: 0; line-height: 1;"></i>
+                            <img id="profile-avatar-img" src="" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: none; position: absolute; top: 0; left: 0;">
+                            <button id="btn-edit-avatar" style="position: absolute; bottom: 0; right: -4px; background: var(--primary-light); color: white; border: 2px solid white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                <i class="fa-solid fa-pencil" style="font-size: 12px;"></i>
+                            </button>
+                            <input type="file" id="profile-upload" accept="image/*" style="display: none;">
+                        </div>
                         <div class="profile-name" id="display-name"></div>
                         <div class="profile-email" id="display-email"></div>
                         <button class="btn-edit-profile" onclick="openSubpage('profil')">Edit Profil</button>
@@ -806,6 +813,20 @@
             try {
                 const { data: profile } = await window.authService.getProfile();
                 if (profile) {
+                    if (profile.avatar) {
+                        localStorage.setItem('userAvatar', profile.avatar);
+                        document.getElementById('profile-avatar-icon').style.display = 'none';
+                        document.getElementById('profile-avatar-img').src = profile.avatar;
+                        document.getElementById('profile-avatar-img').style.display = 'block';
+                    } else {
+                        const storedAvatar = localStorage.getItem('userAvatar');
+                        if (storedAvatar) {
+                            document.getElementById('profile-avatar-icon').style.display = 'none';
+                            document.getElementById('profile-avatar-img').src = storedAvatar;
+                            document.getElementById('profile-avatar-img').style.display = 'block';
+                        }
+                    }
+
                     const emailReal = profile.email || '';
                     const namaDariEmail = emailReal.split('@')[0];
 
@@ -841,6 +862,34 @@
         function closeSubpage(name) { document.getElementById('subpage-' + name).classList.remove('show'); }
         document.querySelectorAll('.subpage-overlay').forEach(ov => {
             ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
+        });
+
+        const uploadInput = document.getElementById('profile-upload');
+        document.getElementById('btn-edit-avatar').addEventListener('click', () => {
+            uploadInput.click();
+        });
+        uploadInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function (evt) {
+                    const avatarDataUrl = evt.target.result;
+                    document.getElementById('profile-avatar-icon').style.display = 'none';
+                    document.getElementById('profile-avatar-img').src = avatarDataUrl;
+                    document.getElementById('profile-avatar-img').style.display = 'block';
+                    
+                    localStorage.setItem('userAvatar', avatarDataUrl);
+                    
+                    try {
+                        const { error } = await window.authService.updateProfile({ avatar: avatarDataUrl });
+                        if (error) throw error;
+                        await window.showCustomModal({ title: "Berhasil", message: "Foto profil berhasil diperbarui dan disinkronkan!", type: "success", confirmText: "OK" });
+                    } catch (err) {
+                        await window.showCustomModal({ title: "Gagal", message: "Gagal menyimpan foto profil online: " + err.message, type: "error", confirmText: "Tutup" });
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
         document.getElementById('settingsForm').addEventListener('submit', async function (e) {
@@ -892,12 +941,20 @@
 
         document.getElementById('securityForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            if (document.getElementById('new-password').value !== document.getElementById('confirm-password').value) {
-                await window.showCustomModal({ title: "Peringatan", message: "Kata sandi tidak cocok!", type: "error", confirmText: "Tutup" });
-                return;
+            const n = document.getElementById('new-password').value;
+            const c = document.getElementById('confirm-password').value;
+            if (n.length < 6) { await window.showCustomModal({ title: "Peringatan", message: "Kata sandi minimal 6 karakter!", type: "error", confirmText: "Tutup" }); return; }
+            if (n !== c) { await window.showCustomModal({ title: "Peringatan", message: "Kata sandi baru tidak cocok!", type: "error", confirmText: "Tutup" }); return; }
+            
+            try {
+                const supabaseClient = await window.authService.getSupabase();
+                const { error } = await supabaseClient.auth.updateUser({ password: n });
+                if (error) throw error;
+                await window.showCustomModal({ title: "Berhasil", message: "Kata sandi berhasil diubah!", type: "success", confirmText: "OK" });
+                this.reset(); closeSubpage('keamanan');
+            } catch (err) {
+                await window.showCustomModal({ title: "Gagal", message: "Gagal mengubah kata sandi: " + err.message, type: "error", confirmText: "Tutup" });
             }
-            await window.showCustomModal({ title: "Berhasil", message: "Kata sandi berhasil diperbarui!", type: "success", confirmText: "OK" });
-            this.reset(); closeSubpage('keamanan');
         });
 
         document.querySelectorAll('.language-option input[type="radio"]').forEach(r => {

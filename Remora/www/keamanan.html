@@ -112,8 +112,16 @@
             const c = document.getElementById('conf-pwd').value;
             if (n.length < 6) { await window.showCustomModal({ title: "Peringatan", message: "Kata sandi minimal 6 karakter!", type: "error", confirmText: "Tutup" }); return; }
             if (n !== c) { await window.showCustomModal({ title: "Peringatan", message: "Kata sandi baru tidak cocok!", type: "error", confirmText: "Tutup" }); return; }
-            await window.showCustomModal({ title: "Berhasil", message: "Kata sandi berhasil diubah!", type: "success", confirmText: "OK" });
-            window.location.href = 'pengaturan.html';
+            
+            try {
+                const supabaseClient = await window.authService.getSupabase();
+                const { error } = await supabaseClient.auth.updateUser({ password: n });
+                if (error) throw error;
+                await window.showCustomModal({ title: "Berhasil", message: "Kata sandi berhasil diubah!", type: "success", confirmText: "OK" });
+                window.location.href = 'pengaturan.html';
+            } catch (err) {
+                await window.showCustomModal({ title: "Gagal", message: "Gagal mengubah kata sandi: " + err.message, type: "error", confirmText: "Tutup" });
+            }
         });
     </script>
 </body>

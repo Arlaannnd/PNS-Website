@@ -104,11 +104,18 @@
             document.getElementById('profile-gender-input').value = storedGender;
             document.getElementById('profile-timezone-input').value = storedTimezone;
 
-            const storedAvatar = localStorage.getItem('userAvatar');
-            if (storedAvatar) {
+            if (profile?.avatar) {
+                localStorage.setItem('userAvatar', profile.avatar);
                 document.getElementById('avatar-icon').style.display = 'none';
-                document.getElementById('avatar-img').src = storedAvatar;
+                document.getElementById('avatar-img').src = profile.avatar;
                 document.getElementById('avatar-img').style.display = 'block';
+            } else {
+                const storedAvatar = localStorage.getItem('userAvatar');
+                if (storedAvatar) {
+                    document.getElementById('avatar-icon').style.display = 'none';
+                    document.getElementById('avatar-img').src = storedAvatar;
+                    document.getElementById('avatar-img').style.display = 'block';
+                }
             }
         }
 
@@ -146,17 +153,20 @@
             btn.textContent = 'Menyimpan...';
             btn.disabled = true;
 
-            const { error } = await window.authService.updateProfile({
+            const updateData = {
                 namalengkap: name,
                 nickname: nickname,
                 email: email,
                 gender: gender,
                 timezone: timezone
-            });
+            };
 
             if (tempAvatarDataUrl) {
+                updateData.avatar = tempAvatarDataUrl;
                 localStorage.setItem('userAvatar', tempAvatarDataUrl);
             }
+
+            const { error } = await window.authService.updateProfile(updateData);
 
             btn.textContent = originalText;
             btn.disabled = false;

@@ -78,7 +78,7 @@
                         <i class="fa-solid fa-chevron-right" style="font-size: 14px; color: var(--text-muted);"></i>
                     </a>
 
-                    <a href="login.html"
+                    <a href="#" id="btn-logout-pengaturan" onclick="window.handleLogout(event)"
                         style="display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: white; color: #EF4444;">
                         <i class="fa-solid fa-arrow-right-from-bracket"
                             style="font-size: 20px; width: 24px; text-align: center;"></i>
@@ -118,6 +118,13 @@
             try {
                 const { data: profile } = await window.authService.getProfile();
                 if (profile) {
+                    if (profile.avatar) {
+                        localStorage.setItem('userAvatar', profile.avatar);
+                        document.getElementById('profile-avatar-icon').style.display = 'none';
+                        document.getElementById('profile-avatar-img').src = profile.avatar;
+                        document.getElementById('profile-avatar-img').style.display = 'block';
+                    }
+
                     const emailReal = profile.email || '';
                     const namaDariEmail = emailReal.split('@')[0];
 
@@ -144,15 +151,18 @@
             ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
         });
 
-        document.getElementById('securityForm').addEventListener('submit', async function (e) {
+        window.handleLogout = async function(e) {
             e.preventDefault();
-            if (document.getElementById('new-password').value !== document.getElementById('confirm-password').value) {
-                await window.showCustomModal({ title: "Peringatan", message: "Kata sandi tidak cocok!", type: "error", confirmText: "Tutup" });
-                return;
-            }
-            await window.showCustomModal({ title: "Berhasil", message: "Kata sandi berhasil diperbarui!", type: "success", confirmText: "OK" });
-            this.reset(); closeSubpage('keamanan');
-        });
+            const confirmRes = await window.showCustomModal({
+                title: "Keluar Akun",
+                message: "Apakah Anda yakin ingin keluar dari akun ini?",
+                type: "confirm",
+                confirmText: "Ya, Keluar"
+            });
+            if (!confirmRes) return;
+            if (window.authService) await window.authService.signOut();
+            window.location.href = 'index.html';
+        };
 
         document.querySelectorAll('.language-option input[type="radio"]').forEach(r => {
             r.addEventListener('change', function () {

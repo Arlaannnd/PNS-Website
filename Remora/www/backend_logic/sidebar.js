@@ -329,6 +329,11 @@ window.checkDynamicNotifications = async function () {
 
     const notifLinks = document.querySelectorAll('a[href="notifikasi.html"]');
     notifLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const badge = this.querySelector('.notif-sidebar-badge, .notif-badge, .notification-dot');
+            if (badge) badge.style.display = 'none';
+        });
+
         if (link.classList.contains('nav-item')) {
             let existingBadge = link.querySelector('.notif-sidebar-badge');
             if (existingBadge) existingBadge.remove();
@@ -336,8 +341,7 @@ window.checkDynamicNotifications = async function () {
             if (shouldShowBadge && totalUrgent > 0) {
                 const badge = document.createElement('span');
                 badge.className = 'notif-sidebar-badge';
-                badge.style.cssText = 'background-color: var(--priority-red); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; display: inline-block;';
-                badge.textContent = totalUrgent;
+                badge.style.cssText = 'background-color: #EF4444; width: 12px; height: 12px; border-radius: 50%; margin-left: auto; display: inline-block;';
                 link.appendChild(badge);
             }
         } else {
@@ -350,10 +354,13 @@ window.checkDynamicNotifications = async function () {
             let staticDot2 = link.querySelector('span[style*="background-color:white"]');
             if (staticDot2) staticDot2.remove();
 
+            let topbarDot = link.querySelector('.notification-dot');
+            if (topbarDot) topbarDot.remove();
+
             if (shouldShowBadge && totalUrgent > 0) {
                 const badge = document.createElement('span');
-                badge.className = 'notif-badge';
-                badge.textContent = totalUrgent;
+                badge.className = 'notif-badge notification-dot';
+                badge.style.cssText = 'position: absolute; top: 6px; right: 8px; width: 12px; height: 12px; background-color: #EF4444; border-radius: 50%;';
                 link.appendChild(badge);
             }
         }
