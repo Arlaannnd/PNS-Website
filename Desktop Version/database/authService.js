@@ -141,11 +141,12 @@ class AuthService {
             const { session, error: sessionError } = await this.getSession();
             if (sessionError || !session) return { data: null, error: sessionError || 'No session' };
 
+            updates.id = session.user.id;
+
             const supabaseClient = await this.getSupabase();
             const { data, error } = await supabaseClient
                 .from('profiles')
-                .update(updates)
-                .eq('id', session.user.id);
+                .upsert(updates);
 
             return { data, error };
         } catch (error) {

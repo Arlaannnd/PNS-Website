@@ -63,28 +63,104 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive" style="margin-top: 20px;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Kegiatan</th>
-                                <th>Kategori</th>
-                                <th>Deadline</th>
-                                <th>Label Prioritas</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="all-tasks-table-body">
-                        </tbody>
-                    </table>
+                <div id="task-list-container" style="margin-top: 20px; padding: 0 24px; padding-bottom: 100px;">
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Edit Modal -->
+    <div class="modal-overlay-edit" id="edit-modal">
+        <div class="modal-edit">
+            <h2><i class="fa-solid fa-pen-to-square"></i> Edit Kegiatan</h2>
+            <form id="edit-task-form">
+                <input type="hidden" id="edit-task-id">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="display:block; margin-bottom: 6px; font-size: 14px; font-weight: 600;">Nama Kegiatan</label>
+                    <input type="text" id="edit-task-name" required style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="display:block; margin-bottom: 6px; font-size: 14px; font-weight: 600;">Kategori</label>
+                    <select id="edit-task-category" style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; background: white;">
+                        <option value="UAS">UAS / UTS</option>
+                        <option value="Tugas">Tugas</option>
+                        <option value="Ujian">Ujian</option>
+                        <option value="Organisasi">Organisasi</option>
+                        <option value="Kegiatan eksternal">Kegiatan Eksternal</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom: 6px; font-size: 12px; font-weight: 600;">Jenis</label>
+                        <select id="edit-task-type" style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; font-size: 12px;">
+                            <option value="Individu">Individu</option>
+                            <option value="Kelompok">Kelompok</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom: 6px; font-size: 12px; font-weight: 600;">Kesulitan (1-5)</label>
+                        <select id="edit-task-diff" style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; font-size: 12px;">
+                            <option value="1">1 (Sangat Mudah)</option>
+                            <option value="2">2 (Mudah)</option>
+                            <option value="3">3 (Sedang)</option>
+                            <option value="4">4 (Sulit)</option>
+                            <option value="5">5 (Sangat Sulit)</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom: 6px; font-size: 12px; font-weight: 600;">Tenggat (hari)</label>
+                        <input type="number" id="edit-task-deadline" required style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 12px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom: 6px; font-size: 12px; font-weight: 600;">Terlambat?</label>
+                        <select id="edit-task-late" style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; font-size: 12px;">
+                            <option value="Tidak Pernah">Tidak Pernah</option>
+                            <option value="Pernah Terlambat">Pernah Terlambat</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" id="btn-cancel-edit" style="padding: 10px 16px; border-radius: 8px; font-weight: 600;">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; font-weight: 600;">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <style>
+        .modal-overlay-edit {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay-edit.show {
+            display: flex;
+        }
+
+        .modal-edit {
+            background: var(--card-bg, white);
+            border-radius: var(--radius-md, 12px);
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-edit h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+
         .filter-dropdown-item {
             display: block;
             width: 100%;
@@ -251,7 +327,7 @@
         });
 
         function renderAllTasks() {
-            const container = document.getElementById('all-tasks-table-body');
+            const container = document.getElementById('task-list-container');
             if (!container) return;
             container.innerHTML = '';
 
@@ -280,47 +356,67 @@
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color: var(--text-muted);">Tidak ada kegiatan yang sesuai.</td></tr>`;
+                container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted);">Tidak ada kegiatan yang sesuai.</div>`;
                 return;
             }
 
-            filtered.forEach((task, index) => {
-                const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
-                const isSelesai = task.status === "Selesai";
+            const groups = {
+                'In Progres': filtered.filter(t => t.status === 'Belum'),
+                'Completed': filtered.filter(t => t.status === 'Selesai'),
+                'Review': filtered.filter(t => t.status === 'Review')
+            };
 
-                let actionButton = '';
-                if (task.status === "Selesai") {
-                    actionButton = `<button class="undo-btn" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> Batalkan</button>`;
-                } else if (task.status === "Review") {
-                    actionButton = `
-                        <button onclick="window.selesaikanKegiatanTimer(${task.id})"><i class="fa-solid fa-check"></i> Selesai</button>
+            for (const [groupName, tasks] of Object.entries(groups)) {
+                if (tasks.length === 0) continue;
+
+                let groupHtml = `
+                <div style="margin-bottom: 16px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <div style="background: #E5E7EB; padding: 8px 16px; font-size: 12px; font-weight: 700; border-top-left-radius: 7px; border-top-right-radius: 7px; color: #111827;">${groupName}</div>
+                    <div>
+                `;
+
+                tasks.forEach((task, index) => {
+                    const badgeClass = task.labelPrioritas === 'TERLEWAT' ? 'badge-terlewat' : task.labelPrioritas === 'Sangat Tinggi' ? 'badge-red' : task.labelPrioritas === 'Tinggi' ? 'badge-yellow' : task.labelPrioritas === 'Sedang' ? 'badge-orange' : 'badge-green';
+                    const isSelesai = task.status === "Selesai";
+
+                    let actionButton = '';
+                    if (task.status === "Selesai") {
+                        actionButton = `<button class="undo-btn" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> Batalkan</button>`;
+                    } else if (task.status === "Review") {
+                        actionButton = `
+                        <button onclick="window.selesaikanKegiatanTimer(${task.id})"><i class="fa-solid fa-check"></i> Tandai Selesai</button>
                         <button class="undo-btn" onclick="window.batalkanTugas(${task.id})"><i class="fa-solid fa-rotate-left"></i> In Progress</button>
                     `;
-                } else {
-                    if (task.waktuMulai) {
-                        actionButton = `
+                    } else {
+                        if (task.waktuMulai) {
+                            actionButton = `
                             <button onclick="window.selesaikanKegiatanTimer(${task.id})" style="color: var(--primary-dark);"><i class="fa-solid fa-stop"></i> Selesai Mengerjakan</button>
                             <button class="review-btn" onclick="window.reviewTugas(${task.id})"><i class="fa-solid fa-eye"></i> Tandai Review</button>
-                        `;
-                    } else {
-                        actionButton = `
+                            `;
+                        } else {
+                            actionButton = `
                             <button onclick="window.mulaiKegiatan(${task.id})" style="color: var(--primary-color);"><i class="fa-solid fa-play"></i> Mulai Kerjakan</button>
                             <button onclick="window.selesaikanKegiatanTimer(${task.id})"><i class="fa-solid fa-check"></i> Langsung Selesai</button>
                             <button class="review-btn" onclick="window.reviewTugas(${task.id})"><i class="fa-solid fa-eye"></i> Tandai Review</button>
-                        `;
+                            `;
+                        }
                     }
-                }
 
-                container.innerHTML += `
-                    <tr class="${isSelesai ? 'task-row-done' : ''}">
-                        <td>${index + 1}</td>
-                        <td><strong>${task.nama}</strong><br><small style="color:var(--text-muted); font-size:11px;">${task.jenis}</small></td>
-                        <td>${task.kategori}</td>
-                        <td>${task.tenggatHari}</td>
-                        <td><span class="task-badge ${badgeClass}" style="margin:0">${task.labelPrioritas}</span></td>
-                        <td>${task.status}</td>
-                        <td>
-                            <div class="action-menu-wrapper">
+                    const safeTaskName = task.nama.split("'").join("\\'").split('"').join("&quot;");
+                    const borderBottom = index < tasks.length - 1 ? 'border-bottom: 1px solid #E5E7EB;' : '';
+
+                    groupHtml += `
+                    <div style="display: flex; flex-direction: column; padding: 12px 16px; ${borderBottom} opacity: ${isSelesai ? '0.7' : '1'}; position: relative;">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                            <div style="flex: 1; padding-right: 20px;">
+                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #111827; ${isSelesai ? 'text-decoration: line-through;' : ''}">${task.nama}</div>
+                                <div style="display: inline-block; background: #F3F4F6; color: #4B5563; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px;">${task.kategori}</div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="task-badge ${badgeClass}" style="margin:0">${task.labelPrioritas}</span>
+                                    <span style="font-size: 11px; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${task.tenggatHari}</span>
+                                </div>
+                            </div>
+                            <div class="action-menu-wrapper" style="position: absolute; right: 16px; top: 12px;">
                                 <button class="action-dots" onclick="window.toggleKebab(event, ${task.id})">
                                     <i class="fa-solid fa-ellipsis-vertical"></i>
                                 </button>
@@ -330,10 +426,13 @@
                                     <button class="delete-btn" onclick="window.hapusTugas(${task.id})"><i class="fa-solid fa-trash"></i> Hapus</button>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                `;
-            });
+                        </div>
+                    </div>
+                    `;
+                });
+                groupHtml += `</div></div>`;
+                container.innerHTML += groupHtml;
+            }
         }
 
         document.getElementById('sort-toggle-btn').addEventListener('click', (e) => {
@@ -451,6 +550,8 @@
         };
 
         window.editTugas = async function (taskId) {
+            document.querySelectorAll('.action-popup.open').forEach(d => d.classList.remove('open'));
+
             const task = taskData.find(t => t.id === taskId);
             if (!task) return;
 
@@ -464,10 +565,54 @@
                 document.getElementById('edit-task-deadline').value = task.tenggatAngka;
                 document.getElementById('edit-task-late').value = task.riwayatTerlambat;
                 document.getElementById('edit-modal').classList.add('show');
-            } else {
-                await window.showCustomModal({ title: "Info", message: "Gunakan halaman edit untuk memodifikasi tugas.", type: "success", confirmText: "OK" });
             }
         };
+
+        document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+            document.getElementById('edit-modal').classList.remove('show');
+        });
+
+        document.getElementById('edit-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('edit-modal')) {
+                document.getElementById('edit-modal').classList.remove('show');
+            }
+        });
+
+        document.getElementById('edit-task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = parseInt(document.getElementById('edit-task-id').value);
+            const nama = document.getElementById('edit-task-name').value;
+            const kategori = document.getElementById('edit-task-category').value;
+            const jenisInput = document.getElementById('edit-task-type').value;
+            const kesulitanInput = parseInt(document.getElementById('edit-task-diff').value);
+            const deadlineInput = parseInt(document.getElementById('edit-task-deadline').value);
+            const riwayatInput = document.getElementById('edit-task-late').value;
+
+            try {
+                const supabase = await window.authService.getSupabase();
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + deadlineInput);
+                const dateStr = targetDate.toISOString().split('T')[0];
+
+                const { error } = await supabase
+                    .from('kegiatan')
+                    .update({
+                        nama_kegiatan: nama,
+                        kategori: kategori,
+                        jenis_kegiatan: jenisInput,
+                        tingkat_kesulitan: kesulitanInput,
+                        tenggat_waktu: dateStr,
+                        pernah_terlambat: riwayatInput
+                    })
+                    .eq('id', taskId);
+
+                if (error) throw error;
+                await window.showCustomModal({ title: "Berhasil", message: "Kegiatan berhasil diperbarui!", type: "success", confirmText: "OK" });
+                window.location.reload();
+            } catch (err) {
+                await window.showCustomModal({ title: "Gagal", message: "Gagal memperbarui kegiatan: " + err.message, type: "error", confirmText: "Tutup" });
+            }
+        });
     </script>
 </body>
 

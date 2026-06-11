@@ -922,6 +922,7 @@
                 window.updateUserInfo();
                 closeSubpage('profil');
                 await window.showCustomModal({ title: "Berhasil", message: "Profil berhasil disinkronkan secara online!", type: "success", confirmText: "OK" });
+                window.location.reload();
             } catch (err) {
                 await window.showCustomModal({ title: "Gagal", message: "Gagal sinkronisasi profil: " + err.message, type: "error", confirmText: "Tutup" });
                 console.error(err);
