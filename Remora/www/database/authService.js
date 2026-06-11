@@ -302,8 +302,14 @@ window.showCustomModal = function (options) {
             window.location.replace('dashboard.html');
         } else if (!session && !isPublicPage) {
             window.location.replace('login.html');
+        } else {
+            // Munculkan UI secara perlahan setelah dipastikan halaman ini benar
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
         }
     } catch (err) {
         console.error("Auth Guard Error:", err);
+        document.body.style.visibility = 'visible';
+        document.body.style.opacity = '1';
     }
 })();

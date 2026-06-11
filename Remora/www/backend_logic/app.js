@@ -94,7 +94,8 @@ window.mulaiKegiatan = async function (taskId) {
                         schedule: { at: new Date(Date.now() + 1000) },
                         actionTypeId: 'TASK_ACTIONS_PLAYING',
                         extra: { taskId: taskId },
-                        ongoing: true
+                        ongoing: true,
+                        autoCancel: false
                     }]
                 });
             } catch (notifErr) {
@@ -155,16 +156,24 @@ window.pauseKegiatanTimer = async function (taskId, fromNotification = false) {
                     schedule: { at: new Date(Date.now() + 1000) },
                     actionTypeId: 'TASK_ACTIONS_PAUSED',
                     extra: { taskId: taskId },
-                    ongoing: true
+                    ongoing: true,
+                    autoCancel: false
                 }]
             }).catch(e => console.error(e));
         }
 
-        if (!fromNotification) {
-            window.location.reload();
-        } else {
-            task.waktuMulai = null;
-            task.durasiDetik = totalDurasi;
+        // Memperbarui state lokal agar UI langsung merespon
+        task.waktuMulai = null;
+        task.durasiDetik = totalDurasi;
+
+        // Perbarui banner tanpa memuat ulang aplikasi
+        if (typeof window.checkActiveTimer === 'function') {
+            window.checkActiveTimer();
+        }
+        
+        // Perbarui UI lain jika ada fungsi refresh
+        if (typeof window.renderTugasUI === 'function') {
+            window.renderTugasUI();
         }
     } catch (err) {
         console.error("Gagal menghentikan timer sementara: ", err);
@@ -196,15 +205,23 @@ window.resumeKegiatanTimer = async function (taskId, fromNotification = false) {
                     schedule: { at: new Date(Date.now() + 1000) },
                     actionTypeId: 'TASK_ACTIONS_PLAYING',
                     extra: { taskId: taskId },
-                    ongoing: true
+                    ongoing: true,
+                    autoCancel: false
                 }]
             }).catch(e => console.error(e));
         }
 
-        if (!fromNotification) {
-            window.location.reload();
-        } else {
-            task.waktuMulai = nowIso;
+        // Memperbarui state lokal agar UI langsung merespon
+        task.waktuMulai = nowIso;
+
+        // Perbarui banner tanpa memuat ulang aplikasi
+        if (typeof window.checkActiveTimer === 'function') {
+            window.checkActiveTimer();
+        }
+        
+        // Perbarui UI lain jika ada fungsi refresh
+        if (typeof window.renderTugasUI === 'function') {
+            window.renderTugasUI();
         }
     } catch (err) {
         console.error("Gagal melanjutkan timer: ", err);
@@ -265,8 +282,15 @@ window.selesaikanKegiatanTimer = async function (taskId, skipConfirm = false) {
             });
             window.location.reload();
         } else {
-            // Give brief delay to let notification system clean up
-            setTimeout(() => window.location.reload(), 500);
+            task.status = "Selesai";
+            task.waktuMulai = null;
+
+            if (typeof window.checkActiveTimer === 'function') {
+                window.checkActiveTimer();
+            }
+            if (typeof window.renderTugasUI === 'function') {
+                window.renderTugasUI();
+            }
         }
     } catch (err) {
         if (!skipConfirm) {
