@@ -144,6 +144,27 @@ window.updateUserInfo = async function () {
     if (profileTimezoneEl) {
         profileTimezoneEl.value = storedTimezone;
     }
+
+    const storedAvatar = profile?.avatar || localStorage.getItem('userAvatar');
+    if (storedAvatar) {
+        localStorage.setItem('userAvatar', storedAvatar);
+        
+        const avatarConfigs = [
+            { iconId: 'topbar-avatar-icon', imgId: 'topbar-avatar-img' },
+            { iconId: 'profile-avatar-icon', imgId: 'profile-avatar-img' },
+            { iconId: 'avatar-icon', imgId: 'avatar-img' }
+        ];
+
+        avatarConfigs.forEach(cfg => {
+            const icon = document.getElementById(cfg.iconId);
+            const img = document.getElementById(cfg.imgId);
+            if (icon && img) {
+                icon.style.display = 'none';
+                img.src = storedAvatar;
+                img.style.display = 'block';
+            }
+        });
+    }
 }
 
 window.showToastAlert = function (title, text, type = 'info', actionUrl = '', actionText = '') {

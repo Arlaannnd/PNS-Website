@@ -184,12 +184,15 @@
                             iconBg = '#EF4444';
                             iconClass = 'fa-clock';
                             title = task.labelPrioritas === 'TERLEWAT' ? 'Tenggat waktu terlewat' : 'Deadline segera';
+                        }
+                        
                         let actionBtn = '';
+                        const safeTaskName = task.nama.split("'").join("\\'").split('"').join("&quot;");
                         if (task.waktuMulai) {
                             actionBtn = `<button onclick="window.selesaikanKegiatanTimer(${task.id})" class="notif-complete-btn" title="Selesaikan Kegiatan Ini" style="background: var(--primary-dark); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; font-family: inherit; transition: all 0.2s; white-space: nowrap;"><i class="fa-solid fa-stop"></i> Selesai</button>`;
                         } else {
                             actionBtn = `<button onclick="window.mulaiKegiatan(${task.id})" class="notif-complete-btn" style="background: var(--primary-light); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; font-family: inherit; transition: all 0.2s; white-space: nowrap;"><i class="fa-solid fa-play"></i> Mulai</button>
-                            <button onclick="selesaikanTugasLangsung(${task.id}, '${task.nama.replace(/'/g, "\\'")}')" class="notif-complete-btn" title="Selesaikan Kegiatan Ini" style="background: #166534; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; font-family: inherit; transition: all 0.2s; white-space: nowrap;"><i class="fa-solid fa-check"></i> Selesai</button>`;
+                            <button onclick="window.selesaikanTugasLangsung(${task.id}, '${safeTaskName}')" class="notif-complete-btn" title="Selesaikan Kegiatan Ini" style="background: #166534; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; font-family: inherit; transition: all 0.2s; white-space: nowrap;"><i class="fa-solid fa-check"></i> Selesai</button>`;
                         }
 
                         html += `
@@ -285,18 +288,14 @@
                     taskData.length = 0;
                     newResult.dataTersortir.forEach(item => taskData.push(item));
 
-                    if (window.showToastAlert) {
-                        window.showToastAlert(
-                            '🎉 Tugas Selesai!',
-                            `Kegiatan "${taskName}" telah berhasil diselesaikan!`,
-                            'success'
-                        );
-                    }
+                    await window.showCustomModal({
+                        title: "Berhasil",
+                        message: `Kegiatan "${taskName}" telah berhasil diselesaikan!`,
+                        type: "success",
+                        confirmText: "OK"
+                    });
 
-                    renderNotifications();
-                    if (window.checkDynamicNotifications) {
-                        window.checkDynamicNotifications();
-                    }
+                    window.location.reload();
 
                 } catch (err) {
                     alert("Gagal menyelesaikan tugas: " + err.message);
@@ -354,18 +353,14 @@
                         taskData.length = 0;
                         newResult.dataTersortir.forEach(item => taskData.push(item));
 
-                        if (window.showToastAlert) {
-                            window.showToastAlert(
-                                '🎉 Semua Selesai!',
-                                `${idsToUpdate.length} kegiatan telah ditandai sebagai selesai sekaligus!`,
-                                'success'
-                            );
-                        }
+                        await window.showCustomModal({
+                            title: "Berhasil",
+                            message: `${idsToUpdate.length} kegiatan telah ditandai sebagai selesai sekaligus!`,
+                            type: "success",
+                            confirmText: "OK"
+                        });
 
-                        renderNotifications();
-                        if (window.checkDynamicNotifications) {
-                            window.checkDynamicNotifications();
-                        }
+                        window.location.reload();
 
                     } catch (err) {
                         alert("Gagal memperbarui banyak tugas: " + err.message);
