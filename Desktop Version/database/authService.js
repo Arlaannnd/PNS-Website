@@ -72,7 +72,10 @@ class AuthService {
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: targetUrl
+                    redirectTo: targetUrl,
+                    queryParams: {
+                        prompt: 'select_account'
+                    }
                 }
             });
 
