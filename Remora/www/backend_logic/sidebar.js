@@ -273,6 +273,7 @@ window.checkActiveTimer = function () {
         const startTime = isPlaying ? new Date(activeTask.waktuMulai).getTime() : 0;
         const baseDuration = activeTask.durasiDetik || 0;
 
+        let tickCount = 0;
         function updateTimer() {
             let diff = baseDuration;
             if (isPlaying) {
@@ -311,6 +312,33 @@ window.checkActiveTimer = function () {
                     <button onclick="window.selesaikanKegiatanTimer(${activeTask.id})" style="background: white; color: #1e293b; border: none; padding: 4px 10px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size:11px; height: 28px; flex-shrink: 0;">Selesai</button>
                 </div>
             `;
+
+            // Cek apakah notifikasi diswipe oleh user tiap 3 detik
+            if (typeof window.Capacitor !== 'undefined' && window.Capacitor.Plugins.LocalNotifications) {
+                tickCount++;
+                if (tickCount >= 3) {
+                    tickCount = 0;
+                    window.Capacitor.Plugins.LocalNotifications.getDeliveredNotifications().then(delivered => {
+                        const notifs = delivered.notifications || [];
+                        const isStillThere = notifs.find(n => String(n.id) === String(activeTask.id));
+                        if (!isStillThere) {
+                            // Notifikasi telah di-swipe, buat kembali
+                            window.Capacitor.Plugins.LocalNotifications.schedule({
+                                notifications: [{
+                                    title: isPlaying ? "Kegiatan Sedang Berjalan" : "Kegiatan Dihentikan Sementara",
+                                    body: isPlaying ? \`Anda sedang mengerjakan: \${activeTask.nama}\` : \`Menunggu dilanjutkan: \${activeTask.nama}\`,
+                                    id: activeTask.id,
+                                    schedule: { at: new Date(Date.now() + 1000) },
+                                    actionTypeId: isPlaying ? 'TASK_ACTIONS_PLAYING' : 'TASK_ACTIONS_PAUSED',
+                                    extra: { taskId: activeTask.id },
+                                    ongoing: true,
+                                    autoCancel: false
+                                }]
+                            }).catch(e => console.error("Gagal reschedule notif:", e));
+                        }
+                    }).catch(e => console.error("Get delivered err:", e));
+                }
+            }
         }
 
         updateTimer();

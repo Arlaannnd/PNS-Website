@@ -65,9 +65,11 @@ class AuthService {
     async signInWithGoogle() {
         try {
             const supabaseClient = await this.getSupabase();
-            const isApp = typeof window.Capacitor !== 'undefined';
+            const isNativeApp = typeof window.Capacitor !== 'undefined' && 
+                                typeof window.Capacitor.isNativePlatform === 'function' && 
+                                window.Capacitor.isNativePlatform();
 
-            if (isApp) {
+            if (isNativeApp) {
                 const { GoogleAuth } = window.Capacitor.Plugins;
                 GoogleAuth.initialize({
                     clientId: '270935693328-evftqpnn7e3nmqv5v791c31ojqntalnd.apps.googleusercontent.com',
@@ -90,6 +92,23 @@ class AuthService {
                 if (error) throw error;
                 return { data, error: null };
 
+            } else {
+                // Fallback untuk Web
+                const currentUrl = window.location.href;
+                const targetUrl = currentUrl.replace('login.html', 'dashboard.html');
+
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: targetUrl,
+                        queryParams: {
+                            prompt: 'select_account'
+                        }
+                    }
+                });
+
+                if (error) throw error;
+                return { data, error: null };
             }
         } catch (error) {
             console.error('Error Google Login:', error.message);
@@ -100,10 +119,12 @@ class AuthService {
     async signOut() {
         try {
             const supabaseClient = await this.getSupabase();
-            const isApp = typeof window.Capacitor !== 'undefined';
+            const isNativeApp = typeof window.Capacitor !== 'undefined' && 
+                                typeof window.Capacitor.isNativePlatform === 'function' && 
+                                window.Capacitor.isNativePlatform();
 
             // 1. Jika di aplikasi Android, hapus juga ingatan akun Google-nya
-            if (isApp) {
+            if (isNativeApp) {
                 const { GoogleAuth } = window.Capacitor.Plugins;
                 // Pastikan inisialisasi dipanggil sebelum memanggil signOut
                 GoogleAuth.initialize({

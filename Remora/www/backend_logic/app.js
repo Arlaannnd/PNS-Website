@@ -401,6 +401,9 @@ window.scheduleDynamicNotifications = async function (dataTersortir) {
         // Ambil notifikasi yang sudah terjadwal
         const pending = await LocalNotifications.getPending();
 
+        const todayStr = new Date().toDateString();
+        let notifiedTasksToday = JSON.parse(localStorage.getItem('notifiedTasks_' + todayStr) || '[]');
+
         // Batalkan notifikasi dinamis sebelumnya (ID >= 100000) untuk menghindari duplikasi
         const notificationsToCancel = pending.notifications
             .filter(n => parseInt(n.id) >= 100000)
@@ -426,29 +429,38 @@ window.scheduleDynamicNotifications = async function (dataTersortir) {
             // Gunakan ID unik berdasarkan ID tugas, atau random jika tidak valid
             const taskIdInt = parseInt(task.id) || Math.floor(Math.random() * 90000) + 10000;
 
+            let shouldNotify = !notifiedTasksToday.includes(task.id);
+
             // Kondisi 1: Deadline < 3 hari
             if (allowDeadline && task.tenggatAngka !== undefined && task.tenggatAngka >= 0 && task.tenggatAngka <= 3) {
-                newNotifications.push({
-                    title: "Peringatan Deadline Dekat!",
-                    body: `Kegiatan "${task.nama}" memiliki tenggat waktu ${task.tenggatAngka} hari lagi. Segera kerjakan!`,
-                    id: taskIdInt + 100000,
-                    // Menjadwalkan notifikasi muncul jam 08:00 pagi setiap hari sampai tugas diselesaikan/berubah
-                    schedule: { on: { hour: 8, minute: 0 } },
-                    extra: { taskId: task.id }
-                });
+                if (shouldNotify) {
+                    newNotifications.push({
+                        title: "Peringatan Deadline Dekat!",
+                        body: `Kegiatan "${task.nama}" memiliki tenggat waktu ${task.tenggatAngka} hari lagi. Segera kerjakan!`,
+                        id: taskIdInt + 100000,
+                        schedule: { at: new Date(Date.now() + 2000) },
+                        extra: { taskId: task.id }
+                    });
+                    notifiedTasksToday.push(task.id);
+                }
             }
 
             // Kondisi 2: Prioritas Sangat Tinggi atau Terlewat
             if (allowPrioritas && (task.labelPrioritas === "Sangat Tinggi" || task.labelPrioritas === "TERLEWAT")) {
-                newNotifications.push({
-                    title: "Prioritas Sangat Tinggi/Terlewat!",
-                    body: `Jangan lupa kerjakan: ${task.nama}`,
-                    id: taskIdInt + 200000,
-                    schedule: { every: 'day' }, // Muncul tiap hari pada jam saat dijadwalkan
-                    extra: { taskId: task.id }
-                });
+                if (shouldNotify && !newNotifications.find(n => n.id === taskIdInt + 100000)) {
+                    newNotifications.push({
+                        title: "Prioritas Sangat Tinggi/Terlewat!",
+                        body: `Jangan lupa kerjakan: ${task.nama}`,
+                        id: taskIdInt + 200000,
+                        schedule: { at: new Date(Date.now() + 2500) },
+                        extra: { taskId: task.id }
+                    });
+                    notifiedTasksToday.push(task.id);
+                }
             }
         });
+
+        localStorage.setItem('notifiedTasks_' + todayStr, JSON.stringify(notifiedTasksToday));
 
         // Kondisi 3: Ringkasan Mingguan (Setiap hari Sabtu jam 18:00)
         if (allowWeekly) {
