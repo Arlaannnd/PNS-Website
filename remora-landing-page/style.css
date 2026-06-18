@@ -1075,6 +1075,12 @@ p {
 
     .arch-visual {
         order: 2;
+        display: flex;
+        justify-content: center;
+    }
+
+    .chart-img-mockup {
+        margin-left: 0;
     }
 
     .arch-text {
@@ -1113,14 +1119,56 @@ p {
         font-size: 2rem;
     }
 
-    .nav-links,
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+
     .nav-container .btn {
-        display: none;
-        /* simple mobile nav */
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
     }
 
     .cta-card {
         padding: 3rem 1.5rem;
+    }
+
+    .floating-card {
+        padding: 0.75rem 1rem;
+    }
+
+    .fc-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .fc-title-warning,
+    .fc-title-success {
+        font-size: 0.8rem;
+    }
+
+    .fc-subtitle {
+        font-size: 0.7rem;
+    }
+
+    .task-card-img {
+        width: 85%;
+        left: 7.5%;
+        bottom: 0;
+    }
+
+    .success-card-img {
+        width: 75%;
+        left: 12.5%;
+        bottom: -30px;
     }
 }
 
