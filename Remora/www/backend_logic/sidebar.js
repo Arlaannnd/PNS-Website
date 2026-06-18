@@ -326,7 +326,7 @@ window.checkActiveTimer = function () {
                             window.Capacitor.Plugins.LocalNotifications.schedule({
                                 notifications: [{
                                     title: isPlaying ? "Kegiatan Sedang Berjalan" : "Kegiatan Dihentikan Sementara",
-                                    body: isPlaying ? \`Anda sedang mengerjakan: \${activeTask.nama}\` : \`Menunggu dilanjutkan: \${activeTask.nama}\`,
+                                    body: isPlaying ? `Anda sedang mengerjakan: ${activeTask.nama}` : `Menunggu dilanjutkan: ${activeTask.nama}`,
                                     id: activeTask.id,
                                     schedule: { at: new Date(Date.now() + 1000) },
                                     actionTypeId: isPlaying ? 'TASK_ACTIONS_PLAYING' : 'TASK_ACTIONS_PAUSED',
