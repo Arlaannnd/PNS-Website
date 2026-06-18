@@ -1182,9 +1182,10 @@ p {
 
     .hero-bg-mockup,
     .phone-img-mockup,
-    .chart-img-mockup {
+    .chart-img-mockup,
+    .floating-card {
         width: 100%;
-        max-width: 60%;
+        max-width: 80%;
         height: auto;
     }
 
@@ -1196,13 +1197,13 @@ p {
     }
 
     .task-card-img {
-        width: 85%;
+        width: 100%;
         bottom: 0;
     }
 
     .success-card-img {
-        width: 75%;
-        bottom: -30px;
+        width: 100%;
+        margin-top: -40px;
     }
 }
 
