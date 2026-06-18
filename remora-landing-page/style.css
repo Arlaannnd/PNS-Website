@@ -1040,6 +1040,7 @@ p {
     font-size: 0.9rem;
 }
 
+
 @media (max-width: 992px) {
 
     .hero-container,
@@ -1066,26 +1067,6 @@ p {
         margin-top: 2rem;
     }
 
-    .phone-img-mockup {
-        width: 50%;
-    }
-
-    .success-card-img {
-        width: 50%;
-    }
-
-    .task-card-img {
-        width: 50%;
-    }
-
-    .warning-card-img {
-        width: 50%;
-    }
-
-    .hero-bg-mockup {
-        width: 50%;
-    }
-
     .fc-top-right {
         right: 0;
     }
@@ -1106,7 +1087,6 @@ p {
 
     .chart-img-mockup {
         margin-left: 0;
-        width: 50%;
     }
 
     .arch-text {
@@ -1200,15 +1180,28 @@ p {
         font-size: 0.7rem;
     }
 
+    .hero-bg-mockup,
+    .phone-img-mockup,
+    .chart-img-mockup {
+        width: 100%;
+        max-width: 60%;
+        height: auto;
+    }
+
+    .task-card-img,
+    .success-card-img {
+        left: 50%;
+        transform: translateX(-50%);
+        position: relative;
+    }
+
     .task-card-img {
-        width: 50%;
-        left: 7.5%;
+        width: 85%;
         bottom: 0;
     }
 
     .success-card-img {
-        width: 50%;
-        left: 12.5%;
+        width: 75%;
         bottom: -30px;
     }
 }
