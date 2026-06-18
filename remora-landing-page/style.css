@@ -26,12 +26,18 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     font-family: var(--font-main);
     background-color: var(--bg-main);
     color: var(--text-light);
     line-height: 1.6;
     overflow-x: hidden;
+    width: 100%;
 }
 
 /* Utilities */
@@ -1111,17 +1117,25 @@ p {
 }
 
 @media (max-width: 768px) {
-    .container {
-        width: 100%;
-        padding: 0 4%;
-    }
-
     h1 {
         font-size: 2.5rem;
     }
 
     h2 {
         font-size: 2rem;
+    }
+
+    .navbar {
+        padding: 1rem 0;
+        width: 100%;
+        max-width: 100vw;
+        left: 0;
+        right: 0;
+    }
+
+    .nav-container {
+        padding: 0 15px;
+        gap: 0.5rem;
     }
 
     .nav-links {
@@ -1135,7 +1149,8 @@ p {
 
     .nav-container .btn {
         padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
     }
 
     .logo-text {
@@ -1165,31 +1180,16 @@ p {
         font-size: 0.7rem;
     }
 
-    .hero-bg-mockup,
-    .chart-img-mockup,
-    .phone-img-mockup,
-    .ui-img-mockup {
-        width: 100%;
-        max-width: 95%;
-        height: auto;
-    }
-
     .task-card-img {
-        width: 100%;
-        max-width: 95%;
-        left: 50%;
-        transform: translateX(-50%);
+        width: 85%;
+        left: 7.5%;
         bottom: 0;
-        position: relative;
     }
 
     .success-card-img {
-        width: 100%;
-        max-width: 95%;
-        left: 50%;
-        transform: translateX(-50%);
+        width: 75%;
+        left: 12.5%;
         bottom: -30px;
-        position: relative;
     }
 }
 
