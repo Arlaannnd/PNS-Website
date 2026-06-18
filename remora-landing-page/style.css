@@ -1073,7 +1073,6 @@ p {
         margin-bottom: 2rem;
     }
 
-    /* 1. PERBAIKAN URUTAN MOCKUP: Gambar di atas */
     .arch-visual {
         order: 1;
         display: flex;
@@ -1082,12 +1081,8 @@ p {
 
     .chart-img-mockup {
         margin-left: 0;
-        width: 100%;
-        max-width: 320px;
-        height: auto;
     }
 
-    /* 1. PERBAIKAN URUTAN MOCKUP: Teks di bawah */
     .arch-text {
         order: 2;
         display: flex;
@@ -1109,11 +1104,6 @@ p {
         text-align: left;
     }
 
-    .floating-ui-container {
-        height: auto;
-        min-height: 350px;
-    }
-
     .footer-container {
         flex-direction: column;
         gap: 1.5rem;
@@ -1129,30 +1119,22 @@ p {
         font-size: 2rem;
     }
 
-    /* 2. PERBAIKAN HEADER: Lebih rapat dan kecil agar tidak memotong layar */
-    .nav-container {
-        gap: 0.5rem;
-    }
-
     .nav-links {
-        gap: 0.5rem;
+        gap: 1rem;
+        display: none;
     }
 
     .nav-links a {
-        font-size: 0.75rem;
-    }
-
-    .logo-img {
-        height: 24px;
-    }
-
-    .logo-text {
-        font-size: 1rem;
+        font-size: 0.85rem;
     }
 
     .nav-container .btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
     }
 
     .cta-card {
@@ -1178,51 +1160,20 @@ p {
         font-size: 0.7rem;
     }
 
-    .hero-bg-mockup {
-        width: 100%;
-        max-width: 350px;
-    }
-
-    .fc-top-right,
-    .fc-bottom-left {
-        transform: scale(0.85);
-    }
-
-    .fc-top-right {
-        right: 5%;
-    }
-
-    .fc-bottom-left {
-        left: 5%;
-    }
-
-    .task-card-img,
-    .success-card-img {
-        width: 100%;
-        max-width: 300px;
-        left: 50%;
-        transform: translateX(-50%);
+    .task-card-img {
+        width: 85%;
+        left: 7.5%;
         bottom: 0;
-        margin-bottom: 1rem;
-        position: relative;
     }
 
-    .footer-links {
-        flex-wrap: wrap;
-        justify-content: center;
-        text-align: center;
+    .success-card-img {
+        width: 75%;
+        left: 12.5%;
+        bottom: -30px;
     }
 }
 
-/* 3. SOLUSI LAYAR SANGAT SEMPIT */
-@media (max-width: 400px) {
-    .logo-text {
-        display: none;
-        /* Menyembunyikan teks logo untuk menghemat ruang */
-    }
-}
-
-/* Reveal Animations (Dikembalikan) */
+/* Reveal Animations */
 .reveal-up {
     opacity: 0;
     transform: translateY(30px);
