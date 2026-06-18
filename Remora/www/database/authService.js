@@ -71,11 +71,7 @@ class AuthService {
 
             if (isNativeApp) {
                 const { GoogleAuth } = window.Capacitor.Plugins;
-                GoogleAuth.initialize({
-                    clientId: '270935693328-evftqpnn7e3nmqv5v791c31ojqntalnd.apps.googleusercontent.com',
-                    scopes: ['profile', 'email'],
-                    grantOfflineAccess: true,
-                });
+                // Konfigurasi sudah ada di capacitor.config.json
                 const googleUser = await GoogleAuth.signIn();
 
                 // 2. Ambil ID Token hasil login dari HP
@@ -127,11 +123,7 @@ class AuthService {
             if (isNativeApp) {
                 const { GoogleAuth } = window.Capacitor.Plugins;
                 // Pastikan inisialisasi dipanggil sebelum memanggil signOut
-                GoogleAuth.initialize({
-                    clientId: '270935693328-evftqpnn7e3nmqv5v791c31ojqntalnd.apps.googleusercontent.com',
-                    scopes: ['profile', 'email'],
-                    grantOfflineAccess: true,
-                });
+                // Konfigurasi sudah ada di capacitor.config.json
 
                 // Perintah untuk "melupakan" akun Google yang nyangkut
                 await GoogleAuth.signOut();

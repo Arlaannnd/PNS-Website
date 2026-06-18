@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Remora-Prority Notification System</string>
+    <string name="app_name">Remora</string>
     <string name="title_activity_main">Remora-Prority Notification System</string>
     <string name="package_name">com.kelompok4.remora</string>
     <string name="custom_url_scheme">com.kelompok4.remora</string>
