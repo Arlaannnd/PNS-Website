@@ -149,12 +149,29 @@
         async function togSave(el) {
             el.classList.toggle('on');
             const isOn = el.classList.contains('on');
+            
+            // Simpan pengaturan
             if (el.id === 't-deadline') {
                 await window.authService.updateProfile({ t_deadline: isOn });
             } else if (el.id === 't-prioritas') {
                 await window.authService.updateProfile({ t_prioritas: isOn });
             } else {
                 localStorage.setItem(el.id, isOn);
+            }
+
+            // Langsung perbarui jadwal notifikasi perangkat
+            if (typeof window.scheduleDynamicNotifications === 'function') {
+                // Pastikan data kegiatan tersedia untuk dikalkulasi
+                if (!window.taskData || window.taskData.length === 0) {
+                    if (typeof window.loadTaskData === 'function') {
+                        await window.loadTaskData();
+                    }
+                }
+                
+                if (window.taskData && typeof window.kalkulasiDanUrutkan === 'function') {
+                    const dataTersortir = window.kalkulasiDanUrutkan();
+                    await window.scheduleDynamicNotifications(dataTersortir);
+                }
             }
         }
     </script>

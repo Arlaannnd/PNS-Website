@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remora - Verifikasi Email</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .view {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .view::-webkit-scrollbar {
+            display: none;
+        }
+
+        .auth-body .btn-primary {
+            border-radius: var(--radius-md);
+            padding: 16px;
+            font-size: 14px;
+        }
+
+        .otp-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 32px;
+            margin-top: 24px;
+        }
+
+        input[type="text"].otp-input {
+            width: 100%;
+            aspect-ratio: 1/1;
+            max-width: 50px;
+            height: 56px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: transparent;
+            padding: 0 !important;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(95, 138, 34, 0.2);
+        }
+
+        .security-box {
+            background-color: #F9FAFB;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .security-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #D1E7B0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .security-icon i {
+            color: var(--primary-light);
+            font-size: 18px;
+        }
+
+        .security-text h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .security-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body style="visibility: visible; opacity: 1; transition: opacity 0.3s ease; background-color: var(--primary-dark);">
+    <div class="view active" style="overflow-y: auto;">
+        <div class="auth-container" style="display: block; height: auto; min-height: 100%;">
+            <div class="auth-header">
+                <a href="lupa-password.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                <div class="logo">
+                    <div style="display:inline-block; position:relative; width:70px; height:70px;">
+                        <img src="./gambar/Group 31.png" alt="" width="70px">
+                    </div>
+                    <h1>Remora</h1>
+                    <p>Never Miss Your Task</p>
+                </div>
+            </div>
+            <div class="auth-body" style="position: relative; overflow: visible; min-height: calc(100vh - 200px);">
+                <div class="auth-form-container" style="position: relative; z-index: 2;">
+                    <h2>Verifikasi Email</h2>
+                    <p class="subtitle" style="margin-bottom: 0; line-height: 1.5;">Masukkan 6 digit kode token yang telah kami<br>kirimkan ke email Anda.</p>
+
+                    <form id="verifyEmailForm">
+                        <div class="otp-container">
+                            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                            <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-bottom: 24px;">Verifikasi</button>
+                    </form>
+
+                    <div style="text-align: center; font-size: 13px; color: var(--text-muted);">
+                        Tidak menerima kode? 
+                        <a href="#" id="resendCodeBtn" style="color: var(--primary-light); font-weight: 600;">Kirim Ulang Kode</a>
+                    </div>
+
+                    <div class="security-box">
+                        <div class="security-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="security-text">
+                            <h4>Keamanan Terjamin</h4>
+                            <p>Kode ini berlaku selama 10 menit.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./database/authService.js"></script>
+    <script>
+        const resetEmail = localStorage.getItem('resetEmail');
+        if (!resetEmail) {
+            window.location.replace('lupa-password.html');
+        }
+
+        // Script to handle OTP inputs focus behavior
+        const otpInputs = document.querySelectorAll('.otp-input');
+        
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length > 1) {
+                    e.target.value = e.target.value.slice(0, 1);
+                }
+                if (e.target.value !== '' && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+            
+            // Allow pasting full OTP
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').slice(0, 6);
+                if (/^\d+$/.test(pastedData)) {
+                    for (let i = 0; i < pastedData.length; i++) {
+                        if (otpInputs[index + i]) {
+                            otpInputs[index + i].value = pastedData[i];
+                            if (index + i < otpInputs.length - 1) {
+                                otpInputs[index + i + 1].focus();
+                            } else {
+                                otpInputs[index + i].blur();
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        // Form submission logic
+        document.getElementById('verifyEmailForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Collect OTP value
+            const otpValue = Array.from(otpInputs).map(input => input.value).join('');
+            
+            if (otpValue.length === 6) {
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.textContent;
+                btn.textContent = 'Memverifikasi...';
+                btn.disabled = true;
+
+                const { data, error } = await window.authService.verifyPasswordResetOtp(resetEmail, otpValue);
+
+                if (error) {
+                    alert('Kode token tidak valid atau kadaluarsa: ' + error);
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                } else {
+                    window.location.href = 'ganti-password.html';
+                }
+            }
+        });
+
+        // Resend logic
+        document.getElementById('resendCodeBtn').addEventListener('click', async function(e) {
+            e.preventDefault();
+            const btn = e.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Mengirim...';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.7';
+
+            const { data, error } = await window.authService.sendPasswordResetOtp(resetEmail);
+
+            if (error) {
+                alert('Gagal mengirim ulang kode: ' + error);
+            } else {
+                alert('Kode baru telah dikirim ke ' + resetEmail);
+            }
+            
+            btn.textContent = originalText;
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        });
+    </script>
+</body>
+
+</html>

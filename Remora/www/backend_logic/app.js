@@ -32,6 +32,11 @@ window.initApp = async function () {
     console.table(tabelOutput);
     let hasilStatistik = window.hitungStatistik(dataTersortir);
 
+    // Call dynamic notifications scheduling
+    if (typeof window.scheduleDynamicNotifications === 'function') {
+        window.scheduleDynamicNotifications(dataTersortir);
+    }
+
     return { dataTersortir, hasilStatistik };
 };
 
@@ -170,7 +175,7 @@ window.pauseKegiatanTimer = async function (taskId, fromNotification = false) {
         if (typeof window.checkActiveTimer === 'function') {
             window.checkActiveTimer();
         }
-        
+
         // Perbarui UI lain jika ada fungsi refresh
         if (typeof window.renderTugasUI === 'function') {
             window.renderTugasUI();
@@ -218,7 +223,7 @@ window.resumeKegiatanTimer = async function (taskId, fromNotification = false) {
         if (typeof window.checkActiveTimer === 'function') {
             window.checkActiveTimer();
         }
-        
+
         // Perbarui UI lain jika ada fungsi refresh
         if (typeof window.renderTugasUI === 'function') {
             window.renderTugasUI();
@@ -382,3 +387,87 @@ if (typeof window.Capacitor !== 'undefined') {
         }
     });
 }
+
+// Global Dynamic Notifications Scheduler
+window.scheduleDynamicNotifications = async function (dataTersortir) {
+    if (typeof window.Capacitor === 'undefined' || !window.Capacitor.Plugins.LocalNotifications) {
+        return;
+    }
+
+    try {
+        const { LocalNotifications } = window.Capacitor.Plugins;
+        await LocalNotifications.requestPermissions();
+
+        // Ambil notifikasi yang sudah terjadwal
+        const pending = await LocalNotifications.getPending();
+
+        // Batalkan notifikasi dinamis sebelumnya (ID >= 100000) untuk menghindari duplikasi
+        const notificationsToCancel = pending.notifications
+            .filter(n => parseInt(n.id) >= 100000)
+            .map(n => ({ id: n.id }));
+
+        if (notificationsToCancel.length > 0) {
+            await LocalNotifications.cancel({ notifications: notificationsToCancel });
+        }
+
+        // Ambil pengaturan notifikasi pengguna
+        const { data: profile } = await window.authService.getProfile();
+        const allowDeadline = profile && profile.t_deadline !== undefined ? profile.t_deadline : true;
+        const allowPrioritas = profile && profile.t_prioritas !== undefined ? profile.t_prioritas : true;
+        const tWeeklyStr = localStorage.getItem('t-weekly');
+        const allowWeekly = tWeeklyStr === 'true'; // Default sesuai UI adalah off
+
+        const newNotifications = [];
+
+        // Hanya tugas yang belum selesai
+        const activeTasks = dataTersortir.filter(k => k.status !== "Selesai");
+
+        activeTasks.forEach(task => {
+            // Gunakan ID unik berdasarkan ID tugas, atau random jika tidak valid
+            const taskIdInt = parseInt(task.id) || Math.floor(Math.random() * 90000) + 10000;
+
+            // Kondisi 1: Deadline < 3 hari
+            if (allowDeadline && task.tenggatAngka !== undefined && task.tenggatAngka >= 0 && task.tenggatAngka <= 3) {
+                newNotifications.push({
+                    title: "Peringatan Deadline Dekat!",
+                    body: `Kegiatan "${task.nama}" memiliki tenggat waktu ${task.tenggatAngka} hari lagi. Segera kerjakan!`,
+                    id: taskIdInt + 100000,
+                    // Menjadwalkan notifikasi muncul jam 08:00 pagi setiap hari sampai tugas diselesaikan/berubah
+                    schedule: { on: { hour: 8, minute: 0 } },
+                    extra: { taskId: task.id }
+                });
+            }
+
+            // Kondisi 2: Prioritas Sangat Tinggi atau Terlewat
+            if (allowPrioritas && (task.labelPrioritas === "Sangat Tinggi" || task.labelPrioritas === "TERLEWAT")) {
+                newNotifications.push({
+                    title: "Prioritas Sangat Tinggi/Terlewat!",
+                    body: `Jangan lupa kerjakan: ${task.nama}`,
+                    id: taskIdInt + 200000,
+                    schedule: { every: 'day' }, // Muncul tiap hari pada jam saat dijadwalkan
+                    extra: { taskId: task.id }
+                });
+            }
+        });
+
+        // Kondisi 3: Ringkasan Mingguan (Setiap hari Sabtu jam 18:00)
+        if (allowWeekly) {
+            newNotifications.push({
+                title: "Ringkasan Mingguan Tersedia",
+                body: "Cek produktivitas dan progres kamu minggu ini di halaman Analistik!",
+                id: 999999,
+                // 7 = Sabtu pada Capacitor v4+
+                schedule: { on: { weekday: 7, hour: 18, minute: 0 } }
+            });
+        }
+
+        // Jadwalkan semua notifikasi baru
+        if (newNotifications.length > 0) {
+            await LocalNotifications.schedule({ notifications: newNotifications });
+            console.log(`Berhasil menjadwalkan ${newNotifications.length} notifikasi dinamis.`);
+        }
+
+    } catch (err) {
+        console.error("Gagal menjadwalkan notifikasi dinamis:", err);
+    }
+};

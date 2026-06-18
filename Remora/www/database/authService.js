@@ -215,6 +215,42 @@ class AuthService {
             return { data: null, error: error.message };
         }
     }
+
+    async sendPasswordResetOtp(email) {
+        try {
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Error saat sendPasswordResetOtp:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
+
+    async verifyPasswordResetOtp(email, token) {
+        try {
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient.auth.verifyOtp({ email, token, type: 'recovery' });
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Error saat verifyPasswordResetOtp:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
+
+    async updateUserPassword(newPassword) {
+        try {
+            const supabaseClient = await this.getSupabase();
+            const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Error saat updateUserPassword:', error.message);
+            return { data: null, error: error.message };
+        }
+    }
 }
 
 window.authService = new AuthService();
@@ -293,7 +329,7 @@ window.showCustomModal = function (options) {
 // Global Auth Guard
 (async function() {
     const path = window.location.pathname;
-    const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('register.html') || path.endsWith('/') || path.includes('lupa-password');
+    const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('register.html') || path.endsWith('/') || path.includes('lupa-password') || path.includes('verifikasi-email');
     
     try {
         const { session } = await window.authService.getSession();

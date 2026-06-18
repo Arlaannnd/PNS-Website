@@ -46,6 +46,7 @@
     <div class="view active" style="overflow-y: auto;">
         <div class="auth-container" style="display: block; height: auto; min-height: 100%;">
             <div class="auth-header">
+                <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
                 <div class="logo">
                     <div style="display:inline-block; position:relative; width:70px; height:70px;">
                         <img src="./gambar/Group 31.png" alt="" width="70px">
@@ -69,11 +70,14 @@
                             <label>Password</label>
                             <div class="input-with-icon">
                                 <input type="password" id="loginPassword" placeholder="Masukkan password" required>
-                                <i class="fa-solid fa-eye show-pwd" style="cursor:pointer; pointer-events:auto; z-index:10;" onclick="togglePwd(this)"></i>
+                                <i class="fa-solid fa-eye show-pwd"
+                                    style="cursor:pointer; pointer-events:auto; z-index:10;"
+                                    onclick="togglePwd(this)"></i>
                             </div>
                         </div>
                         <div style="text-align:right; margin-bottom:24px;">
-                            <a href="#" style="font-size:12px; color:var(--primary-light); font-weight: 600;">Lupa
+                            <a href="lupa-password.html"
+                                style="font-size:12px; color:var(--primary-light); font-weight: 600;">Lupa
                                 password?</a>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block"
@@ -109,23 +113,24 @@
     </div>
     <script src="./database/authService.js"></script>
     <script>
-        document.getElementById('google-login-btn').addEventListener('click', async (e) => {e.preventDefault();
-        const btn = e.currentTarget;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Memproses...';
-        btn.disabled = true;
+        document.getElementById('google-login-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
 
-        const { data, error } = await window.authService.signInWithGoogle();
+            const { data, error } = await window.authService.signInWithGoogle();
 
-        if (error) {
-            alert("Gagal Login dengan Google: " + error);
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        } else {
-            // 2. JIKA SUKSES: Pindahkan halaman ke dashboard secara instant
-            window.location.href = 'dashboard.html';
-        }
-    });
+            if (error) {
+                alert("Gagal Login dengan Google: " + error);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } else {
+                // 2. JIKA SUKSES: Pindahkan halaman ke dashboard secara instant
+                window.location.href = 'dashboard.html';
+            }
+        });
     </script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
