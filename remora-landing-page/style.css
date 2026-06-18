@@ -1079,8 +1079,12 @@ p {
         justify-content: center;
     }
 
+    /* FIX SECTION 2: Mencegah gambar chart menembus batas */
     .chart-img-mockup {
         margin-left: 0;
+        width: 100%;
+        max-width: 320px;
+        height: auto;
     }
 
     .arch-text {
@@ -1102,6 +1106,12 @@ p {
 
     .feature-item {
         text-align: left;
+    }
+
+    /* FIX SECTION 3: Membuat container UI mengikuti tinggi konten */
+    .floating-ui-container {
+        height: auto;
+        min-height: 350px;
     }
 
     .footer-container {
@@ -1159,41 +1169,45 @@ p {
         font-size: 0.7rem;
     }
 
-    .task-card-img {
-        width: 85%;
-        left: 7.5%;
-        bottom: 0;
+    /* FIX HERO: Ukuran mockup hero untuk mobile disesuaikan */
+    .hero-bg-mockup {
+        width: 100%;
+        max-width: 350px;
     }
 
+    /* FIX HERO: Scaling floating card dan adjust posisi */
+    .fc-top-right,
+    .fc-bottom-left {
+        transform: scale(0.85);
+    }
+
+    .fc-top-right {
+        right: 5%;
+        /* Menjaga di area aman */
+    }
+
+    .fc-bottom-left {
+        left: 5%;
+        /* Menjaga di area aman */
+    }
+
+    /* FIX SECTION 3: Gambar card dibuat ke tengah dan dibatasi lebarnya */
+    .task-card-img,
     .success-card-img {
-        width: 75%;
-        left: 12.5%;
-        bottom: -30px;
+        width: 100%;
+        max-width: 300px;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0;
+        margin-bottom: 1rem;
+        position: relative;
+        /* Pastikan property ini ada jika sebelumnya tidak relative */
     }
-}
 
-/* Reveal Animations */
-.reveal-up {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease;
-}
-
-.reveal-left {
-    opacity: 0;
-    transform: translateX(-30px);
-    transition: all 0.8s ease;
-}
-
-.reveal-right {
-    opacity: 0;
-    transform: translateX(30px);
-    transition: all 0.8s ease;
-}
-
-.reveal-up.active,
-.reveal-left.active,
-.reveal-right.active {
-    opacity: 1;
-    transform: translate(0);
+    /* FIX FOOTER: Wrap link agar bisa pindah baris jika tidak muat */
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+    }
 }
