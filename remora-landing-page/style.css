@@ -1073,13 +1073,13 @@ p {
         margin-bottom: 2rem;
     }
 
+    /* 1. PERBAIKAN URUTAN MOCKUP: Gambar di atas */
     .arch-visual {
-        order: 2;
+        order: 1;
         display: flex;
         justify-content: center;
     }
 
-    /* FIX SECTION 2: Mencegah gambar chart menembus batas */
     .chart-img-mockup {
         margin-left: 0;
         width: 100%;
@@ -1087,8 +1087,9 @@ p {
         height: auto;
     }
 
+    /* 1. PERBAIKAN URUTAN MOCKUP: Teks di bawah */
     .arch-text {
-        order: 1;
+        order: 2;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1108,7 +1109,6 @@ p {
         text-align: left;
     }
 
-    /* FIX SECTION 3: Membuat container UI mengikuti tinggi konten */
     .floating-ui-container {
         height: auto;
         min-height: 350px;
@@ -1129,21 +1129,30 @@ p {
         font-size: 2rem;
     }
 
+    /* 2. PERBAIKAN HEADER: Lebih rapat dan kecil agar tidak memotong layar */
+    .nav-container {
+        gap: 0.5rem;
+    }
+
     .nav-links {
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .nav-links a {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
     }
 
-    .nav-container .btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+    .logo-img {
+        height: 24px;
     }
 
     .logo-text {
-        font-size: 1.1rem;
+        font-size: 1rem;
+    }
+
+    .nav-container .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
     }
 
     .cta-card {
@@ -1169,13 +1178,11 @@ p {
         font-size: 0.7rem;
     }
 
-    /* FIX HERO: Ukuran mockup hero untuk mobile disesuaikan */
     .hero-bg-mockup {
         width: 100%;
         max-width: 350px;
     }
 
-    /* FIX HERO: Scaling floating card dan adjust posisi */
     .fc-top-right,
     .fc-bottom-left {
         transform: scale(0.85);
@@ -1183,15 +1190,12 @@ p {
 
     .fc-top-right {
         right: 5%;
-        /* Menjaga di area aman */
     }
 
     .fc-bottom-left {
         left: 5%;
-        /* Menjaga di area aman */
     }
 
-    /* FIX SECTION 3: Gambar card dibuat ke tengah dan dibatasi lebarnya */
     .task-card-img,
     .success-card-img {
         width: 100%;
@@ -1201,13 +1205,45 @@ p {
         bottom: 0;
         margin-bottom: 1rem;
         position: relative;
-        /* Pastikan property ini ada jika sebelumnya tidak relative */
     }
 
-    /* FIX FOOTER: Wrap link agar bisa pindah baris jika tidak muat */
     .footer-links {
         flex-wrap: wrap;
         justify-content: center;
         text-align: center;
     }
+}
+
+/* 3. SOLUSI LAYAR SANGAT SEMPIT */
+@media (max-width: 400px) {
+    .logo-text {
+        display: none;
+        /* Menyembunyikan teks logo untuk menghemat ruang */
+    }
+}
+
+/* Reveal Animations (Dikembalikan) */
+.reveal-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.8s ease;
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.8s ease;
+}
+
+.reveal-up.active,
+.reveal-left.active,
+.reveal-right.active {
+    opacity: 1;
+    transform: translate(0);
 }
