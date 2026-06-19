@@ -1180,7 +1180,9 @@ p {
         text-align: left;
     }
 
-    .floating-card {}
+    .floating-card {
+        padding: 1rem 1rem 1rem 1rem;
+    }
 
     .fc-icon {
         width: 32px;
@@ -1207,7 +1209,7 @@ p {
 
     .floating-card {
         width: 100%;
-        max-width: 45%;
+        max-width: 50%;
         height: auto;
     }
 
