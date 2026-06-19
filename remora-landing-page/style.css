@@ -1180,9 +1180,7 @@ p {
         text-align: left;
     }
 
-    .floating-card {
-        padding: 0.75rem 1rem;
-    }
+    .floating-card {}
 
     .fc-icon {
         width: 32px;
@@ -1211,6 +1209,14 @@ p {
         width: 100%;
         max-width: 45%;
         height: auto;
+    }
+
+    .fc-bottom-left {
+        left: 10px;
+    }
+
+    .fc-top-right {
+        right: 10px;
     }
 
     .task-card-img,
