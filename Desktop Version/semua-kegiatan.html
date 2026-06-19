@@ -434,16 +434,16 @@
                         const borderBottom = index < tasks.length - 1 ? 'border-bottom: 1px solid var(--border-color);' : '';
 
                         groupHtml += `
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; ${borderBottom} opacity: ${isSelesai ? '0.7' : '1'};">
-                            <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; ${borderBottom}">
+                            <div style="flex: 1; opacity: ${isSelesai ? '0.6' : '1'};">
                                 <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px; ${isSelesai ? 'text-decoration: line-through;' : ''}">${task.nama}</div>
                                 <div style="display: inline-block; background: #F3F4F6; color: #4B5563; font-size: 10px; padding: 2px 6px; border-radius: 4px;">${task.kategori}</div>
                             </div>
-                            <div style="flex: 1; text-align: center; color: var(--text-muted); font-size: 12px;">
+                            <div style="flex: 1; text-align: center; color: var(--text-muted); font-size: 12px; opacity: ${isSelesai ? '0.6' : '1'};">
                                 12:00 PM
                             </div>
                             <div style="flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 16px;">
-                                <span class="task-badge ${badgeClass}" style="margin:0">${task.labelPrioritas}</span>
+                                <span class="task-badge ${badgeClass}" style="margin:0; opacity: ${isSelesai ? '0.6' : '1'};">${task.labelPrioritas}</span>
                                 <div class="kebab-menu">
                                     <button class="kebab-btn" style="border: none; background: transparent; width: 24px; height: 24px;" onclick="window.toggleKebab(event, ${task.id})">
                                         <i class="fa-solid fa-ellipsis-vertical" style="font-size: 16px;"></i>
